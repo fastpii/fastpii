@@ -1,11 +1,11 @@
 from typing import Any
 
-from cpg import PrivacyGateway
+from fastpii import PrivacyGuard
 
 
 class MCPServer:
     def __init__(self, regions: list[str] | None = None):
-        self.gateway = PrivacyGateway(regions=regions or ["cz"])
+        self.gateway = PrivacyGuard(regions=regions or ["cz"])
 
     def list_tools(self) -> list[dict[str, Any]]:
         return [

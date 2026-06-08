@@ -1,5 +1,5 @@
-from cpg.models import Finding
-from cpg.detectors.cz.rodne_cislo import RodneCisloDetector
+from fastpii.models import Finding
+from fastpii.detectors.cz.rodne_cislo import RodneCisloDetector
 
 
 class TestRodneCisloDetector:

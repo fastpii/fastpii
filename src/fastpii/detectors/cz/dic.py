@@ -1,8 +1,8 @@
 import re
 from typing import Any
 
-from cpg.detectors.base import Detector
-from cpg.models import Finding
+from fastpii.detectors.base import Detector
+from fastpii.models import Finding
 
 
 class DICDetector(Detector):
@@ -51,11 +51,11 @@ class DICDetector(Detector):
         return False
 
     def _validate_ico_format(self, value: str) -> bool:
-        from cpg.validators.ico_validator import validate_ico
+        from fastpii.validators.ico_validator import validate_ico
         return validate_ico(value)
 
     def _validate_birth_number_format(self, value: str) -> bool:
-        from cpg.validators.birth_number import validate_birth_number
+        from fastpii.validators.birth_number import validate_birth_number
         result = validate_birth_number(value)
         return result.get("valid", False)
 

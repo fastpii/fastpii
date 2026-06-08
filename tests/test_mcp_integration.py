@@ -1,6 +1,6 @@
 import pytest
 
-from cpg.integrations.mcp import MCPServer
+from fastpii.integrations.mcp import MCPServer
 
 
 class TestMCPIntegration:

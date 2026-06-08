@@ -1,8 +1,8 @@
 [project]
-name = "cpg"
+name = "fastpii"
 version = "0.1.0"
-description = "Privacy Gateway SDK for Czech and Central European PII detection"
-authors = [{name = "Privacy Gateway Team", email = "support@privacygateway.io"}]
+description = "Fast PII detection for Czech and Central European identifiers"
+authors = [{name = "Privacy Gateway Team", email = "support@fastpii.io"}]
 license = {text = "Apache-2.0"}
 requires-python = ">=3.10"
 keywords = ["privacy", "gdpr", "czech", "pii", "compliance", "detection"]
@@ -21,7 +21,7 @@ classifiers = [
 dependencies = []
 
 [project.scripts]
-cpg = "cpg.cli:main"
+fastpii = "fastpii.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -32,10 +32,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/privacy-gateway/cpg"
-Documentation = "https://privacy-gateway.github.io/cpg"
-Source = "https://github.com/privacy-gateway/cpg"
-Changelog = "https://github.com/privacy-gateway/cpg/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/fastpii/fastpii"
+Documentation = "https://fastpii.com"
+Source = "https://github.com/fastpii/fastpii"
+Changelog = "https://github.com/fastpii/fastpii/blob/main/CHANGELOG.md"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]

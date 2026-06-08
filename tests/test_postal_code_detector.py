@@ -1,7 +1,7 @@
 import pytest
 
-from cpg.models import Finding
-from cpg.detectors.cz.postal_code import PostalCodeDetector
+from fastpii.models import Finding
+from fastpii.detectors.cz.postal_code import PostalCodeDetector
 
 
 class TestPostalCodeDetector:

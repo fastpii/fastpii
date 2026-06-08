@@ -1,6 +1,6 @@
 import pytest
 
-from cpg.integrations.langchain import PIIAnonymizer, PIIPreprocessor
+from fastpii.integrations.langchain import PIIAnonymizer, PIIPreprocessor
 
 
 class TestLangChainIntegration:

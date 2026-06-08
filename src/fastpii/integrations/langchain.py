@@ -1,11 +1,11 @@
 from typing import Any
 
-from cpg import PrivacyGateway
+from fastpii import PrivacyGuard
 
 
 class PIIAnonymizer:
     def __init__(self, regions: list[str] | None = None):
-        self.gateway = PrivacyGateway(regions=regions or ["cz"])
+        self.gateway = PrivacyGuard(regions=regions or ["cz"])
 
     def anonymize(self, text: str, replacement: str = "[REDACTED]") -> str:
         result = self.gateway.detect(text)
@@ -25,7 +25,7 @@ class PIIAnonymizer:
 
 class PIIPreprocessor:
     def __init__(self, regions: list[str] | None = None):
-        self.gateway = PrivacyGateway(regions=regions or ["cz"])
+        self.gateway = PrivacyGuard(regions=regions or ["cz"])
 
     def preprocess(self, text: str, action: str = "redact") -> str:
         if action not in ["redact", "mask", "remove"]:

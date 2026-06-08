@@ -1,6 +1,6 @@
 import pytest
 
-from cpg import PrivacyGateway
+from fastpii import PrivacyGateway
 
 
 class TestCzechDetectorEdgeCases:

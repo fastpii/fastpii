@@ -1,7 +1,7 @@
 import pytest
 
-from cpg.models import Finding
-from cpg.detectors.cz.phone import PhoneNumberDetector
+from fastpii.models import Finding
+from fastpii.detectors.cz.phone import PhoneNumberDetector
 
 
 class TestPhoneNumberDetector:

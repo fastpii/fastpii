@@ -1,6 +1,6 @@
 import pytest
 
-from cpg import PrivacyGateway, Finding
+from fastpii import PrivacyGateway, Finding
 
 
 class TestPrivacyGateway:
@@ -72,7 +72,7 @@ class TestPrivacyGateway:
         assert result.is_valid is True
 
     def test_register_custom_detector(self):
-        from cpg.detectors.base import Detector
+        from fastpii.detectors.base import Detector
 
         class CustomDetector(Detector):
             def __init__(self):

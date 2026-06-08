@@ -1,12 +1,12 @@
 from time import perf_counter
 from typing import Any
 
-from cpg.detectors.base import Detector
-from cpg.detectors.registry import DetectorRegistry
-from cpg.models import Finding, DetectionResult, ValidationResult
+from fastpii.detectors.base import Detector
+from fastpii.detectors.registry import DetectorRegistry
+from fastpii.models import Finding, DetectionResult, ValidationResult
 
 
-class PrivacyGateway:
+class PrivacyGuard:
     def __init__(self, regions: list[str] | None = None) -> None:
         self.registry = DetectorRegistry()
         self._regions = regions or []
@@ -14,12 +14,12 @@ class PrivacyGateway:
 
     def _register_default_detectors(self) -> None:
         if "cz" in self._regions or not self._regions:
-            from cpg.detectors.cz.rodne_cislo import RodneCisloDetector
-            from cpg.detectors.cz.ico import ICODetector
-            from cpg.detectors.cz.dic import DICDetector
-            from cpg.detectors.cz.bank_account import BankAccountDetector
-            from cpg.detectors.cz.postal_code import PostalCodeDetector
-            from cpg.detectors.cz.phone import PhoneNumberDetector
+            from fastpii.detectors.cz.rodne_cislo import RodneCisloDetector
+            from fastpii.detectors.cz.ico import ICODetector
+            from fastpii.detectors.cz.dic import DICDetector
+            from fastpii.detectors.cz.bank_account import BankAccountDetector
+            from fastpii.detectors.cz.postal_code import PostalCodeDetector
+            from fastpii.detectors.cz.phone import PhoneNumberDetector
 
             self.registry.register(RodneCisloDetector())
             self.registry.register(ICODetector())

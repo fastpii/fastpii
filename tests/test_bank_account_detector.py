@@ -1,5 +1,5 @@
-from cpg.models import Finding
-from cpg.detectors.cz.bank_account import BankAccountDetector
+from fastpii.models import Finding
+from fastpii.detectors.cz.bank_account import BankAccountDetector
 
 
 class TestBankAccountDetector:

@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from cpg.integrations.fastapi import create_app
+from fastpii.integrations.fastapi import create_app
 
 
 @pytest.fixture

@@ -1,6 +1,6 @@
 from typing import Iterator
 
-from cpg.detectors.base import Detector
+from fastpii.detectors.base import Detector
 
 
 class DetectorRegistry:

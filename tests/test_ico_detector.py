@@ -1,5 +1,5 @@
-from cpg.models import Finding
-from cpg.detectors.cz.ico import ICODetector
+from fastpii.models import Finding
+from fastpii.detectors.cz.ico import ICODetector
 
 
 class TestICODetector:

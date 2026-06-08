@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 
-from cpg import PrivacyGateway
+from fastpii import PrivacyGuard
 
 
 class DetectRequest(BaseModel):
@@ -56,8 +56,8 @@ def create_app() -> FastAPI:
 
     @app.post("/detect", response_model=DetectionResponse)
     async def detect_pii(request: DetectRequest):
-        gateway = PrivacyGateway(regions=request.regions)
-        result = gateway.detect(request.text, detector_names=request.detector_names)
+        guard = PrivacyGuard(regions=request.regions)
+        result = guard.detect(request.text, detector_names=request.detector_names)
         
         return DetectionResponse(
             text=result.text,
@@ -79,10 +79,10 @@ def create_app() -> FastAPI:
 
     @app.post("/validate", response_model=ValidationResponse)
     async def validate_identifier(request: ValidateRequest):
-        gateway = PrivacyGateway(regions=request.regions)
+        guard = PrivacyGuard(regions=request.regions)
         
         try:
-            result = gateway.validate(request.value, detector_name=request.detector_name)
+            result = guard.validate(request.value, detector_name=request.detector_name)
         except KeyError:
             raise HTTPException(status_code=404, detail=f"Detector '{request.detector_name}' not found")
         
@@ -95,8 +95,8 @@ def create_app() -> FastAPI:
 
     @app.get("/detectors", response_model=list[DetectorInfo])
     async def list_detectors(regions: list[str] = ["cz"]):
-        gateway = PrivacyGateway(regions=regions)
-        detectors = gateway.list_detectors()
+        guard = PrivacyGuard(regions=regions)
+        detectors = guard.list_detectors()
         
         return [
             DetectorInfo(

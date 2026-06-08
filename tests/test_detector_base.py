@@ -1,7 +1,7 @@
 import pytest
 
-from cpg.detectors.base import Detector
-from cpg.models import Finding
+from fastpii.detectors.base import Detector
+from fastpii.models import Finding
 
 
 class MockDetector(Detector):
@@ -53,14 +53,14 @@ class TestDetectorBase:
 
 class TestDetectorRegistry:
     def test_registry_creation(self):
-        from cpg.detectors.registry import DetectorRegistry
+        from fastpii.detectors.registry import DetectorRegistry
 
         registry = DetectorRegistry()
 
         assert registry.count() == 0
 
     def test_registry_register_detector(self):
-        from cpg.detectors.registry import DetectorRegistry
+        from fastpii.detectors.registry import DetectorRegistry
 
         registry = DetectorRegistry()
         detector = MockDetector()
@@ -71,7 +71,7 @@ class TestDetectorRegistry:
         assert registry.get("mock") == detector
 
     def test_registry_get_detector(self):
-        from cpg.detectors.registry import DetectorRegistry
+        from fastpii.detectors.registry import DetectorRegistry
 
         registry = DetectorRegistry()
         detector = MockDetector()
@@ -82,7 +82,7 @@ class TestDetectorRegistry:
         assert retrieved == detector
 
     def test_registry_list_detectors(self):
-        from cpg.detectors.registry import DetectorRegistry
+        from fastpii.detectors.registry import DetectorRegistry
 
         registry = DetectorRegistry()
         detector = MockDetector()
@@ -94,7 +94,7 @@ class TestDetectorRegistry:
         assert detectors[0] == detector
 
     def test_registry_get_nonexistent_detector(self):
-        from cpg.detectors.registry import DetectorRegistry
+        from fastpii.detectors.registry import DetectorRegistry
 
         registry = DetectorRegistry()
 
@@ -102,7 +102,7 @@ class TestDetectorRegistry:
             registry.get("nonexistent")
 
     def test_registry_iter_enabled(self):
-        from cpg.detectors.registry import DetectorRegistry
+        from fastpii.detectors.registry import DetectorRegistry
 
         registry = DetectorRegistry()
         detector = MockDetector()

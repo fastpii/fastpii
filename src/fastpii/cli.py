@@ -4,26 +4,26 @@ import json
 import sys
 from pathlib import Path
 
-from cpg import PrivacyGateway, DetectionResult, ValidationResult
+from fastpii import PrivacyGuard, DetectionResult, ValidationResult
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Privacy Gateway - Czech PII Detection and Validation CLI",
+        description="FastPII - Fast PII Detection and Validation CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   # Detect PII in text
-  cpg detect "Jan Novák, RČ: 8001011234"
+  fastpii detect "Jan Novák, RČ: 8001011234"
   
   # Detect PII from file
-  cpg detect --file document.txt
+  fastpii detect --file document.txt
   
   # Validate specific identifier
-  cpg validate 8001011234 --detector rodne_cislo
+  fastpii validate 8001011234 --detector rodne_cislo
   
   # List available detectors
-  cpg list-detectors
+  fastpii list-detectors
         """
     )
     
@@ -76,7 +76,7 @@ def handle_detect(args):
         print("Error: Either text or --file must be provided", file=sys.stderr)
         sys.exit(1)
 
-    gateway = PrivacyGateway(regions=args.regions)
+    gateway = PrivacyGuard(regions=args.regions)
     result = gateway.detect(text)
 
     if args.format == "json":
@@ -92,7 +92,7 @@ def handle_detect(args):
 
 
 def handle_validate(args):
-    gateway = PrivacyGateway(regions=args.regions)
+    gateway = PrivacyGuard(regions=args.regions)
     
     try:
         result = gateway.validate(args.value, detector_name=args.detector)
@@ -110,7 +110,7 @@ def handle_validate(args):
 
 
 def handle_list_detectors(args):
-    gateway = PrivacyGateway(regions=args.regions)
+    gateway = PrivacyGuard(regions=args.regions)
     detectors = gateway.list_detectors()
 
     if args.format == "json":

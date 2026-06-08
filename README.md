@@ -1,16 +1,19 @@
-# Privacy Gateway SDK
+# FastPII
 
-**Multi-language PII detection platform with region-specific precision**
+**Fast PII detection for Czech and Central European identifiers**
 
-Privacy Gateway is a production-grade Personally Identifiable Information (PII) detection SDK that combines general-purpose AI privacy protection with deep, region-specific validation capabilities. Starting with Czech identifiers as our foundation, Privacy Gateway delivers enterprise-grade accuracy where existing solutions fail.
+FastPII is a production-grade PII (Personally Identifiable Information) detection SDK that combines general-purpose AI privacy protection with deep, region-specific validation capabilities. Starting with Czech identifiers as our foundation, FastPII delivers enterprise-grade accuracy where existing solutions fail.
 
 ## Status
 
-**Sprint 1 Complete** - Core SDK + Czech Detectors
+**Sprint 3 Complete** - Core SDK + Czech Detectors + Integration Tests
 
 - ✅ Rodné číslo (Czech birth number) with checksum validation
 - ✅ IČO (Czech company ID) with checksum validation  
 - ✅ DIČ (Czech VAT number) with multi-format support
+- ✅ Bank Account with MOD11 checksum
+- ✅ Postal Code (PSČ) with region mapping
+- ✅ Phone Number with operator detection
 - ✅ Framework-independent core SDK
 - ✅ Simple detector registry (no over-engineering)
 - ✅ Sync-first design
@@ -19,7 +22,7 @@ Privacy Gateway is a production-grade Personally Identifiable Information (PII) 
 ## Installation
 
 ```bash
-pip install cpg
+pip install fastpii
 ```
 
 ## Quick Start
@@ -27,9 +30,41 @@ pip install cpg
 ### Detection
 
 ```python
-from cpg import PrivacyGateway
+from fastpii import PrivacyGuard
 
-gateway = PrivacyGateway(regions=["cz"])
+guard = PrivacyGuard(regions=["cz"])
+
+text = "Jan Novák, RČ: 8001011234, IČO: 25596641"
+result = guard.detect(text)
+
+for finding in result.findings:
+    print(f"{finding.type}: {finding.value}")
+    if finding.metadata:
+        print(f"  Birth date: {finding.metadata.get('birth_date')}")
+        print(f"  Gender: {finding.metadata.get('gender')}")
+```
+
+### Validation
+
+```python
+from fastpii import PrivacyGuard
+
+guard = PrivacyGuard(regions=["cz"])
+
+result = guard.validate("8001011234", detector_name="rodne_cislo")
+
+print(f"Valid: {result.is_valid}")
+print(f"Birth date: {result.metadata.get('birth_date')}")
+```
+
+## Quick Start
+
+### Detection
+
+```python
+from fastpii import PrivacyGuard
+
+gateway = PrivacyGuard(regions=["cz"])
 
 text = "Jan Novák, RČ: 8001011234, IČO: 25596641"
 result = gateway.detect(text)
@@ -44,7 +79,7 @@ for finding in result.findings:
 ### Validation
 
 ```python
-gateway = PrivacyGateway(regions=["cz"])
+gateway = PrivacyGuard(regions=["cz"])
 
 result = gateway.validate("8001011234", detector_name="rodne_cislo")
 
@@ -62,7 +97,7 @@ Core SDK (framework-independent)
 ├── Detection Engine
 │   ├── Detector Base Class (ABC)
 │   ├── Detector Registry (simple dict)
-│   └── PrivacyGateway Facade
+│   └── PrivacyGuard Facade
 │
 └── Regional Detectors
     ├── cz/
@@ -100,7 +135,7 @@ Core SDK (framework-independent)
 ### GDPR Article 9 Compliance
 
 ```python
-gateway = PrivacyGateway(regions=["cz"])
+gateway = PrivacyGuard(regions=["cz"])
 result = gateway.detect("RČ: 8001011234")
 
 for finding in result.findings:
@@ -111,7 +146,7 @@ for finding in result.findings:
 ### Bank Account Detection
 
 ```python
-gateway = PrivacyGateway(regions=["cz"])
+gateway = PrivacyGuard(regions=["cz"])
 result = gateway.detect("Bank account: 19-2000145399/0800")
 
 for finding in result.findings:
@@ -122,7 +157,7 @@ for finding in result.findings:
 ### Postal Code & Phone Detection
 
 ```python
-gateway = PrivacyGateway(regions=["cz"])
+gateway = PrivacyGuard(regions=["cz"])
 result = gateway.detect("Contact: 777 123 456, PSČ: 110 00")
 
 for finding in result.findings:
@@ -163,7 +198,7 @@ if result.is_valid:
 
 ```python
 from fastapi import FastAPI
-from cpg.integrations.fastapi import create_app
+from fastpii.integrations.fastapi import create_app
 
 app = create_app()
 
@@ -173,13 +208,13 @@ app = create_app()
 # GET /detectors - List available detectors
 # GET /health - Health check
 
-# Run: uvicorn cpg.integrations.fastapi:app --reload
+# Run: uvicorn fastpii.integrations.fastapi:app --reload
 ```
 
 ### LangChain
 
 ```python
-from cpg.integrations.langchain import PIIPreprocessor, PIIAnonymizer
+from fastpii.integrations.langchain import PIIPreprocessor, PIIAnonymizer
 
 # Anonymize PII before sending to LLM
 anonymizer = PIIAnonymizer(regions=["cz"])
@@ -199,7 +234,7 @@ result = chain.invoke("Your text with PII here")
 ### MCP Server
 
 ```python
-from cpg.integrations.mcp import MCPServer
+from fastpii.integrations.mcp import MCPServer
 
 mcp_server = MCPServer(regions=["cz"])
 
@@ -218,23 +253,23 @@ result = mcp_server.call_tool("detect_pii", {
 
 ```bash
 # Detect PII in text
-cpg detect "Jan Novák, RČ: 8001011234"
+fastpii detect "Jan Novák, RČ: 8001011234"
 
 # Detect PII from file
-cpg detect --file document.txt --format json --output results.json
+fastpii detect --file document.txt --format json --output results.json
 
 # Validate specific identifier
-cpg validate 8001011234 --detector rodne_cislo
+fastpii validate 8001011234 --detector rodne_cislo
 
 # List available detectors
-cpg list-detectors
+fastpii list-detectors
 ```
 
 ## Development
 
 ```bash
-git clone https://github.com/privacy-gateway/cpg.git
-cd cpg
+git clone https://github.com/privacy-gateway/fastpii.git
+cd fastpii
 pip install -e .[dev]
 
 pytest tests/
@@ -245,11 +280,11 @@ mypy src/
 ## Project Structure
 
 ```
-cpg/
-├── src/cpg/
+fastpii/
+├── src/fastpii/
 │   ├── __init__.py          # Public API
 │   ├── models.py             # Finding, DetectionResult, ValidationResult
-│   ├── gateway.py            # PrivacyGateway facade
+│   ├── gateway.py            # PrivacyGuard facade
 │   ├── detectors/
 │   │   ├── base.py           # Abstract Detector class
 │   │   ├── registry.py       # Simple detector registry

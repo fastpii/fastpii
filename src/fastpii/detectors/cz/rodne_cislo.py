@@ -2,8 +2,8 @@ import re
 from datetime import datetime
 from typing import Any
 
-from cpg.detectors.base import Detector
-from cpg.models import Finding
+from fastpii.detectors.base import Detector
+from fastpii.models import Finding
 
 
 class RodneCisloDetector(Detector):

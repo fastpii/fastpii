@@ -1,8 +1,8 @@
 import re
 from typing import Any
 
-from cpg.detectors.base import Detector
-from cpg.models import Finding
+from fastpii.detectors.base import Detector
+from fastpii.models import Finding
 
 
 class BankAccountDetector(Detector):
@@ -40,13 +40,13 @@ class BankAccountDetector(Detector):
         return findings
 
     def validate(self, value: str) -> bool:
-        from cpg.validators.bank_account import validate_bank_account
+        from fastpii.validators.bank_account import validate_bank_account
         
         is_valid, error = validate_bank_account(value)
         return is_valid
 
     def _extract_metadata(self, account: str, bank_code: str) -> dict[str, Any]:
-        from cpg.validators.bank_account import parse_bank_account
+        from fastpii.validators.bank_account import parse_bank_account
         
         metadata: dict[str, Any] = {
             "bank_code": bank_code

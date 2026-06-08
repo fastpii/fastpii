@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 import pytest
 
-from cpg.models import Finding, DetectionResult, ValidationResult
+from fastpii.models import Finding, DetectionResult, ValidationResult
 
 
 class TestFinding:
