@@ -3,21 +3,28 @@ from typing import Any
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
+from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class DICDetector(Detector):
-    def __init__(self) -> None:
+    def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="dic",
             region="cz",
             description="Czech VAT number (DIČ) detector"
         )
+        # Use shared registry if none provided (singleton pattern)
+        self.registry = registry or get_shared_registry()
 
     def detect(self, text: str) -> list[Finding]:
-        pattern = r'\bCZ(\d{8,10})\b'
+        patterns = self.registry.get_patterns("dic", "cz")
+        if not patterns:
+            return []
+        
+        pattern_def = patterns[0]  # Use the standard pattern
         findings: list[Finding] = []
 
-        for match in re.finditer(pattern, text):
+        for match in pattern_def.compiled.finditer(text):
             value = match.group(1)
             
             is_valid = self.validate(value)
@@ -30,7 +37,7 @@ class DICDetector(Detector):
                     value=f"CZ{value}",
                     start=match.start(),
                     end=match.end(),
-                    confidence=0.95,
+                    confidence=pattern_def.score,
                     region="cz",
                     metadata=metadata
                 ))

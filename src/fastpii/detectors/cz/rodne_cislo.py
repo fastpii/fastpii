@@ -4,21 +4,28 @@ from typing import Any
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
+from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class RodneCisloDetector(Detector):
-    def __init__(self) -> None:
+    def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="rodne_cislo",
             region="cz",
             description="Czech birth number (rodné číslo) detector with checksum validation"
         )
+        # Use shared registry if none provided (singleton pattern)
+        self.registry = registry or get_shared_registry()
 
     def detect(self, text: str) -> list[Finding]:
-        pattern = r'\b(\d{6}[/\s]?\d{3,4})\b'
+        patterns = self.registry.get_patterns("rodne_cislo", "cz")
+        if not patterns:
+            return []
+        
+        pattern_def = patterns[0]  # Use the standard pattern
         findings: list[Finding] = []
 
-        for match in re.finditer(pattern, text):
+        for match in pattern_def.compiled.finditer(text):
             raw_value = match.group(1).replace('/', '').replace(' ', '')
             
             is_valid = self.validate(raw_value)
@@ -31,7 +38,7 @@ class RodneCisloDetector(Detector):
                     value=raw_value,
                     start=match.start(),
                     end=match.end(),
-                    confidence=0.95 if len(raw_value) == 10 else 0.85,
+                    confidence=pattern_def.score if len(raw_value) == 10 else 0.85,
                     region="cz",
                     metadata=metadata
                 ))

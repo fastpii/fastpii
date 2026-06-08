@@ -3,10 +3,28 @@ Czech Bank Account Number Validator
 
 Implementation of MOD11 checksum validation for Czech bank account numbers.
 Each part (prefix and base) must pass its own MOD11 check.
+
+Pattern Organization: Constants defined at module level for maintainability
+while keeping validators independent from the registry.
 """
 
-import re
 from typing import Tuple, Optional
+
+# Pattern Constants (organized for maintainability)
+# These are validation patterns used by validators (different from detection patterns in registry)
+PREFIX_PATTERN = r'^\d{1,6}$'
+BASE_PATTERN = r'^\d{1,10}$'
+BANK_CODE_PATTERN = r'^\d{4}$'
+FULL_ACCOUNT_WITH_PREFIX = r'^(\d{1,6})-(\d{2,10})/(\d{4})$'
+FULL_ACCOUNT_WITHOUT_PREFIX = r'^(\d{2,10})/(\d{4})$'
+
+# Pre-compile patterns for performance
+import re
+_PREFIX_COMPILED = re.compile(PREFIX_PATTERN)
+_BASE_COMPILED = re.compile(BASE_PATTERN)
+_BANK_CODE_COMPILED = re.compile(BANK_CODE_PATTERN)
+_FULL_WITH_PREFIX_COMPILED = re.compile(FULL_ACCOUNT_WITH_PREFIX)
+_FULL_WITHOUT_PREFIX_COMPILED = re.compile(FULL_ACCOUNT_WITHOUT_PREFIX)
 
 
 def validate_prefix_prefix(value: str) -> Tuple[bool, str]:
@@ -21,7 +39,7 @@ def validate_prefix_prefix(value: str) -> Tuple[bool, str]:
     if not value:
         return True, ""  # Empty is valid (no prefix)
     
-    if not re.match(r'^\d{1,6}$', value):
+    if not _PREFIX_COMPILED.match(value):
         return False, "Prefix must be 1-6 digits"
     
     # Pad to 6 digits
@@ -47,7 +65,7 @@ def validate_base_part(value: str) -> Tuple[bool, str]:
     - Apply weights [6,3,7,9,10,5,8,4,2,1] left to right
     - Sum must be divisible by 11
     """
-    if not re.match(r'^\d{1,10}$', value):
+    if not _BASE_COMPILED.match(value):
         return False, "Base part must be 1-10 digits"
     
     # Pad to 10 digits
@@ -73,13 +91,13 @@ def parse_bank_account(value: str) -> Tuple[Optional[str], Optional[str], Option
     :param value: Bank account number
     :return: Tuple of (prefix, base, bank_code) or (None, None, None) on parse error
     """
-    match = re.match(r'^(\d{1,6})?-(\d{2,10})/(\d{4})$', value)
+    match = _FULL_WITH_PREFIX_COMPILED.match(value)
     if match:
         prefix, base, bank_code = match.groups()
         return prefix or "", base, bank_code
     
     # Try without prefix
-    match = re.match(r'^(\d{2,10})/(\d{4})$', value)
+    match = _FULL_WITHOUT_PREFIX_COMPILED.match(value)
     if match:
         base, bank_code = match.groups()
         return "", base, bank_code
@@ -111,7 +129,7 @@ def is_valid_bank_account(value: str) -> bool:
     
     # Bank code validation (not implemented - requires current CNB code list)
     # For format validation, we just check it exists
-    if not re.match(r'^\d{4}$', bank_code):
+    if not _BANK_CODE_COMPILED.match(bank_code):
         return False
     
     return True
@@ -140,7 +158,7 @@ def validate_bank_account(value: str) -> Tuple[bool, str]:
     if not valid:
         return False, f"Base: {error}"
     
-    if not re.match(r'^\d{4}$', bank_code):
+    if not _BANK_CODE_COMPILED.match(bank_code):
         return False, "Bank code must be exactly 4 digits"
     
     return True, ""

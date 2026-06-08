@@ -3,80 +3,55 @@ from typing import Any
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
+from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class PhoneNumberDetector(Detector):
-    MOBILE_PATTERN = r'(?:\+420\s?)?(?:60[0-8]|7[0-9]\d)\d{6}'
-    LANDLINE_PATTERN = r'(?:\+420\s?)?[2-5](?:\s?\d{3}){2}\s?\d{2}'
+    # Backward compatibility: expose pattern constants
+    MOBILE_PATTERN = r'(?:\+420[\s-]?)?(?:60[0-8]|7[0-9]\d)\d{6}'
+    LANDLINE_PATTERN = r'(?:\+420[\s-]?)?[2-5](?:\s?\d{3}){2}\s?\d{2}'
 
-    def __init__(self) -> None:
+    def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="phone",
             region="cz",
             description="Czech phone number detector (mobile and landline)"
         )
+        # Use shared registry if none provided (singleton pattern)
+        self.registry = registry or get_shared_registry()
 
     def detect(self, text: str) -> list[Finding]:
+        patterns = self.registry.get_patterns("phone", "cz")
+        if not patterns:
+            return []
+        
         findings: list[Finding] = []
 
-        mobile_matches = self._detect_mobile(text)
-        landline_matches = self._detect_landline(text)
-        
-        findings.extend(mobile_matches)
-        findings.extend(landline_matches)
-
-        return findings
-
-    def _detect_mobile(self, text: str) -> list[Finding]:
-        findings: list[Finding] = []
-        
-        mobile_regex = r'(?:\+420[\s-]?)?(60[1-8]|7[0-9]\d)[\s-]?(\d{3})[\s-]?(\d{3})'
-        
-        for match in re.finditer(mobile_regex, text):
-            prefix = match.group(1)
-            normalized_value = self._normalize_phone(match.group(0))
-            
-            metadata = {
-                "phone_type": "mobile",
-                "operator": self._get_mobile_operator(prefix)
-            }
-            
-            findings.append(Finding(
-                type="phone",
-                value=normalized_value,
-                start=match.start(),
-                end=match.end(),
-                confidence=0.95,
-                region="cz",
-                metadata=metadata
-            ))
-
-        return findings
-
-    def _detect_landline(self, text: str) -> list[Finding]:
-        findings: list[Finding] = []
-        
-        # Flexible pattern: +420 optional, area code [2-5], then 8 digits with various spacings
-        # Matches: +420 2 1234 5678, +420212345678, 2 1234 5678, 212345678
-        landline_regex = r'(?:\+420\s?)?([2-5])[\s-]?(\d{4})[\s-]?(\d{4})'
-        
-        for match in re.finditer(landline_regex, text):
-            normalized_value = self._normalize_phone(match.group(0))
-            
-            metadata = {
-                "phone_type": "landline",
-                "area": self._get_landline_area(match.group(1))
-            }
-            
-            findings.append(Finding(
-                type="phone",
-                value=normalized_value,
-                start=match.start(),
-                end=match.end(),
-                confidence=0.90,
-                region="cz",
-                metadata=metadata
-            ))
+        for pattern_def in patterns:  # Process all variants (mobile, landline)
+            for match in pattern_def.compiled.finditer(text):
+                phone_type = "mobile" if pattern_def.name == "mobile" else "landline"
+                normalized_value = self._normalize_phone(match.group(0))
+                
+                metadata: dict[str, Any] = {"phone_type": phone_type}
+                
+                if phone_type == "mobile":
+                    # Extract prefix for operator detection
+                    prefix = match.group(1) if len(match.groups()) > 0 else ""
+                    metadata["operator"] = self._get_mobile_operator(prefix)
+                else:
+                    # Extract area code for area detection
+                    area_code = match.group(1) if len(match.groups()) > 0 else ""
+                    metadata["area"] = self._get_landline_area(area_code)
+                
+                findings.append(Finding(
+                    type="phone",
+                    value=normalized_value,
+                    start=match.start(),
+                    end=match.end(),
+                    confidence=pattern_def.score,
+                    region="cz",
+                    metadata=metadata
+                ))
 
         return findings
 

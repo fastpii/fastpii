@@ -3,21 +3,28 @@ from typing import Any
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
+from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class BankAccountDetector(Detector):
-    def __init__(self) -> None:
+    def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="bank_account",
             region="cz",
             description="Czech bank account number detector with MOD11 checksum validation"
         )
+        # Use shared registry if none provided (singleton pattern)
+        self.registry = registry or get_shared_registry()
 
     def detect(self, text: str) -> list[Finding]:
-        pattern = r'\b(\d{1,6}-?\d{1,10})/(\d{4})\b'
+        patterns = self.registry.get_patterns("bank_account", "cz")
+        if not patterns:
+            return []
+        
+        pattern_def = patterns[0]  # Use the standard pattern
         findings: list[Finding] = []
 
-        for match in re.finditer(pattern, text):
+        for match in pattern_def.compiled.finditer(text):
             account_part = match.group(1)
             bank_code = match.group(2)
             full_value = f"{account_part}/{bank_code}"
@@ -32,7 +39,7 @@ class BankAccountDetector(Detector):
                     value=full_value,
                     start=match.start(),
                     end=match.end(),
-                    confidence=1.0,
+                    confidence=pattern_def.score,
                     region="cz",
                     metadata=metadata
                 ))
@@ -48,18 +55,16 @@ class BankAccountDetector(Detector):
     def _extract_metadata(self, value: str) -> dict[str, Any]:
         from fastpii.validators.bank_account import parse_bank_account
         
-        # Parse the full account number (format: prefix-base/bank_code or base/bank_code)
-        match = re.match(r'(\d{1,6}-)?(\d{1,10})/(\d{4})', value)
-        if not match:
+        # Use validator's parse function (validators are independent from registry)
+        # Validators use validation patterns for parsing, different from detection patterns
+        prefix, base, bank_code = parse_bank_account(value)
+        
+        if prefix is None:
             return {"bank_code": ""}
         
-        prefix = match.group(1).rstrip('-') if match.group(1) else None
-        base = match.group(2)
-        bank_code = match.group(3)
-        
         metadata: dict[str, Any] = {
-            "bank_code": bank_code,
-            "base": base
+            "bank_code": bank_code or "",
+            "base": base or ""
         }
         
         if prefix:

@@ -3,24 +3,33 @@ from typing import Any
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
+from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class PostalCodeDetector(Detector):
+    # Backward compatibility: expose pattern constant
     CZECH_POSTAL_CODE_PATTERN = r'\b(\d{3})\s?(\d{2})\b'
     
     PRAGUE_CODES = {"110", "111", "112", "113", "114", "115", "116", "117", "118", "119", "120", "121", "122", "123", "124", "125", "126", "127", "128", "129", "130", "131", "132", "133", "134", "135", "136", "137", "138", "139", "140", "141", "142", "143", "144", "145", "146", "147", "148", "149", "150", "151", "152", "153", "154", "155", "156", "157", "158", "159", "160", "161", "162", "163", "164", "165", "166", "167", "168", "169", "170", "171", "172", "173", "174", "175", "176", "177", "178", "179", "180", "181", "182", "183", "184", "185", "186", "187", "188", "189", "190", "191", "192", "193", "194", "195", "196", "197", "198", "199"}
 
-    def __init__(self) -> None:
+    def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="postal_code",
             region="cz",
             description="Czech postal code (PSČ) detector"
         )
+        # Use shared registry if none provided (singleton pattern)
+        self.registry = registry or get_shared_registry()
 
     def detect(self, text: str) -> list[Finding]:
+        patterns = self.registry.get_patterns("postal_code", "cz")
+        if not patterns:
+            return []
+        
+        pattern_def = patterns[0]  # Use the standard pattern
         findings: list[Finding] = []
 
-        for match in re.finditer(self.CZECH_POSTAL_CODE_PATTERN, text):
+        for match in pattern_def.compiled.finditer(text):
             prefix = match.group(1)
             suffix = match.group(2)
             value = f"{prefix} {suffix}" if ' ' in match.group(0) else f"{prefix}{suffix}"
@@ -33,7 +42,7 @@ class PostalCodeDetector(Detector):
                     value=value,
                     start=match.start(),
                     end=match.end(),
-                    confidence=0.95,
+                    confidence=pattern_def.score,
                     region="cz",
                     metadata=metadata
                 ))

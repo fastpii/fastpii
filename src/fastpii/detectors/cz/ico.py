@@ -3,21 +3,28 @@ from typing import Any
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
+from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class ICODetector(Detector):
-    def __init__(self) -> None:
+    def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="ico",
             region="cz",
             description="Czech company ID (IČO) detector with checksum validation"
         )
+        # Use shared registry if none provided (singleton pattern)
+        self.registry = registry or get_shared_registry()
 
     def detect(self, text: str) -> list[Finding]:
-        pattern = r'\b(\d{8})\b'
+        patterns = self.registry.get_patterns("ico", "cz")
+        if not patterns:
+            return []
+        
+        pattern_def = patterns[0]  # Use the standard pattern
         findings: list[Finding] = []
 
-        for match in re.finditer(pattern, text):
+        for match in pattern_def.compiled.finditer(text):
             value = match.group(1)
             
             is_valid = self.validate(value)
@@ -30,7 +37,7 @@ class ICODetector(Detector):
                     value=value,
                     start=match.start(),
                     end=match.end(),
-                    confidence=1.0,
+                    confidence=pattern_def.score,
                     region="cz",
                     metadata=metadata
                 ))
