@@ -32,7 +32,7 @@ class TestBankAccountDetector:
 
     def test_detect_bank_account_simple(self):
         detector = BankAccountDetector()
-        text = "Účet: 12345/0800"
+        text = "Účet: 1003/0800"
 
         findings = detector.detect(text)
 
@@ -68,7 +68,7 @@ class TestBankAccountDetector:
 
     def test_detect_multiple_accounts_in_text(self):
         detector = BankAccountDetector()
-        text = "First: 19-2000145399/0800, Second: 12345/0100"
+        text = "First: 19-2000145399/0800, Second: 1003/0100"
 
         findings = detector.detect(text)
 

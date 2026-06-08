@@ -52,12 +52,13 @@ class DICDetector(Detector):
 
     def _validate_ico_format(self, value: str) -> bool:
         from fastpii.validators.ico_validator import validate_ico
-        return validate_ico(value)
+        is_valid, _ = validate_ico(value)
+        return is_valid
 
     def _validate_birth_number_format(self, value: str) -> bool:
-        from fastpii.validators.birth_number import validate_birth_number
-        result = validate_birth_number(value)
-        return result.get("valid", False)
+        from fastpii.validators.birth_number import validate_birth_number_format
+        is_valid, _, _ = validate_birth_number_format(value)
+        return is_valid
 
     def _extract_metadata(self, value: str) -> dict[str, Any]:
         metadata: dict[str, Any] = {}

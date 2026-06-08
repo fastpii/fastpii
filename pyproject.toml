@@ -2,7 +2,7 @@
 name = "fastpii"
 version = "0.1.0"
 description = "Fast PII detection for Czech and Central European identifiers"
-authors = [{name = "Privacy Gateway Team", email = "support@fastpii.io"}]
+authors = [{name = "FastPII Team", email = "support@fastpii.com"}]
 license = {text = "Apache-2.0"}
 requires-python = ">=3.10"
 keywords = ["privacy", "gdpr", "czech", "pii", "compliance", "detection"]
@@ -43,10 +43,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["cpg*"]
+include = ["fastpii*"]
 
 [tool.setuptools.package-data]
-cpg = ["py.typed"]
+fastpii = ["py.typed"]
 
 [tool.ruff]
 line-length = 100
@@ -57,7 +57,7 @@ select = ["E", "W", "F", "I", "B", "C4", "UP", "ARG", "SIM"]
 ignore = ["E501", "B008", "B904", "ARG001"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["cpg"]
+known-first-party = ["fastpii"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -77,12 +77,12 @@ disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --strict-markers --cov=cpg --cov-report=term-missing"
+addopts = "-ra -q --strict-markers --cov=fastpii --cov-report=term-missing"
 testpaths = ["tests"]
 pythonpath = ["src"]
 
 [tool.coverage.run]
-source = ["src/cpg"]
+source = ["src/fastpii"]
 branch = true
 
 [tool.coverage.report]

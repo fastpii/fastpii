@@ -7,21 +7,21 @@ class TestLangChainIntegration:
     def test_pii_anonymizer_rodne_cislo(self):
         anonymizer = PIIAnonymizer(regions=["cz"])
         
-        text = "Jan Novák, RČ: 8001011234"
+        text = "Jan Novák, RČ: 8001011238"
         anonymized = anonymizer.anonymize(text)
         
-        assert "8001011234" not in anonymized
+        assert "8001011238" not in anonymized
         assert "[REDACTED]" in anonymized
         assert "Jan Novák" in anonymized
 
     def test_pii_anonymizer_multiple_identifiers(self):
         anonymizer = PIIAnonymizer(regions=["cz"])
         
-        text = "IČO: 25596641, RČ: 8001011234, Tel: 777 123 456"
+        text = "IČO: 25596641, RČ: 8001011238, Tel: 777 123 456"
         anonymized = anonymizer.anonymize(text)
         
         assert "25596641" not in anonymized
-        assert "8001011234" not in anonymized
+        assert "8001011238" not in anonymized
         assert "777 123 456" not in anonymized
 
     def test_pii_anonymizer_custom_replacement(self):
@@ -36,19 +36,19 @@ class TestLangChainIntegration:
     def test_pii_anonymizer_callable(self):
         anonymizer = PIIAnonymizer(regions=["cz"])
         
-        text = "RČ: 8001011234"
+        text = "RČ: 8001011238"
         result = anonymizer(text)
         
-        assert "8001011234" not in result
+        assert "8001011238" not in result
         assert "[REDACTED]" in result
 
     def test_pii_preprocessor_redact_action(self):
         preprocessor = PIIPreprocessor(regions=["cz"])
         
-        text = "Jan Novák, RČ: 8001011234"
+        text = "Jan Novák, RČ: 8001011238"
         processed = preprocessor.preprocess(text, action="redact")
         
-        assert "8001011234" not in processed
+        assert "8001011238" not in processed
         assert "[RODNE_CISLO]" in processed
 
     def test_pii_preprocessor_mask_action(self):
@@ -63,10 +63,10 @@ class TestLangChainIntegration:
     def test_pii_preprocessor_remove_action(self):
         preprocessor = PIIPreprocessor(regions=["cz"])
         
-        text = "Jan Novák, RČ: 8001011234"
+        text = "Jan Novák, RČ: 8001011238"
         processed = preprocessor.preprocess(text, action="remove")
         
-        assert "8001011234" not in processed
+        assert "8001011238" not in processed
         assert "Jan Novák," in processed
         assert "[REDACTED]" not in processed
 
@@ -97,7 +97,7 @@ class TestLangChainIntegration:
         anonymizer = PIIAnonymizer(regions=["cz"])
         
         text = """
-        RČ: 8001011234
+        RČ: 8001011238
         IČO: 25596641
         DIČ: CZ25596641
         Účet: 19-2000145399/0800
@@ -107,7 +107,7 @@ class TestLangChainIntegration:
         
         anonymized = anonymizer.anonymize(text)
         
-        assert "8001011234" not in anonymized
+        assert "8001011238" not in anonymized
         assert "25596641" not in anonymized
         assert "CZ25596641" not in anonymized
         assert "2000145399" not in anonymized
@@ -117,7 +117,7 @@ class TestLangChainIntegration:
     def test_langchain_pipe_operator(self):
         preprocessor = PIIPreprocessor(regions=["cz"])
         
-        text = "RČ: 8001011234"
+        text = "RČ: 8001011238"
         processed = preprocessor.preprocess(text, action="redact")
         
         assert isinstance(processed, str)
@@ -126,10 +126,10 @@ class TestLangChainIntegration:
     def test_multiple_regions(self):
         anonymizer_cz = PIIAnonymizer(regions=["cz"])
         
-        text_cz = "RČ: 8001011234"
+        text_cz = "RČ: 8001011238"
         anonymized_cz = anonymizer_cz.anonymize(text_cz)
         
-        assert "8001011234" not in anonymized_cz
+        assert "8001011238" not in anonymized_cz
 
     def test_preprocessor_preserves_structure(self):
         preprocessor = PIIPreprocessor(regions=["cz"])

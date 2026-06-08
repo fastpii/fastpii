@@ -19,15 +19,15 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Virtual environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
-.venv
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
@@ -36,34 +36,21 @@ env/
 .DS_Store
 
 # Testing
+.pytest_cache/
+.coverage
+htmlcov/
 .tox/
 .nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
-.pytest_cache/
-pytestdebug.log
 
-# Type checking
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# Benchmarks
+benchmarks/
 
-# Distribution
-.pypi/
-*.manifest
-*.spec
+# Development
+test-*/
 
-# Jupyter
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Environments
-.env
-.envrc
+# Build artifacts
+*.wheel
+*.tar.gz

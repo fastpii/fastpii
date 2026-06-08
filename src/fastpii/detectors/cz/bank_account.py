@@ -25,7 +25,7 @@ class BankAccountDetector(Detector):
             is_valid = self.validate(full_value)
             
             if is_valid:
-                metadata = self._extract_metadata(account_part, bank_code)
+                metadata = self._extract_metadata(full_value)
                 
                 findings.append(Finding(
                     type="bank_account",
@@ -45,17 +45,24 @@ class BankAccountDetector(Detector):
         is_valid, error = validate_bank_account(value)
         return is_valid
 
-    def _extract_metadata(self, account: str, bank_code: str) -> dict[str, Any]:
+    def _extract_metadata(self, value: str) -> dict[str, Any]:
         from fastpii.validators.bank_account import parse_bank_account
         
+        # Parse the full account number (format: prefix-base/bank_code or base/bank_code)
+        match = re.match(r'(\d{1,6}-)?(\d{1,10})/(\d{4})', value)
+        if not match:
+            return {"bank_code": ""}
+        
+        prefix = match.group(1).rstrip('-') if match.group(1) else None
+        base = match.group(2)
+        bank_code = match.group(3)
+        
         metadata: dict[str, Any] = {
-            "bank_code": bank_code
+            "bank_code": bank_code,
+            "base": base
         }
         
-        parsed = parse_bank_account(f"{account}/{bank_code}")
-        if parsed:
-            if parsed[0]:
-                metadata["prefix"] = parsed[0]
-            metadata["base"] = parsed[1]
+        if prefix:
+            metadata["prefix"] = prefix
         
         return metadata

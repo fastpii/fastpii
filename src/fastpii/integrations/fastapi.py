@@ -49,7 +49,7 @@ class DetectorInfo(BaseModel):
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="Privacy Gateway API",
+        title="FastPII API",
         description="Czech and Central European PII Detection API",
         version="0.1.0"
     )

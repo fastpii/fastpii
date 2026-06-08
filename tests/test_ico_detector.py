@@ -24,12 +24,12 @@ class TestICODetector:
 
     def test_detect_ico_with_leading_zeros(self):
         detector = ICODetector()
-        text = "IČO: 00123456"
+        text = "IČO: 00000019"
 
         findings = detector.detect(text)
 
         assert len(findings) == 1
-        assert findings[0].value == "00123456"
+        assert findings[0].value == "00000019"
 
     def test_detect_multiple_icos(self):
         detector = ICODetector()

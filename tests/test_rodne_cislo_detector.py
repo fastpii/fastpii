@@ -12,13 +12,13 @@ class TestRodneCisloDetector:
 
     def test_detect_10_digit_rodne_cislo(self):
         detector = RodneCisloDetector()
-        text = "Jan Novák, RČ: 8001011234"
+        text = "Jan Novák, RČ: 8001011238"
 
         findings = detector.detect(text)
 
         assert len(findings) == 1
         assert findings[0].type == "rodne_cislo"
-        assert findings[0].value == "8001011234"
+        assert findings[0].value == "8001011238"
         assert findings[0].region == "cz"
         assert findings[0].confidence >= 0.95
 
@@ -33,18 +33,18 @@ class TestRodneCisloDetector:
 
     def test_detect_with_slash_separator(self):
         detector = RodneCisloDetector()
-        text = "RČ: 800101/1234"
+        text = "RČ: 800101/1238"
 
         findings = detector.detect(text)
 
         assert len(findings) == 1
         assert "800101" in findings[0].value
-        assert "1234" in findings[0].value
+        assert "1238" in findings[0].value
 
     def test_validate_valid_10_digit(self):
         detector = RodneCisloDetector()
 
-        valid = detector.validate("8001011234")
+        valid = detector.validate("8001011238")
 
         assert valid is True
 
@@ -64,7 +64,7 @@ class TestRodneCisloDetector:
 
     def test_extract_metadata_birth_date(self):
         detector = RodneCisloDetector()
-        text = "RČ: 8001011234"
+        text = "RČ: 8001011238"
 
         findings = detector.detect(text)
 
@@ -74,7 +74,7 @@ class TestRodneCisloDetector:
 
     def test_extract_metadata_gender_male(self):
         detector = RodneCisloDetector()
-        text = "RČ: 8001011234"
+        text = "RČ: 8001011238"
 
         findings = detector.detect(text)
 
@@ -82,7 +82,7 @@ class TestRodneCisloDetector:
 
     def test_extract_metadata_gender_female(self):
         detector = RodneCisloDetector()
-        text = "RČ: 8051011234"
+        text = "RČ: 8051011232"
 
         findings = detector.detect(text)
 
@@ -90,7 +90,7 @@ class TestRodneCisloDetector:
 
     def test_extracts_article_nine_flag(self):
         detector = RodneCisloDetector()
-        text = "RČ: 8001011234"
+        text = "RČ: 8001011238"
 
         findings = detector.detect(text)
 
@@ -107,7 +107,7 @@ class TestRodneCisloDetector:
 
     def test_multiple_rodne_cislo_in_text(self):
         detector = RodneCisloDetector()
-        text = "First person: 8001011234, Second: 8102015678"
+        text = "First person: 8001011238, Second: 810201560"
 
         findings = detector.detect(text)
 

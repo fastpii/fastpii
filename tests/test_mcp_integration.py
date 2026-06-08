@@ -32,7 +32,7 @@ class TestMCPIntegration:
         mcp = MCPServer(regions=["cz"])
         
         result = mcp.call_tool("detect_pii", {
-            "text": "Jan Novák, RČ: 8001011234",
+            "text": "Jan Novák, RČ: 8001011238",
             "regions": ["cz"]
         })
         
@@ -44,7 +44,7 @@ class TestMCPIntegration:
         mcp = MCPServer(regions=["cz"])
         
         result = mcp.call_tool("detect_pii", {
-            "text": "IČO: 25596641, RČ: 8001011234",
+            "text": "IČO: 25596641, RČ: 8001011238",
             "regions": ["cz"],
             "detector_names": ["ico"]
         })
@@ -56,7 +56,7 @@ class TestMCPIntegration:
         mcp = MCPServer(regions=["cz"])
         
         result = mcp.call_tool("validate_identifier", {
-            "value": "8001011234",
+            "value": "8001011238",
             "detector_name": "rodne_cislo",
             "regions": ["cz"]
         })
@@ -80,7 +80,7 @@ class TestMCPIntegration:
         mcp = MCPServer(regions=["cz"])
         
         result = mcp.call_tool("validate_identifier", {
-            "value": "8001011234",
+            "value": "8001011238",
             "detector_name": "nonexistent",
             "regions": ["cz"]
         })
@@ -113,7 +113,7 @@ class TestMCPIntegration:
         mcp = MCPServer(regions=["cz"])
         
         result = mcp.call_tool("detect_pii", {
-            "text": "RČ: 8001011234",
+            "text": "RČ: 8001011238",
             "regions": ["cz"]
         })
         
@@ -144,7 +144,7 @@ class TestMCPIntegration:
         mcp = MCPServer(regions=["cz"])
         
         result = mcp.call_tool("validate_identifier", {
-            "value": "8001011234",
+            "value": "8001011238",
             "regions": ["cz"]
         })
         
@@ -155,7 +155,7 @@ class TestMCPIntegration:
         mcp = MCPServer(regions=["cz"])
         
         result = mcp.call_tool("detect_pii", {
-            "text": "RČ: 8001011234",
+            "text": "RČ: 8001011238",
             "regions": ["cz"]
         })
         

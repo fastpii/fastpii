@@ -13,14 +13,14 @@ def client():
 class TestFastAPIIntegration:
     def test_detect_endpoint_rodne_cislo(self, client):
         response = client.post("/detect", json={
-            "text": "Jan Novák, RČ: 8001011234",
+            "text": "Jan Novák, RČ: 8001011238",
             "regions": ["cz"]
         })
         
         assert response.status_code == 200
         data = response.json()
         
-        assert data["text"] == "Jan Novák, RČ: 8001011234"
+        assert data["text"] == "Jan Novák, RČ: 8001011238"
         assert len(data["findings"]) >= 1
         assert data["findings"][0]["type"] == "rodne_cislo"
         assert "800101" in data["findings"][0]["value"]
@@ -41,7 +41,7 @@ class TestFastAPIIntegration:
 
     def test_detect_endpoint_multiple_identifiers(self, client):
         response = client.post("/detect", json={
-            "text": "Jan Novák, RČ: 8001011234, IČO: 25596641",
+            "text": "Jan Novák, RČ: 8001011238, IČO: 25596641",
             "regions": ["cz"]
         })
         
@@ -55,7 +55,7 @@ class TestFastAPIIntegration:
 
     def test_detect_endpoint_specific_detector(self, client):
         response = client.post("/detect", json={
-            "text": "IČO: 25596641, RČ: 8001011234",
+            "text": "IČO: 25596641, RČ: 8001011238",
             "regions": ["cz"],
             "detector_names": ["ico"]
         })
@@ -80,7 +80,7 @@ class TestFastAPIIntegration:
 
     def test_validate_endpoint_rodne_cislo_valid(self, client):
         response = client.post("/validate", json={
-            "value": "8001011234",
+            "value": "8001011238",
             "detector_name": "rodne_cislo",
             "regions": ["cz"]
         })
@@ -89,7 +89,7 @@ class TestFastAPIIntegration:
         data = response.json()
         
         assert data["detector"] == "rodne_cislo"
-        assert data["value"] == "8001011234"
+        assert data["value"] == "8001011238"
         assert data["is_valid"] is True
         assert "birth_date" in data["metadata"]
         assert "gender" in data["metadata"]
@@ -121,7 +121,7 @@ class TestFastAPIIntegration:
 
     def test_validate_endpoint_nonexistent_detector(self, client):
         response = client.post("/validate", json={
-            "value": "8001011234",
+            "value": "8001011238",
             "detector_name": "nonexistent_detector",
             "regions": ["cz"]
         })
@@ -154,7 +154,7 @@ class TestFastAPIIntegration:
 
     def test_detect_with_all_czech_detectors(self, client):
         text = """
-        Jan Novák, RČ: 8001011234
+        Jan Novák, RČ: 8001011238
         Firma s.r.o., IČO: 25596641
         DIČ: CZ25596641
         Účet: 19-2000145399/0800
@@ -182,7 +182,7 @@ class TestFastAPIIntegration:
 
     def test_metadata_extraction_rodne_cislo(self, client):
         response = client.post("/detect", json={
-            "text": "RČ: 8001011234",
+            "text": "RČ: 8001011238",
             "regions": ["cz"]
         })
         

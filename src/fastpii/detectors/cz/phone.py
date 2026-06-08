@@ -56,7 +56,9 @@ class PhoneNumberDetector(Detector):
     def _detect_landline(self, text: str) -> list[Finding]:
         findings: list[Finding] = []
         
-        landline_regex = r'(?:\+420[\s-]?)?([2-5])(\d{3})[\s-]?(\d{3})[\s-]?(\d{2})'
+        # Flexible pattern: +420 optional, area code [2-5], then 8 digits with various spacings
+        # Matches: +420 2 1234 5678, +420212345678, 2 1234 5678, 212345678
+        landline_regex = r'(?:\+420\s?)?([2-5])[\s-]?(\d{4})[\s-]?(\d{4})'
         
         for match in re.finditer(landline_regex, text):
             normalized_value = self._normalize_phone(match.group(0))

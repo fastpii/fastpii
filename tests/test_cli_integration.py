@@ -6,7 +6,7 @@ import pytest
 class TestCLIIntegration:
     def test_cli_detect_rodne_cislo(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "detect", "Jan Novák, RČ: 8001011234"],
+            ["python", "-m", "fastpii.cli", "detect", "Jan Novák, RČ: 8001011238"],
             capture_output=True,
             text=True
         )
@@ -16,7 +16,7 @@ class TestCLIIntegration:
         
     def test_cli_detect_ico(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "detect", "IČO: 25596641"],
+            ["python", "-m", "fastpii.cli", "detect", "IČO: 25596641"],
             capture_output=True,
             text=True
         )
@@ -26,20 +26,20 @@ class TestCLIIntegration:
 
     def test_cli_detect_from_file(self, tmp_path):
         test_file = tmp_path / "test.txt"
-        test_file.write_text("Jan Novák, RČ: 8001011234")
+        test_file.write_text("Jan Novák, RČ: 8001011238")
         
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "detect", "--file", str(test_file)],
+            ["python", "-m", "fastpii.cli", "detect", "--file", str(test_file)],
             capture_output=True,
             text=True
         )
         
         assert result.returncode == 0
-        assert "rodne_cislo" in result.stdout.lower() or "8001011234" in result.stdout
+        assert "rodne_cislo" in result.stdout.lower() or "8001011238" in result.stdout
 
     def test_cli_detect_json_output(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "detect", "IČO: 25596641", "--format", "json"],
+            ["python", "-m", "fastpii.cli", "detect", "IČO: 25596641", "--format", "json"],
             capture_output=True,
             text=True
         )
@@ -52,7 +52,7 @@ class TestCLIIntegration:
 
     def test_cli_validate_rodne_cislo_valid(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "validate", "8001011234", "--detector", "rodne_cislo"],
+            ["python", "-m", "fastpii.cli", "validate", "8001011238", "--detector", "rodne_cislo"],
             capture_output=True,
             text=True
         )
@@ -62,7 +62,7 @@ class TestCLIIntegration:
 
     def test_cli_validate_rodne_cislo_invalid(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "validate", "invalid_number", "--detector", "rodne_cislo"],
+            ["python", "-m", "fastpii.cli", "validate", "invalid_number", "--detector", "rodne_cislo"],
             capture_output=True,
             text=True
         )
@@ -72,7 +72,7 @@ class TestCLIIntegration:
 
     def test_cli_validate_detector_not_found(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "validate", "test", "--detector", "nonexistent"],
+            ["python", "-m", "fastpii.cli", "validate", "test", "--detector", "nonexistent"],
             capture_output=True,
             text=True
         )
@@ -82,7 +82,7 @@ class TestCLIIntegration:
 
     def test_cli_list_detectors(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "list-detectors"],
+            ["python", "-m", "fastpii.cli", "list-detectors"],
             capture_output=True,
             text=True
         )
@@ -94,7 +94,7 @@ class TestCLIIntegration:
 
     def test_cli_list_detectors_json_format(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "list-detectors", "--format", "json"],
+            ["python", "-m", "fastpii.cli", "list-detectors", "--format", "json"],
             capture_output=True,
             text=True
         )
@@ -113,7 +113,7 @@ class TestCLIIntegration:
         output_file = tmp_path / "output.json"
         
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "detect", "IČO: 25596641", "--format", "json", "--output", str(output_file)],
+            ["python", "-m", "fastpii.cli", "detect", "IČO: 25596641", "--format", "json", "--output", str(output_file)],
             capture_output=True,
             text=True
         )
@@ -126,7 +126,7 @@ class TestCLIIntegration:
 
     def test_cli_regions_parameter(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "detect", "RČ: 8001011234", "--regions", "cz"],
+            ["python", "-m", "fastpii.cli", "detect", "RČ: 8001011238", "--regions", "cz"],
             capture_output=True,
             text=True
         )
@@ -135,7 +135,7 @@ class TestCLIIntegration:
         
     def test_cli_no_text_provided(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "detect"],
+            ["python", "-m", "fastpii.cli", "detect"],
             capture_output=True,
             text=True
         )
@@ -144,7 +144,7 @@ class TestCLIIntegration:
         
     def test_cli_help(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "--help"],
+            ["python", "-m", "fastpii.cli", "--help"],
             capture_output=True,
             text=True
         )
@@ -156,7 +156,7 @@ class TestCLIIntegration:
 
     def test_cli_detect_help(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "detect", "--help"],
+            ["python", "-m", "fastpii.cli", "detect", "--help"],
             capture_output=True,
             text=True
         )
@@ -168,7 +168,7 @@ class TestCLIIntegration:
 
     def test_cli_validate_help(self):
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "validate", "--help"],
+            ["python", "-m", "fastpii.cli", "validate", "--help"],
             capture_output=True,
             text=True
         )
@@ -178,9 +178,9 @@ class TestCLIIntegration:
         assert "--regions" in result.stdout
 
     def test_cli_multiple_identifiers(self):
-        text = "RČ: 8001011234, IČO: 25596641"
+        text = "RČ: 8001011238, IČO: 25596641"
         result = subprocess.run(
-            ["python", "-m", "cpg.cli", "detect", text, "--format", "json"],
+            ["python", "-m", "fastpii.cli", "detect", text, "--format", "json"],
             capture_output=True,
             text=True
         )

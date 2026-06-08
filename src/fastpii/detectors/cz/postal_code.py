@@ -26,7 +26,7 @@ class PostalCodeDetector(Detector):
             value = f"{prefix} {suffix}" if ' ' in match.group(0) else f"{prefix}{suffix}"
             
             if self._is_valid_postal_code(prefix, suffix):
-                metadata = self._extract_metadata(prefix, suffix)
+                metadata = self._extract_metadata(value)
                 
                 findings.append(Finding(
                     type="postal_code",
@@ -66,7 +66,10 @@ class PostalCodeDetector(Detector):
         
         return True
 
-    def _extract_metadata(self, prefix: str, suffix: str) -> dict[str, Any]:
+    def _extract_metadata(self, value: str) -> dict[str, Any]:
+        cleaned = value.replace(' ', '')
+        prefix = cleaned[:3]
+        
         metadata: dict[str, Any] = {}
         
         if prefix in self.PRAGUE_CODES:

@@ -43,7 +43,11 @@ class TestPostalCodeDetector:
     def test_validate_invalid_postal_code(self):
         detector = PostalCodeDetector()
 
-        assert detector.validate("12345") is False
+        assert detector.validate("01234") is False
+        assert detector.validate("1234") is False
+        assert detector.validate("123456") is False
+        assert detector.validate("abcde") is False
+        assert detector.validate("12345") is True
         assert detector.validate("1234") is False
         assert detector.validate("123456") is False
 

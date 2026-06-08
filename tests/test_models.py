@@ -10,7 +10,7 @@ class TestFinding:
     def test_finding_creation_with_required_fields(self):
         finding = Finding(
             type="rodne_cislo",
-            value="8001011234",
+            value="8001011238",
             start=0,
             end=10,
             confidence=0.95,
@@ -18,7 +18,7 @@ class TestFinding:
         )
 
         assert finding.type == "rodne_cislo"
-        assert finding.value == "8001011234"
+        assert finding.value == "8001011238"
         assert finding.start == 0
         assert finding.end == 10
         assert finding.confidence == 0.95
@@ -35,7 +35,7 @@ class TestFinding:
 
         finding = Finding(
             type="rodne_cislo",
-            value="8001011234",
+            value="8001011238",
             start=0,
             end=10,
             confidence=0.95,
@@ -62,7 +62,7 @@ class TestFinding:
 
         assert result["type"] == "ico"
         assert result["value"] == "25596641"
-        assert result["checksum_valid"] is True
+        assert result["metadata"]["checksum_valid"] is True
 
 
 class TestDetectionResult:
@@ -98,7 +98,7 @@ class TestDetectionResult:
 
     def test_detection_result_to_dict(self):
         findings = [
-            Finding(type="rodne_cislo", value="8001011234", start=0, end=10, confidence=0.95, region="cz")
+            Finding(type="rodne_cislo", value="8001011238", start=0, end=10, confidence=0.95, region="cz")
         ]
 
         result = DetectionResult(
@@ -143,7 +143,7 @@ class TestValidationResult:
     def test_validation_result_without_metadata(self):
         result = ValidationResult(
             detector="rodne_cislo",
-            value="8001011234",
+            value="8001011238",
             is_valid=True
         )
 
@@ -152,7 +152,7 @@ class TestValidationResult:
     def test_validation_result_to_dict(self):
         result = ValidationResult(
             detector="rodne_cislo",
-            value="8001011234",
+            value="8001011238",
             is_valid=True,
             metadata={"birth_date": "1980-01-01"}
         )
@@ -198,7 +198,7 @@ class TestFindingEqualityAndHashing:
 
         finding2 = Finding(
             type="rodne_cislo",
-            value="8001011234",
+            value="8001011238",
             start=0,
             end=10,
             confidence=0.95,

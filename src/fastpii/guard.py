@@ -42,9 +42,10 @@ class PrivacyGuard:
 
         for detector in detectors:
             findings = detector.detect(text)
-            all_findings.extend(findings)
-            if detector.name not in detector_list:
-                detector_list.append(detector.name)
+            if findings:
+                all_findings.extend(findings)
+                if detector.name not in detector_list:
+                    detector_list.append(detector.name)
 
         processing_time_ms = int((perf_counter() - start_time) * 1000)
 
