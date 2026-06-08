@@ -17,10 +17,16 @@ class PrivacyGateway:
             from cpg.detectors.cz.rodne_cislo import RodneCisloDetector
             from cpg.detectors.cz.ico import ICODetector
             from cpg.detectors.cz.dic import DICDetector
+            from cpg.detectors.cz.bank_account import BankAccountDetector
+            from cpg.detectors.cz.postal_code import PostalCodeDetector
+            from cpg.detectors.cz.phone import PhoneNumberDetector
 
             self.registry.register(RodneCisloDetector())
             self.registry.register(ICODetector())
             self.registry.register(DICDetector())
+            self.registry.register(BankAccountDetector())
+            self.registry.register(PostalCodeDetector())
+            self.registry.register(PhoneNumberDetector())
 
     def detect(self, text: str, detector_names: list[str] | None = None) -> DetectionResult:
         start_time = perf_counter()

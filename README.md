@@ -91,6 +91,9 @@ Core SDK (framework-independent)
 | Rodné číslo | Birth number | ✅ Modulo 11 | Birth date, gender, Article 9 flag |
 | IČO | Company ID | ✅ Weighted Mod 11 | Checksum validity |
 | DIČ | VAT number | ✅ Multi-format | Type (company/individual/special) |
+| Bank Account | Bank account | ✅ Two-part Mod 11 | Bank code, prefix, base |
+| Postal Code | PSČ | ✅ Range validation | Region mapping |
+| Phone Number | Phone | ✅ Format validation | Type (mobile/landline), operator, area |
 
 ## Features
 
@@ -103,6 +106,31 @@ result = gateway.detect("RČ: 8001011234")
 for finding in result.findings:
     if finding.metadata.get("article_9"):
         print("⚠️  Biological sex revealed (GDPR Article 9)")
+```
+
+### Bank Account Detection
+
+```python
+gateway = PrivacyGateway(regions=["cz"])
+result = gateway.detect("Bank account: 19-2000145399/0800")
+
+for finding in result.findings:
+    if finding.type == "bank_account":
+        print(f"Bank code: {finding.metadata['bank_code']}")
+```
+
+### Postal Code & Phone Detection
+
+```python
+gateway = PrivacyGateway(regions=["cz"])
+result = gateway.detect("Contact: 777 123 456, PSČ: 110 00")
+
+for finding in result.findings:
+    if finding.type == "phone":
+        print(f"Phone type: {finding.metadata['phone_type']}")  # mobile/landline
+        print(f"Operator: {finding.metadata['operator']}")
+    if finding.type == "postal_code":
+        print(f"Region: {finding.metadata['region']}")  # Praha, Středočeský, etc.
 ```
 
 ### Birth Date Extraction
@@ -128,6 +156,79 @@ if result.is_valid:
 - **Early validation**: Fast rejection of invalid formats
 - **Regex optimization**: Efficient pattern matching
 - **Sync-first**: No async overhead in core
+
+## Integrations
+
+### FastAPI
+
+```python
+from fastapi import FastAPI
+from cpg.integrations.fastapi import create_app
+
+app = create_app()
+
+# Endpoints:
+# POST /detect - Detect PII in text
+# POST /validate - Validate specific identifier
+# GET /detectors - List available detectors
+# GET /health - Health check
+
+# Run: uvicorn cpg.integrations.fastapi:app --reload
+```
+
+### LangChain
+
+```python
+from cpg.integrations.langchain import PIIPreprocessor, PIIAnonymizer
+
+# Anonymize PII before sending to LLM
+anonymizer = PIIAnonymizer(regions=["cz"])
+safe_text = anonymizer("Jan Novák, RČ: 8001011234")
+# Output: "Jan Novák, [RODNE_CISLO]"
+
+# Use in LangChain chain
+from langchain.llms import OpenAI
+
+llm = OpenAI()
+preprocessor = PIIPreprocessor(regions=["cz"])
+
+chain = preprocessor | llm
+result = chain.invoke("Your text with PII here")
+```
+
+### MCP Server
+
+```python
+from cpg.integrations.mcp import MCPServer
+
+mcp_server = MCPServer(regions=["cz"])
+
+# List available tools
+tools = mcp_server.list_tools()
+# [{"name": "detect_pii", ...}, {"name": "validate_identifier", ...}, ...]
+
+# Call tool
+result = mcp_server.call_tool("detect_pii", {
+    "text": "Jan Novák, RČ: 8001011234",
+    "regions": ["cz"]
+})
+```
+
+### CLI
+
+```bash
+# Detect PII in text
+cpg detect "Jan Novák, RČ: 8001011234"
+
+# Detect PII from file
+cpg detect --file document.txt --format json --output results.json
+
+# Validate specific identifier
+cpg validate 8001011234 --detector rodne_cislo
+
+# List available detectors
+cpg list-detectors
+```
 
 ## Development
 
@@ -197,22 +298,25 @@ if matches_regex(rc) and validate_checksum(rc) and validate_date(rc):
 
 ## Roadmap
 
-### Sprint 1 (Complete)
+### Sprint 1 (Complete) ✅
 - ✅ Core SDK implementation
 - ✅ Czech detectors (RČ, IČO, DIČ)
 - ✅ Framework-independent core
 - ✅ TDD test suite
 
-### Sprint 2 (Next)
-- 🎯 CLI interface
-- 🎯 Documentation website
-- 🎯 Performance benchmarks
-- 🎯 Additional Czech identifiers (bank accounts, OP)
+### Sprint 2 (Complete) ✅
+- ✅ Additional Czech identifiers (Bank Account, Postal Code, Phone)
+- ✅ CLI interface
+- ✅ FastAPI adapter
+- ✅ LangChain integration
+- ✅ MCP server integration
+- ✅ Documentation updates
 
-### Sprint 3
+### Sprint 3 (Next)
 - 🔜 Slovak detectors (SK)
-- 🔜 FastAPI adapter
-- 🔜 MCP server integration
+- 🔜 Performance benchmarks
+- 🔜 Additional test coverage
+- 🔜 Documentation website
 
 ### Future
 - 🔜 German detectors (DE)

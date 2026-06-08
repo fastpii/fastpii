@@ -20,6 +20,9 @@ classifiers = [
 
 dependencies = []
 
+[project.scripts]
+cpg = "cpg.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
