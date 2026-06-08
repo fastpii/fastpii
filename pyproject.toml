@@ -1,0 +1,93 @@
+[project]
+name = "cpg"
+version = "0.1.0"
+description = "Privacy Gateway SDK for Czech and Central European PII detection"
+authors = [{name = "Privacy Gateway Team", email = "support@privacygateway.io"}]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+keywords = ["privacy", "gdpr", "czech", "pii", "compliance", "detection"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8",
+]
+
+[project.urls]
+Homepage = "https://github.com/privacy-gateway/cpg"
+Documentation = "https://privacy-gateway.github.io/cpg"
+Source = "https://github.com/privacy-gateway/cpg"
+Changelog = "https://github.com/privacy-gateway/cpg/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cpg*"]
+
+[tool.setuptools.package-data]
+cpg = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "ARG", "SIM"]
+ignore = ["E501", "B008", "B904", "ARG001"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["cpg"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_configs = true
+plugins = []
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --strict-markers --cov=cpg --cov-report=term-missing"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.coverage.run]
+source = ["src/cpg"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
