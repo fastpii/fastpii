@@ -173,8 +173,6 @@ Tested on Czech-focused evaluation datasets covering real-world documents (contr
 - RAG pipeline sanitization
 - MCP server for Claude Desktop
 
-The priority after v0.2.5 is **getting real users**, not squeezing another percentage point from synthetic benchmarks. Real-world usage in FastAPI projects, LangChain pipelines, and RAG systems will reveal more than another 500 test cases.
-
 ## Integrations
 
 ### FastAPI
