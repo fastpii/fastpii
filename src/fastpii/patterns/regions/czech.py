@@ -5,7 +5,6 @@ Implements the Strategy pattern for loading Czech-specific PII patterns.
 Follows industrial standards for plugin architectures.
 """
 
-from typing import List
 from fastpii.patterns.base import PatternDefinition
 
 
@@ -34,12 +33,12 @@ class CzechPatternLoader:
             registry.register(pattern)
     """
     
-    REGION_CODE = "cz"
-    REGION_NAME = "Czech Republic"
-    LANGUAGE_CODES = ["cs", "cs-CZ"]  # Czech language
+    REGION_CODE: str = "cz"
+    REGION_NAME: str = "Czech Republic"
+    LANGUAGE_CODES: list[str] = ["cs", "cs-CZ"]  # Czech language
     
     @staticmethod
-    def load() -> List[PatternDefinition]:
+    def load() -> list[PatternDefinition]:
         """
         Load all Czech patterns.
         
@@ -50,7 +49,7 @@ class CzechPatternLoader:
         - Creates pattern objects without exposing creation logic
         - Allows easy testing and extension
         """
-        patterns = []
+        patterns: list[PatternDefinition] = []
         
         # Rodné číslo (Birth Number) - Czech national ID
         # ISO 3166-1: CZ
@@ -154,10 +153,23 @@ class CzechPatternLoader:
             extraction_regex=r"(?:\+420[\s-]?)?([2-5])[\s-]?(\d{4})[\s-]?(\d{4})"
         ))
         
+        # Email Address
+        # RFC 5322 simplified pattern
+        # Czech domains: .cz, .sk prioritized
+        patterns.append(PatternDefinition(
+            entity_type="email",
+            name="standard",
+            regex=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
+            region="cz",
+            score=0.95,
+            context_words=["email", "e-mail", "@"],
+            validation_regex=r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$"
+        ))
+        
         return patterns
     
     @staticmethod
-    def get_metadata() -> dict:
+    def get_metadata() -> dict[str, object]:
         """
         Get metadata about Czech patterns.
         
@@ -169,14 +181,15 @@ class CzechPatternLoader:
             "region_name": "Czech Republic",
             "language_codes": ["cs", "cs-CZ"],
             "iso_3166_code": "CZ",
-            "pattern_count": 7,
+            "pattern_count": 8,
             "entity_types": [
                 "rodne_cislo",
                 "ico",
                 "dic",
                 "bank_account",
                 "postal_code",
-                "phone"  # has variants: mobile, landline
+                "phone",  # has variants: mobile, landline
+                "email"
             ],
             "has_checksum_validation": True,
             "checksum_algorithms": [

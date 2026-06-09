@@ -1,5 +1,13 @@
-import re
-from typing import Any
+from collections.abc import Callable
+from typing import TypeVar
+
+F = TypeVar("F", bound=Callable[..., object])
+
+try:
+    from typing_extensions import override
+except ImportError:
+    def override(method: F, /) -> F:
+        return method
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
@@ -8,9 +16,10 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 class PostalCodeDetector(Detector):
     # Backward compatibility: expose pattern constant
-    CZECH_POSTAL_CODE_PATTERN = r'\b(\d{3})\s?(\d{2})\b'
+    CZECH_POSTAL_CODE_PATTERN: str = r'\b(\d{3})\s?(\d{2})\b'
     
-    PRAGUE_CODES = {"110", "111", "112", "113", "114", "115", "116", "117", "118", "119", "120", "121", "122", "123", "124", "125", "126", "127", "128", "129", "130", "131", "132", "133", "134", "135", "136", "137", "138", "139", "140", "141", "142", "143", "144", "145", "146", "147", "148", "149", "150", "151", "152", "153", "154", "155", "156", "157", "158", "159", "160", "161", "162", "163", "164", "165", "166", "167", "168", "169", "170", "171", "172", "173", "174", "175", "176", "177", "178", "179", "180", "181", "182", "183", "184", "185", "186", "187", "188", "189", "190", "191", "192", "193", "194", "195", "196", "197", "198", "199"}
+    PRAGUE_CODES: set[str] = {"110", "111", "112", "113", "114", "115", "116", "117", "118", "119", "120", "121", "122", "123", "124", "125", "126", "127", "128", "129", "130", "131", "132", "133", "134", "135", "136", "137", "138", "139", "140", "141", "142", "143", "144", "145", "146", "147", "148", "149", "150", "151", "152", "153", "154", "155", "156", "157", "158", "159", "160", "161", "162", "163", "164", "165", "166", "167", "168", "169", "170", "171", "172", "173", "174", "175", "176", "177", "178", "179", "180", "181", "182", "183", "184", "185", "186", "187", "188", "189", "190", "191", "192", "193", "194", "195", "196", "197", "198", "199"}
+    registry: PatternRegistry
 
     def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
@@ -21,6 +30,7 @@ class PostalCodeDetector(Detector):
         # Use shared registry if none provided (singleton pattern)
         self.registry = registry or get_shared_registry()
 
+    @override
     def detect(self, text: str) -> list[Finding]:
         patterns = self.registry.get_patterns("postal_code", "cz")
         if not patterns:
@@ -49,6 +59,7 @@ class PostalCodeDetector(Detector):
 
         return findings
 
+    @override
     def validate(self, value: str) -> bool:
         cleaned = value.replace(' ', '')
         
@@ -75,11 +86,11 @@ class PostalCodeDetector(Detector):
         
         return True
 
-    def _extract_metadata(self, value: str) -> dict[str, Any]:
+    def _extract_metadata(self, value: str) -> dict[str, object]:
         cleaned = value.replace(' ', '')
         prefix = cleaned[:3]
         
-        metadata: dict[str, Any] = {}
+        metadata: dict[str, object] = {}
         
         if prefix in self.PRAGUE_CODES:
             metadata["region"] = "Praha"

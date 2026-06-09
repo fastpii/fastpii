@@ -11,12 +11,24 @@ Design Patterns:
 - Singleton Pattern: Global shared instance
 """
 
-import re
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Type
-from functools import lru_cache
+from collections.abc import Callable
+from typing import Protocol, TypeVar, cast
 
 from fastpii.patterns.base import BasePatternRegistry, PatternDefinition
+
+
+F = TypeVar("F", bound=Callable[..., object])
+
+try:
+    from typing_extensions import override
+except ImportError:
+    def override(method: F, /) -> F:
+        return method
+
+
+class PatternLoader(Protocol):
+    @staticmethod
+    def load() -> list[PatternDefinition]: ...
 
 
 class PatternRegistry(BasePatternRegistry):
@@ -48,19 +60,19 @@ class PatternRegistry(BasePatternRegistry):
     - Easy to add new regions without modifying registry
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Create an empty pattern registry with auto-discovery"""
         # region -> entity_type -> List[PatternDefinition]
-        self._patterns: Dict[str, Dict[str, List[PatternDefinition]]] = {}
+        self._patterns: dict[str, dict[str, list[PatternDefinition]]] = {}
         
         # Cache compiled patterns
-        self._pattern_cache: Dict[str, PatternDefinition] = {}
+        self._pattern_cache: dict[str, PatternDefinition] = {}
         
         # Loaded regions (lazy loading)
-        self._loaded_regions: set = set()
+        self._loaded_regions: set[str] = set()
         
         # Auto-discovered region loaders (Plugin Pattern)
-        self._loaders: Dict[str, Type] = {}
+        self._loaders: dict[str, type[PatternLoader]] = {}
         self._discover_region_loaders()
     
     def _discover_region_loaders(self) -> None:
@@ -79,11 +91,12 @@ class PatternRegistry(BasePatternRegistry):
         try:
             # Import all available region loaders
             from fastpii.patterns.regions import REGION_LOADERS
-            self._loaders = REGION_LOADERS.copy()
+            self._loaders = cast(dict[str, type[PatternLoader]], REGION_LOADERS.copy())
         except ImportError:
             # Fallback: no region loaders available yet
             self._loaders = {}
     
+    @override
     def register(self, pattern: PatternDefinition) -> None:
         """
         Register a pattern definition manually.
@@ -115,7 +128,8 @@ class PatternRegistry(BasePatternRegistry):
         cache_key = f"{region}.{entity_type}.{pattern.name}"
         self._pattern_cache[cache_key] = pattern
     
-    def load_patterns(self, region_code: str) -> None:
+    @override
+    def load_patterns(self, region_code: str | None = None) -> None:
         """
         Load patterns for a specific region using auto-discovery.
         
@@ -135,6 +149,9 @@ class PatternRegistry(BasePatternRegistry):
             >>> registry.load_patterns("cz")  # Loads Czech patterns
             >>> registry.load_patterns("sk")  # Future: Slovak patterns
         """
+        if region_code is None:
+            raise ValueError("region_code is required")
+
         region_code = region_code.lower()
         
         # Check if already loaded (Lazy Loading Pattern)
@@ -144,11 +161,11 @@ class PatternRegistry(BasePatternRegistry):
         # Check if loader available
         if region_code not in self._loaders:
             available = list(self._loaders.keys())
-            raise ValueError(
-                f"Region '{region_code}' not available. "
-                f"Available regions: {available}. "
+            message = (
+                f"Region '{region_code}' not available. Available regions: {available}. "
                 f"To add support, create a loader in patterns/regions/{region_code}.py"
             )
+            raise ValueError(message)
         
         # Instantiate loader (Factory Pattern)
         loader_class = self._loaders[region_code]
@@ -177,8 +194,8 @@ class PatternRegistry(BasePatternRegistry):
         for region_code in self._loaders.keys():
             self.load_patterns(region_code)
     
-    @lru_cache(maxsize=128)
-    def get_patterns(self, entity_type: str, region: str) -> List[PatternDefinition]:
+    @override
+    def get_patterns(self, entity_type: str, region: str) -> list[PatternDefinition]:
         """
         Get all patterns for an entity type in a region.
         
@@ -196,7 +213,8 @@ class PatternRegistry(BasePatternRegistry):
         
         return self._patterns.get(region, {}).get(entity_type, [])
     
-    def get_pattern(self, entity_type: str, variant: str, region: str) -> Optional[PatternDefinition]:
+    @override
+    def get_pattern(self, entity_type: str, variant: str, region: str) -> PatternDefinition | None:
         """
         Get a specific pattern variant.
         
@@ -211,15 +229,17 @@ class PatternRegistry(BasePatternRegistry):
         cache_key = f"{region.lower()}.{entity_type.lower()}.{variant}"
         return self._pattern_cache.get(cache_key)
     
-    def get_available_regions(self) -> List[str]:
+    @override
+    def get_available_regions(self) -> list[str]:
         """Get list of available region codes"""
         return list(self._loaders.keys())
     
-    def get_loaded_regions(self) -> List[str]:
+    def get_loaded_regions(self) -> list[str]:
         """Get list of regions that have been loaded"""
         return list(self._loaded_regions)
     
-    def get_available_entities(self, region: str) -> List[str]:
+    @override
+    def get_available_entities(self, region: str) -> list[str]:
         """
         Get list of available entity types for a region.
         
@@ -231,13 +251,12 @@ class PatternRegistry(BasePatternRegistry):
         """
         return list(self._patterns.get(region.lower(), {}).keys())
     
+    @override
     def clear(self) -> None:
         """Clear all registered patterns"""
         self._patterns.clear()
         self._pattern_cache.clear()
         self._loaded_regions.clear()
-        # Clear the LRU cache
-        self.get_patterns.cache_clear()
     
     # Backward compatibility: Keep load_czech_patterns() as alias
     def load_czech_patterns(self) -> None:
@@ -265,17 +284,18 @@ class CzechPatternRegistry(PatternRegistry):
         for consistency with multi-region systems.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.load_patterns()  # Automatically load Czech patterns
+        super().load_patterns("cz")
     
-    def load_patterns(self) -> None:
+    @override
+    def load_patterns(self, region_code: str | None = None) -> None:
         """Load Czech patterns"""
-        self.load_czech_patterns()
+        super().load_patterns(region_code or "cz")
 
 
 # Global shared registry instance (singleton)
-_shared_registry: Optional[PatternRegistry] = None
+_shared_registry: PatternRegistry | None = None
 
 
 def get_shared_registry() -> PatternRegistry:

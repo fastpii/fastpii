@@ -12,12 +12,16 @@ class DetectorMetadata:
 
 
 class Detector(ABC):
+    name: str
+    region: str
+    description: str
+
     def __init__(
         self,
         name: str,
         region: str,
         description: str = ""
-    ):
+    ) -> None:
         self.name = name
         self.region = region
         self.description = description

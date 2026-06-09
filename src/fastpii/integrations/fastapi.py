@@ -1,5 +1,4 @@
-from typing import Optional
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from fastpii import PrivacyGuard
@@ -8,7 +7,7 @@ from fastpii import PrivacyGuard
 class DetectRequest(BaseModel):
     text: str
     regions: list[str] = ["cz"]
-    detector_names: Optional[list[str]] = None
+    detector_names: list[str] | None = None
 
 
 class ValidateRequest(BaseModel):
@@ -24,7 +23,7 @@ class FindingResponse(BaseModel):
     end: int
     confidence: float
     region: str
-    metadata: dict
+    metadata: dict[str, object]
 
 
 class DetectionResponse(BaseModel):
@@ -38,7 +37,7 @@ class ValidationResponse(BaseModel):
     detector: str
     value: str
     is_valid: bool
-    metadata: dict
+    metadata: dict[str, object]
 
 
 class DetectorInfo(BaseModel):
@@ -94,8 +93,8 @@ def create_app() -> FastAPI:
         )
 
     @app.get("/detectors", response_model=list[DetectorInfo])
-    async def list_detectors(regions: list[str] = ["cz"]):
-        guard = PrivacyGuard(regions=regions)
+    async def list_detectors(regions: list[str] | None = None):
+        guard = PrivacyGuard(regions=regions or ["cz"])
         detectors = guard.list_detectors()
         
         return [

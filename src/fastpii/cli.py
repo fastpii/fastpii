@@ -7,7 +7,7 @@ from pathlib import Path
 from fastpii import PrivacyGuard, DetectionResult, ValidationResult
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="FastPII - Fast PII Detection and Validation CLI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -30,23 +30,23 @@ Examples:
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     detect_parser = subparsers.add_parser("detect", help="Detect PII in text or file")
-    detect_parser.add_argument("text", nargs="?", help="Text to analyze")
-    detect_parser.add_argument("--file", "-f", type=Path, help="Read text from file")
-    detect_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Regions to enable")
-    detect_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
-    detect_parser.add_argument("--output", "-o", type=Path, help="Write output to file")
+    _ = detect_parser.add_argument("text", nargs="?", help="Text to analyze")
+    _ = detect_parser.add_argument("--file", "-f", type=Path, help="Read text from file")
+    _ = detect_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Regions to enable")
+    _ = detect_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
+    _ = detect_parser.add_argument("--output", "-o", type=Path, help="Write output to file")
 
     validate_parser = subparsers.add_parser("validate", help="Validate a specific identifier")
-    validate_parser.add_argument("value", help="Value to validate")
-    validate_parser.add_argument("--detector", "-d", required=True, help="Detector to use")
-    validate_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Regions to enable")
-    validate_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
+    _ = validate_parser.add_argument("value", help="Value to validate")
+    _ = validate_parser.add_argument("--detector", "-d", required=True, help="Detector to use")
+    _ = validate_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Regions to enable")
+    _ = validate_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
 
     list_parser = subparsers.add_parser("list-detectors", help="List available detectors")
-    list_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Regions to enable")
-    list_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
+    _ = list_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Regions to enable")
+    _ = list_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
 
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
 
     if not args.command:
         parser.print_help()
@@ -60,15 +60,15 @@ Examples:
         handle_list_detectors(args)
 
 
-def handle_detect(args):
+def handle_detect(args: argparse.Namespace) -> None:
     if args.file:
         try:
             text = args.file.read_text()
         except FileNotFoundError:
             print(f"Error: File not found: {args.file}", file=sys.stderr)
             sys.exit(1)
-        except Exception as e:
-            print(f"Error reading file: {e}", file=sys.stderr)
+        except Exception as error:
+            print(f"Error reading file: {error}", file=sys.stderr)
             sys.exit(1)
     elif args.text:
         text = args.text
@@ -91,7 +91,7 @@ def handle_detect(args):
         print(output)
 
 
-def handle_validate(args):
+def handle_validate(args: argparse.Namespace) -> None:
     gateway = PrivacyGuard(regions=args.regions)
     
     try:
@@ -109,7 +109,7 @@ def handle_validate(args):
     print(output)
 
 
-def handle_list_detectors(args):
+def handle_list_detectors(args: argparse.Namespace) -> None:
     gateway = PrivacyGuard(regions=args.regions)
     detectors = gateway.list_detectors()
 

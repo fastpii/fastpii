@@ -1,0 +1,1 @@
+"""Czech name data for PII detection."""

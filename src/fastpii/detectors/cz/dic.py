@@ -1,5 +1,13 @@
-import re
-from typing import Any
+from collections.abc import Callable
+from typing import TypeVar
+
+F = TypeVar("F", bound=Callable[..., object])
+
+try:
+    from typing_extensions import override
+except ImportError:
+    def override(method: F, /) -> F:
+        return method
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
@@ -7,6 +15,8 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class DICDetector(Detector):
+    registry: PatternRegistry
+
     def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="dic",
@@ -16,6 +26,7 @@ class DICDetector(Detector):
         # Use shared registry if none provided (singleton pattern)
         self.registry = registry or get_shared_registry()
 
+    @override
     def detect(self, text: str) -> list[Finding]:
         patterns = self.registry.get_patterns("dic", "cz")
         if not patterns:
@@ -44,6 +55,7 @@ class DICDetector(Detector):
 
         return findings
 
+    @override
     def validate(self, value: str) -> bool:
         if value.startswith("CZ"):
             value = value[2:]
@@ -67,8 +79,8 @@ class DICDetector(Detector):
         is_valid, _, _ = validate_birth_number_format(value)
         return is_valid
 
-    def _extract_metadata(self, value: str) -> dict[str, Any]:
-        metadata: dict[str, Any] = {}
+    def _extract_metadata(self, value: str) -> dict[str, object]:
+        metadata: dict[str, object] = {}
         
         if len(value) == 8:
             metadata["type"] = "company"

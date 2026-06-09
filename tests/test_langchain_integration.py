@@ -12,7 +12,8 @@ class TestLangChainIntegration:
         
         assert "8001011238" not in anonymized
         assert "[REDACTED]" in anonymized
-        assert "Jan Novák" in anonymized
+        # Note: Jan Novák may also be detected as PII (name) after NameDetector was added
+        # so we no longer assert that it remains in the text
 
     def test_pii_anonymizer_multiple_identifiers(self):
         anonymizer = PIIAnonymizer(regions=["cz"])
@@ -67,7 +68,8 @@ class TestLangChainIntegration:
         processed = preprocessor.preprocess(text, action="remove")
         
         assert "8001011238" not in processed
-        assert "Jan Novák," in processed
+        # Note: Jan Novák may also be detected as PII (name) after NameDetector was added
+        # so we no longer assert that the name remains in the text
         assert "[REDACTED]" not in processed
 
     def test_pii_preprocessor_callable(self):

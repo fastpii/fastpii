@@ -6,11 +6,11 @@ Based on: phpFashion algorithm and CSSZ specifications
 """
 
 import re
+from collections.abc import Mapping
 from datetime import datetime
-from typing import Tuple, Optional
 
 
-def validate_birth_number_format(value: str) -> Tuple[bool, str, Optional[dict]]:
+def validate_birth_number_format(value: str) -> tuple[bool, str, Mapping[str, int | str | None] | None]:
     """
     Validate Czech birth number format and extract information.
     
@@ -21,7 +21,7 @@ def validate_birth_number_format(value: str) -> Tuple[bool, str, Optional[dict]]
     :param value: Birth number as string
     :return: Tuple of (is_valid, error_message, parsed_info)
     """
-    if not value or not isinstance(value, str):
+    if not value:
         return False, "Invalid input type", None
     
     value = re.sub(r'\s+', '', value)
@@ -46,7 +46,7 @@ def validate_birth_number_format(value: str) -> Tuple[bool, str, Optional[dict]]
         actual_year = year + base_year
         
         try:
-            datetime(actual_year, month, day)
+            _ = datetime(actual_year, month, day)
         except ValueError:
             return False, f"Invalid date: {actual_year}-{month:02d}-{day:02d}", None
         
@@ -85,7 +85,7 @@ def validate_birth_number_format(value: str) -> Tuple[bool, str, Optional[dict]]
             month -= 20
         
         try:
-            datetime(actual_year, month, day)
+            _ = datetime(actual_year, month, day)
         except ValueError:
             return False, f"Invalid date after gender adjustment: {actual_year}-{month:02d}-{day:02d}", None
         

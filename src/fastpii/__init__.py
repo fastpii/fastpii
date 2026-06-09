@@ -1,6 +1,11 @@
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from fastpii.models import Finding, DetectionResult, ValidationResult
 from fastpii.guard import PrivacyGuard
 
-__all__ = ["PrivacyGuard", "Finding", "DetectionResult", "ValidationResult"]
+__all__ = [
+    "PrivacyGuard",
+    "Finding",
+    "DetectionResult",
+    "ValidationResult",
+]

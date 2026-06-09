@@ -1,13 +1,13 @@
-from typing import Any
-
 from fastpii import PrivacyGuard
 
 
 class MCPServer:
-    def __init__(self, regions: list[str] | None = None):
+    gateway: PrivacyGuard
+
+    def __init__(self, regions: list[str] | None = None) -> None:
         self.gateway = PrivacyGuard(regions=regions or ["cz"])
 
-    def list_tools(self) -> list[dict[str, Any]]:
+    def list_tools(self) -> list[dict[str, object]]:
         return [
             {
                 "name": "detect_pii",
@@ -77,7 +77,7 @@ class MCPServer:
             }
         ]
 
-    def call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    def call_tool(self, name: str, arguments: dict[str, object]) -> dict[str, object]:
         if name == "detect_pii":
             return self._handle_detect_pii(arguments)
         elif name == "validate_identifier":
@@ -87,15 +87,17 @@ class MCPServer:
         else:
             raise ValueError(f"Unknown tool: {name}")
 
-    def _handle_detect_pii(self, arguments: dict[str, Any]) -> dict[str, Any]:
+    def _handle_detect_pii(self, arguments: dict[str, object]) -> dict[str, object]:
         text = arguments.get("text")
-        regions = arguments.get("regions", ["cz"])
         detector_names = arguments.get("detector_names")
+        detector_list: list[str] | None = None
+        if isinstance(detector_names, list) and all(isinstance(item, str) for item in detector_names):
+            detector_list = [item for item in detector_names if isinstance(item, str)]
         
-        if not text:
+        if not isinstance(text, str) or not text:
             return {"error": "Missing required parameter: text"}
         
-        result = self.gateway.detect(text, detector_names=detector_names)
+        result = self.gateway.detect(text, detector_names=detector_list)
         
         return {
             "text": result.text,
@@ -115,14 +117,13 @@ class MCPServer:
             "processing_time_ms": result.processing_time_ms
         }
 
-    def _handle_validate_identifier(self, arguments: dict[str, Any]) -> dict[str, Any]:
+    def _handle_validate_identifier(self, arguments: dict[str, object]) -> dict[str, object]:
         value = arguments.get("value")
         detector_name = arguments.get("detector_name")
-        regions = arguments.get("regions", ["cz"])
         
-        if not value:
+        if not isinstance(value, str) or not value:
             return {"error": "Missing required parameter: value"}
-        if not detector_name:
+        if not isinstance(detector_name, str) or not detector_name:
             return {"error": "Missing required parameter: detector_name"}
         
         try:
@@ -139,8 +140,8 @@ class MCPServer:
                 "available_detectors": [d.name for d in self.gateway.list_detectors()]
             }
 
-    def _handle_list_detectors(self, arguments: dict[str, Any]) -> dict[str, Any]:
-        regions = arguments.get("regions", ["cz"])
+    def _handle_list_detectors(self, arguments: dict[str, object]) -> dict[str, object]:
+        _ = arguments
         detectors = self.gateway.list_detectors()
         
         return {

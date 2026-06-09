@@ -1,5 +1,13 @@
-import re
-from typing import Any
+from collections.abc import Callable
+from typing import TypeVar
+
+F = TypeVar("F", bound=Callable[..., object])
+
+try:
+    from typing_extensions import override
+except ImportError:
+    def override(method: F, /) -> F:
+        return method
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
@@ -7,6 +15,8 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class BankAccountDetector(Detector):
+    registry: PatternRegistry
+
     def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="bank_account",
@@ -16,6 +26,7 @@ class BankAccountDetector(Detector):
         # Use shared registry if none provided (singleton pattern)
         self.registry = registry or get_shared_registry()
 
+    @override
     def detect(self, text: str) -> list[Finding]:
         patterns = self.registry.get_patterns("bank_account", "cz")
         if not patterns:
@@ -46,13 +57,14 @@ class BankAccountDetector(Detector):
 
         return findings
 
+    @override
     def validate(self, value: str) -> bool:
         from fastpii.validators.bank_account import validate_bank_account
         
-        is_valid, error = validate_bank_account(value)
+        is_valid, _error = validate_bank_account(value)
         return is_valid
 
-    def _extract_metadata(self, value: str) -> dict[str, Any]:
+    def _extract_metadata(self, value: str) -> dict[str, object]:
         from fastpii.validators.bank_account import parse_bank_account
         
         # Use validator's parse function (validators are independent from registry)
@@ -62,7 +74,7 @@ class BankAccountDetector(Detector):
         if prefix is None:
             return {"bank_code": ""}
         
-        metadata: dict[str, Any] = {
+        metadata: dict[str, object] = {
             "bank_code": bank_code or "",
             "base": base or ""
         }

@@ -1,5 +1,13 @@
-import re
-from typing import Any
+from collections.abc import Callable
+from typing import TypeVar
+
+F = TypeVar("F", bound=Callable[..., object])
+
+try:
+    from typing_extensions import override
+except ImportError:
+    def override(method: F, /) -> F:
+        return method
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
@@ -8,8 +16,9 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 class PhoneNumberDetector(Detector):
     # Backward compatibility: expose pattern constants
-    MOBILE_PATTERN = r'(?:\+420[\s-]?)?(?:60[0-8]|7[0-9]\d)\d{6}'
-    LANDLINE_PATTERN = r'(?:\+420[\s-]?)?[2-5](?:\s?\d{3}){2}\s?\d{2}'
+    MOBILE_PATTERN: str = r'(?:\+420[\s-]?)?(?:60[0-8]|7[0-9]\d)\d{6}'
+    LANDLINE_PATTERN: str = r'(?:\+420[\s-]?)?[2-5](?:\s?\d{3}){2}\s?\d{2}'
+    registry: PatternRegistry
 
     def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
@@ -20,6 +29,7 @@ class PhoneNumberDetector(Detector):
         # Use shared registry if none provided (singleton pattern)
         self.registry = registry or get_shared_registry()
 
+    @override
     def detect(self, text: str) -> list[Finding]:
         patterns = self.registry.get_patterns("phone", "cz")
         if not patterns:
@@ -32,7 +42,7 @@ class PhoneNumberDetector(Detector):
                 phone_type = "mobile" if pattern_def.name == "mobile" else "landline"
                 normalized_value = self._normalize_phone(match.group(0))
                 
-                metadata: dict[str, Any] = {"phone_type": phone_type}
+                metadata: dict[str, object] = {"phone_type": phone_type}
                 
                 if phone_type == "mobile":
                     # Extract prefix for operator detection
@@ -55,6 +65,7 @@ class PhoneNumberDetector(Detector):
 
         return findings
 
+    @override
     def validate(self, value: str) -> bool:
         cleaned = self._normalize_phone(value)
         

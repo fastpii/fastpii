@@ -8,15 +8,15 @@ Pattern Organization: Constants defined at module level for maintainability
 while keeping validators independent from the registry.
 """
 
-from typing import Tuple, Optional
+from typing import Final
 
 # Pattern Constants (organized for maintainability)
 # These are validation patterns used by validators (different from detection patterns in registry)
-PREFIX_PATTERN = r'^\d{1,6}$'
-BASE_PATTERN = r'^\d{1,10}$'
-BANK_CODE_PATTERN = r'^\d{4}$'
-FULL_ACCOUNT_WITH_PREFIX = r'^(\d{1,6})-(\d{2,10})/(\d{4})$'
-FULL_ACCOUNT_WITHOUT_PREFIX = r'^(\d{2,10})/(\d{4})$'
+PREFIX_PATTERN: Final[str] = r'^\d{1,6}$'
+BASE_PATTERN: Final[str] = r'^\d{1,10}$'
+BANK_CODE_PATTERN: Final[str] = r'^\d{4}$'
+FULL_ACCOUNT_WITH_PREFIX: Final[str] = r'^(\d{1,6})-(\d{2,10})/(\d{4})$'
+FULL_ACCOUNT_WITHOUT_PREFIX: Final[str] = r'^(\d{2,10})/(\d{4})$'
 
 # Pre-compile patterns for performance
 import re
@@ -27,7 +27,7 @@ _FULL_WITH_PREFIX_COMPILED = re.compile(FULL_ACCOUNT_WITH_PREFIX)
 _FULL_WITHOUT_PREFIX_COMPILED = re.compile(FULL_ACCOUNT_WITHOUT_PREFIX)
 
 
-def validate_prefix_prefix(value: str) -> Tuple[bool, str]:
+def validate_prefix_prefix(value: str) -> tuple[bool, str]:
     """
     Validate the prefix part (optional, up to 6 digits) with weights [10,5,8,4,2,1] from left.
     
@@ -56,7 +56,7 @@ def validate_prefix_prefix(value: str) -> Tuple[bool, str]:
     return True, ""
 
 
-def validate_base_part(value: str) -> Tuple[bool, str]:
+def validate_base_part(value: str) -> tuple[bool, str]:
     """
     Validate the base part (up to 10 digits) with weights [6,3,7,9,10,5,8,4,2,1] from left.
     
@@ -82,7 +82,7 @@ def validate_base_part(value: str) -> Tuple[bool, str]:
     return True, ""
 
 
-def parse_bank_account(value: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+def parse_bank_account(value: str) -> tuple[str | None, str | None, str | None]:
     """
     Parse a Czech bank account number into its components.
     
@@ -118,12 +118,15 @@ def is_valid_bank_account(value: str) -> bool:
     
     # Validate prefix
     if prefix:
-        valid, error = validate_prefix_prefix(prefix)
+        valid, _error = validate_prefix_prefix(prefix)
         if not valid:
             return False
     
     # Validate base part
-    valid, error = validate_base_part(base)
+    if base is None or bank_code is None:
+        return False
+
+    valid, _error = validate_base_part(base)
     if not valid:
         return False
     
@@ -135,14 +138,14 @@ def is_valid_bank_account(value: str) -> bool:
     return True
 
 
-def validate_bank_account(value: str) -> Tuple[bool, str]:
+def validate_bank_account(value: str) -> tuple[bool, str]:
     """
     Validate Czech bank account with detailed error information.
     
     :param value: Bank account number
     :return: Tuple of (is_valid, error_message)
     """
-    if not value or not isinstance(value, str):
+    if not value:
         return False, "Invalid input type"
     
     prefix, base, bank_code = parse_bank_account(value)
@@ -154,6 +157,9 @@ def validate_bank_account(value: str) -> Tuple[bool, str]:
         if not valid:
             return False, f"Prefix: {error}"
     
+    if base is None or bank_code is None:
+        return False, "Invalid format. Expected [prefix-]base/bank_code"
+
     valid, error = validate_base_part(base)
     if not valid:
         return False, f"Base: {error}"

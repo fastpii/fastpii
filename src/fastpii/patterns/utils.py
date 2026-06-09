@@ -5,8 +5,8 @@ Provides registry access for validation and extraction patterns.
 Uses singleton pattern for efficiency.
 """
 
-from typing import Optional, Match
-from fastpii.patterns import get_shared_registry
+from fastpii.patterns.base import PatternDefinition
+from fastpii.patterns.registry import get_shared_registry
 
 
 def validate_format(entity_type: str, value: str, region: str = "cz") -> bool:
@@ -36,7 +36,7 @@ def validate_format(entity_type: str, value: str, region: str = "cz") -> bool:
     return bool(pattern_def.validation_compiled.match(value))
 
 
-def extract_groups(entity_type: str, value: str, region: str = "cz") -> Optional[tuple]:
+def extract_groups(entity_type: str, value: str, region: str = "cz") -> tuple[str, ...] | None:
     """
     Extract regex groups using registry patterns.
     
@@ -69,7 +69,11 @@ def extract_groups(entity_type: str, value: str, region: str = "cz") -> Optional
     return None
 
 
-def get_pattern(entity_type: str, variant: str = "standard", region: str = "cz"):
+def get_pattern(
+    entity_type: str,
+    variant: str = "standard",
+    region: str = "cz",
+) -> PatternDefinition | None:
     """
     Get a specific pattern from the registry.
     

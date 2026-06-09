@@ -1,6 +1,15 @@
-import re
 from datetime import datetime
-from typing import Any
+
+from collections.abc import Callable
+from typing import TypeVar
+
+F = TypeVar("F", bound=Callable[..., object])
+
+try:
+    from typing_extensions import override
+except ImportError:
+    def override(method: F, /) -> F:
+        return method
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
@@ -8,6 +17,8 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class RodneCisloDetector(Detector):
+    registry: PatternRegistry
+
     def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="rodne_cislo",
@@ -17,6 +28,7 @@ class RodneCisloDetector(Detector):
         # Use shared registry if none provided (singleton pattern)
         self.registry = registry or get_shared_registry()
 
+    @override
     def detect(self, text: str) -> list[Finding]:
         patterns = self.registry.get_patterns("rodne_cislo", "cz")
         if not patterns:
@@ -45,6 +57,7 @@ class RodneCisloDetector(Detector):
 
         return findings
 
+    @override
     def validate(self, value: str) -> bool:
         cleaned = value.replace('/', '').replace(' ', '')
         
@@ -68,7 +81,6 @@ class RodneCisloDetector(Detector):
             month = int(rc[2:4])
             day = int(rc[4:6])
             
-            original_month = month
             if month > 70:
                 month -= 70
             elif month > 50:
@@ -87,7 +99,7 @@ class RodneCisloDetector(Detector):
                 else:
                     year += 1800
             
-            datetime(year, month, day)
+            _ = datetime(year, month, day)
             return True
 
         except ValueError:
@@ -109,8 +121,8 @@ class RodneCisloDetector(Detector):
         except (ValueError, IndexError):
             return False
 
-    def _extract_metadata(self, rc: str) -> dict[str, Any]:
-        metadata: dict[str, Any] = {}
+    def _extract_metadata(self, rc: str) -> dict[str, object]:
+        metadata: dict[str, object] = {}
         
         try:
             year = int(rc[0:2])

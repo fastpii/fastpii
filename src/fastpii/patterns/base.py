@@ -6,7 +6,6 @@ Defines the interface that all region-specific pattern registries must implement
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, Optional
 import re
 
 
@@ -37,15 +36,15 @@ class PatternDefinition:
     regex: str
     region: str
     score: float = 1.0
-    context_words: List[str] = field(default_factory=list)
-    checksum_algo: Optional[str] = None
-    compiled: re.Pattern = field(init=False, repr=False)
-    validation_regex: Optional[str] = None
-    extraction_regex: Optional[str] = None
-    validation_compiled: Optional[re.Pattern] = field(init=False, repr=False, default=None)
-    extraction_compiled: Optional[re.Pattern] = field(init=False, repr=False, default=None)
+    context_words: list[str] = field(default_factory=list)
+    checksum_algo: str | None = None
+    compiled: re.Pattern[str] = field(init=False, repr=False)
+    validation_regex: str | None = None
+    extraction_regex: str | None = None
+    validation_compiled: re.Pattern[str] | None = field(init=False, repr=False, default=None)
+    extraction_compiled: re.Pattern[str] | None = field(init=False, repr=False, default=None)
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Pre-compile the regex patterns"""
         try:
             self.compiled = re.compile(self.regex)
@@ -119,7 +118,7 @@ class BasePatternRegistry(ABC):
         pass
     
     @abstractmethod
-    def get_patterns(self, entity_type: str, region: str) -> List[PatternDefinition]:
+    def get_patterns(self, entity_type: str, region: str) -> list[PatternDefinition]:
         """
         Get all patterns for an entity type in a region.
         
@@ -133,7 +132,7 @@ class BasePatternRegistry(ABC):
         pass
     
     @abstractmethod
-    def get_pattern(self, entity_type: str, variant: str, region: str) -> Optional[PatternDefinition]:
+    def get_pattern(self, entity_type: str, variant: str, region: str) -> PatternDefinition | None:
         """
         Get a specific pattern variant.
         
@@ -148,12 +147,12 @@ class BasePatternRegistry(ABC):
         pass
     
     @abstractmethod
-    def get_available_regions(self) -> List[str]:
+    def get_available_regions(self) -> list[str]:
         """Get list of available region codes"""
         pass
     
     @abstractmethod
-    def get_available_entities(self, region: str) -> List[str]:
+    def get_available_entities(self, region: str) -> list[str]:
         """
         Get list of available entity types for a region.
         

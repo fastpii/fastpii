@@ -5,7 +5,6 @@ Implementation of the MOD11 checksum algorithm for Czech business identification
 """
 
 import re
-from typing import Tuple
 
 
 def calculate_ico_checksum(number: int) -> int:
@@ -68,14 +67,14 @@ def is_valid_ico(value: str) -> bool:
     return check_digit == expected_check
 
 
-def validate_ico(value: str) -> Tuple[bool, str]:
+def validate_ico(value: str) -> tuple[bool, str]:
     """
     Validate Czech IČO with detailed error information.
     
     :param value: IČO to validate
     :return: Tuple of (is_valid, error_message)
     """
-    if not value or not isinstance(value, str):
+    if not value:
         return False, "Invalid input type"
     
     value = re.sub(r'\s+', '', value)

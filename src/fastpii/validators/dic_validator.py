@@ -7,7 +7,6 @@ Tax identification numbers for Czech Republic.
 """
 
 import re
-from typing import Tuple, Optional
 
 
 def format_dic(value: str) -> str:
@@ -15,7 +14,7 @@ def format_dic(value: str) -> str:
     return re.sub(r'\s+', '', str(value).upper())
 
 
-def parse_dic(value: str) -> Tuple[Optional[str], Optional[str]]:
+def parse_dic(value: str) -> tuple[str | None, str | None]:
     """
     Parse Czech DIČ into country code and number.
     
@@ -69,9 +68,9 @@ def is_valid_birth_number(rc: str) -> bool:
         return False
     
     year_part, month_part, day_part, extension = match.groups()
-    year = int(year_part)
-    month = int(month_part)
-    day = int(day_part)
+    _year = int(year_part)
+    _month = int(month_part)
+    _day = int(day_part)
     
     if len(extension) == 3:
         # 9-digit format (pre-1954), no checksum validation needed
@@ -109,14 +108,14 @@ def is_valid_dic(value: str) -> bool:
         return is_valid_birth_number(number)
 
 
-def validate_dic(value: str) -> Tuple[bool, str]:
+def validate_dic(value: str) -> tuple[bool, str]:
     """
     Validate Czech DIČ with detailed error information.
     
     :param value: DIČ to validate
     :return: Tuple of (is_valid, error_message)
     """
-    if not value or not isinstance(value, str):
+    if not value:
         return False, "Invalid input type"
     
     country_code, number = parse_dic(value)

@@ -1,5 +1,13 @@
-import re
-from typing import Any
+from collections.abc import Callable
+from typing import TypeVar
+
+F = TypeVar("F", bound=Callable[..., object])
+
+try:
+    from typing_extensions import override
+except ImportError:
+    def override(method: F, /) -> F:
+        return method
 
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
@@ -7,6 +15,8 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class ICODetector(Detector):
+    registry: PatternRegistry
+
     def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="ico",
@@ -16,6 +26,7 @@ class ICODetector(Detector):
         # Use shared registry if none provided (singleton pattern)
         self.registry = registry or get_shared_registry()
 
+    @override
     def detect(self, text: str) -> list[Finding]:
         patterns = self.registry.get_patterns("ico", "cz")
         if not patterns:
@@ -44,6 +55,7 @@ class ICODetector(Detector):
 
         return findings
 
+    @override
     def validate(self, value: str) -> bool:
         cleaned = value.replace('/', '').replace(' ', '')
         
@@ -74,7 +86,7 @@ class ICODetector(Detector):
         except (ValueError, IndexError):
             return False
 
-    def _extract_metadata(self, ico: str) -> dict[str, Any]:
+    def _extract_metadata(self, ico: str) -> dict[str, object]:
         return {
             "checksum_valid": self._validate_checksum(ico)
         }
