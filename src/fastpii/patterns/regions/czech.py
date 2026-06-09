@@ -131,25 +131,29 @@ class CzechPatternLoader:
         # Phone - Mobile (Mobilní telefon)
         # Prefixes: 601-608, 702-799
         # Format: +420 XXX XXX XXX or XXX XXX XXX
+        # Boundary checks: no adjacent digits. Context validation done in detector.
         patterns.append(PatternDefinition(
             entity_type="phone",
             name="mobile",
-            regex=r"(?:\+420[\s-]?)?(?:60[0-8]|7[0-9]\d)[\s-]?(\d{3})[\s-]?(\d{3})",
+            regex=r"(?<!\d)(?:\+420[\s-]?)?(?:60[1-8]|7\d{2})[\s-]?\d{3}[\s-]?\d{3}(?!\d)",
             region="cz",
             score=0.95,
-            context_words=["tel", "telefon", "mobil", "mobile"],
-            extraction_regex=r"(?:\+420[\s-]?)?(60[0-8]|7[0-9]\d)[\s-]?(\d{3})[\s-]?(\d{3})"
+            context_words=["tel", "telefon", "mobil", "mobile", "phone", "contact", "number"],
+            extraction_regex=r"(?:\+420[\s-]?)?(60[1-8]|7\d{2})[\s-]?(\d{3})[\s-]?(\d{3})"
         ))
         
         # Phone - Landline (Pevná linka)
         # Area codes: 2 (Prague), 3 (Pardubice/Hradec), 4 (Plzeň), 5 (Brno/Olomouc)
+        # Format 1: +420 [2-5] XXXX XXXX (area code is 1 digit, then 4+4 digits)
+        # Format 2: +420 [2-5]XX XXX XXX (Prague style: area+2digits, then 3+3)
+        # Boundary checks: no adjacent digits. Context validation done in detector.
         patterns.append(PatternDefinition(
             entity_type="phone",
             name="landline",
-            regex=r"(?:\+420[\s-]?)?([2-5])[\s-]?(\d{4})[\s-]?(\d{4})",
+            regex=r"(?<!\d)(?:\+420[\s-]?)?[2-5](?:[\s-]?\d{4}[\s-]?\d{4}|[\s-]?\d{2}[\s-]?\d{3}[\s-]?\d{3})(?!\d)",
             region="cz",
             score=0.90,
-            context_words=["tel", "telefon", "pevná linka", "landline"],
+            context_words=["tel", "telefon", "pevná linka", "landline", "contact", "number"],
             extraction_regex=r"(?:\+420[\s-]?)?([2-5])[\s-]?(\d{4})[\s-]?(\d{4})"
         ))
         

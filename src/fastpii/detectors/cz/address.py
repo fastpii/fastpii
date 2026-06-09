@@ -58,7 +58,27 @@ NON_ADDRESS_WORDS = {
     "tel", "telefon", "mobil", "fax",
     # English context words (for multilingual texts)
     "born", "before", "after", "from", "date", "year", "age",
+    # English months
+    "january", "february", "march", "april", "may", "june", "july",
+    "august", "september", "october", "november", "december",
+    # Non-street headings/labels
+    "postal",
 }
+
+# Shared address fragments. Use horizontal whitespace only so matches never cross lines.
+HORIZONTAL_WS = r'[^\S\n]+'
+OPTIONAL_HORIZONTAL_WS = r'[^\S\n]*'
+STREET_NAME_PART = (
+    r'[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+'
+    r'(?:[^\S\n]+(?:[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+|[a-záčďéěíňóřšťúůýž]+)){0,2}'
+)
+HOUSE_NUMBER_PART = r'\d{1,5}(?:[/ ]\d{1,5})?'
+CITY_PART = (
+    r'[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+'
+    r'(?:[^\S\n]+[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽa-záčďéěíňóřšťúůýž]+){0,3}'
+    r'(?:[^\S\n]+\d{1,2})?'
+)
+POSTAL_CODE_PART = r'\d{3}[^\S\n]?\d{2}'
 
 # Common Czech street patterns
 STREET_PATTERNS = [
@@ -72,13 +92,13 @@ class AddressDetector(Detector):
     # Pattern for Czech addresses
     # Format: Street Name + Number, City, Postal Code
     ADDRESS_PATTERN: re.Pattern[str] = re.compile(
-        r'\b([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]{2,}(?:\s+[a-záčďéěíňóřšťúůýž]+)?)\s+(\d+[/\s]?\d*)[,\s]+([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž\s]{2,})[,\s]+(\d{3}\s?\d{2})\b',
-        re.IGNORECASE
+        rf'\b({STREET_NAME_PART}){HORIZONTAL_WS}({HOUSE_NUMBER_PART})(?:,{OPTIONAL_HORIZONTAL_WS}|{HORIZONTAL_WS})'
+        + rf'(?:({POSTAL_CODE_PART}){HORIZONTAL_WS}({CITY_PART})|({CITY_PART})(?:,{OPTIONAL_HORIZONTAL_WS}|{HORIZONTAL_WS})({POSTAL_CODE_PART}))\b'
     )
     
     # Simpler pattern: Street + Number
     SIMPLE_ADDRESS_PATTERN: re.Pattern[str] = re.compile(
-        r'\b([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]{2,}(?:\s+[a-záčďéěíňóřšťúůýž]+)?)\s+(\d+[/\s]?\d*)\b'
+        rf'\b({STREET_NAME_PART}){HORIZONTAL_WS}({HOUSE_NUMBER_PART})\b'
     )
     registry: PatternRegistry
     
@@ -90,6 +110,9 @@ class AddressDetector(Detector):
         )
         self.registry = registry or get_shared_registry()
     
+    # Minimum score to accept an address finding
+    MIN_ADDRESS_SCORE: int = 60
+
     @override
     def detect(self, text: str) -> list[Finding]:
         """Detect Czech addresses."""
@@ -99,16 +122,23 @@ class AddressDetector(Detector):
         for match in self.ADDRESS_PATTERN.finditer(text):
             street = match.group(1).strip()
             number = match.group(2).strip()
-            city = match.group(3).strip()
-            postal_code = match.group(4).strip()
+            postal_code = (match.group(3) or match.group(6) or "").strip()
+            city = (match.group(4) or match.group(5) or "").strip()
             
             full_address = match.group(0)
             
             # Validate city
             if not self._is_valid_city(city):
                 continue
+
+            if not self._is_likely_address(street, number):
+                continue
             
-            confidence = self._calculate_confidence(street, city)
+            score = self._calculate_address_score(street, number, city, postal_code)
+            if score < self.MIN_ADDRESS_SCORE:
+                continue
+
+            confidence = score / 100.0
             
             address_metadata: dict[str, object] = {
                 "street": street,
@@ -116,6 +146,7 @@ class AddressDetector(Detector):
                 "city": city,
                 "postal_code": postal_code,
                 "full_address": full_address,
+                "score": score,
             }
             
             findings.append(Finding(
@@ -143,12 +174,17 @@ class AddressDetector(Detector):
             
             full_address = match.group(0)
             
-            confidence = 0.70  # Lower confidence for simple pattern
+            score = self._calculate_address_score(street, number, "", "")
+            if score < self.MIN_ADDRESS_SCORE:
+                continue
+
+            confidence = score / 100.0
             
             simple_metadata: dict[str, object] = {
                 "street": street,
                 "house_number": number,
                 "full_address": full_address,
+                "score": score,
             }
             
             findings.append(Finding(
@@ -198,23 +234,51 @@ class AddressDetector(Detector):
         for word in words_lower:
             if word in NON_ADDRESS_WORDS:
                 return False
+
+        if street.lower().strip() in CZECH_CITIES:
+            if re.fullmatch(HOUSE_NUMBER_PART, number) is None:
+                return False
+
+            number_value = int(number.split("/", 1)[0].split(" ", 1)[0])
+            if "/" not in number and number_value <= 20:
+                return False
         
         # Number should be reasonable
-        if not number.isdigit() and '/' not in number:
+        if re.fullmatch(HOUSE_NUMBER_PART, number) is None:
             return False
         
         return True
     
-    def _calculate_confidence(self, street: str, city: str) -> float:
-        """Calculate confidence based on components."""
-        confidence = 0.80  # Base confidence
-        
-        # Boost for known city
-        if self._is_valid_city(city):
-            confidence += 0.10
-        
-        # Boost for reasonable street name
-        if len(street) >= 3:
-            confidence += 0.05
-        
-        return min(confidence, 0.95)
+    def _calculate_address_score(self, street: str, number: str, city: str, postal_code: str) -> int:
+        """Calculate an address quality score (0-100).
+
+        Score components:
+        - Street word present (+30) — a capitalized word that's not a month/heading
+        - House number present (+30) — digit(s) optionally with slash
+        - Postal code present (+20) — XXX XX format
+        - Known Czech city (+20) — city in dictionary
+
+        Minimum score to accept: 60 (street + number is baseline)
+        """
+        score = 0
+
+        # Street word: +30 if we have a plausible street name
+        if street and len(street) >= 3:
+            words_lower = street.lower().split()
+            # Check that no word is a NON_ADDRESS_WORD
+            if not any(w in NON_ADDRESS_WORDS for w in words_lower):
+                score += 30
+
+        # House number: +30 if we have a valid house number
+        if number and re.fullmatch(HOUSE_NUMBER_PART, number):
+            score += 30
+
+        # Postal code: +20 if present
+        if postal_code and re.fullmatch(POSTAL_CODE_PART, postal_code):
+            score += 20
+
+        # Known city: +20 if city is in dictionary
+        if city and self._is_valid_city(city):
+            score += 20
+
+        return score

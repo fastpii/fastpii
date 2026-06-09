@@ -1,6 +1,5 @@
 """Tests for NameDetector with gender classification."""
 
-from fastpii.models import Finding
 from fastpii.detectors.cz.name import NameDetector
 
 
@@ -239,3 +238,42 @@ class TestNameDetector:
         assert findings[0].value == "Jan Novák"
         assert "Jméno:" not in findings[0].value
         assert "adresa:" not in findings[0].value
+
+    def test_skip_heading_false_positives(self):
+        """Test common headings are not detected as names."""
+        detector = NameDetector()
+        text = (
+            "Customer Information\n"
+            "Company Details\n"
+            "Vehicle Information\n"
+            "False Positive Tests\n"
+            "Account Number\n"
+            "Alternative Account\n"
+            "Business Information\n"
+            "Additional Employees\n"
+            "Registered Office"
+        )
+
+        findings = detector.detect(text)
+
+        assert findings == []
+
+    def test_skip_name_matches_across_newlines(self):
+        """Test detector does not match names across line breaks."""
+        detector = NameDetector()
+        text = "Notes\n\nThe\nJan Novák"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].value == "Jan Novák"
+
+    def test_detect_when_only_one_word_is_in_dictionary(self):
+        """Test detector keeps matches when one token is in the dictionaries."""
+        detector = NameDetector()
+        text = "Novák Consulting"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].value == "Novák Consulting"

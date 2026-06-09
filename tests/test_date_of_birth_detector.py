@@ -31,6 +31,7 @@ class TestDateOfBirthDetector:
         findings = detector.detect(text)
 
         assert len(findings) >= 1
+        assert findings[0].type == "date_of_birth"
         assert findings[0].confidence >= 0.90  # Higher confidence with context
 
     def test_detect_date_without_context(self):
@@ -41,7 +42,35 @@ class TestDateOfBirthDetector:
         findings = detector.detect(text)
 
         if findings:
+            assert findings[0].type == "date"
             assert findings[0].confidence <= 0.80  # Lower confidence without context
+
+    def test_birth_context_is_local_to_each_date(self):
+        """Only dates with nearby birth context should be tagged as DOB."""
+        detector = DateOfBirthDetector()
+        text = "Date: 12.05.2026\nDate of Birth: 15.03.1988\nPlease respond before 30.09.2026\n22.07.1979"
+
+        findings = detector.detect(text)
+
+        assert [finding.type for finding in findings] == [
+            "date",
+            "date_of_birth",
+            "date",
+            "date",
+        ]
+        assert [round(finding.confidence, 2) for finding in findings] == [0.70, 0.95, 0.70, 0.70]
+
+    def test_detect_english_textual_birth_date(self):
+        """English month names should still respect nearby birth context."""
+        detector = DateOfBirthDetector()
+        text = "born on 1 January 1980"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].value == "1 January 1980"
+        assert findings[0].type == "date_of_birth"
+        assert findings[0].confidence == 0.95
 
     def test_validate_valid_dates(self):
         """Test validation of valid date formats."""

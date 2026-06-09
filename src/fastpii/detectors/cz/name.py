@@ -10,7 +10,7 @@ Detects Czech personal names with gender classification based on:
 import re
 
 from collections.abc import Callable
-from typing import TypeVar
+from typing import ClassVar, TypeVar
 
 F = TypeVar("F", bound=Callable[..., object])
 
@@ -24,8 +24,10 @@ from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
 from fastpii.data.czech_names import (
+    FEMALE_FIRST_NAMES,
     MALE_SURNAMES,
     FEMALE_SURNAMES,
+    MALE_FIRST_NAMES,
     classify_gender_by_firstname,
     get_name_confidence,
 )
@@ -34,10 +36,33 @@ from fastpii.data.czech_names import (
 class NameDetector(Detector):
     """Czech name detector with gender classification."""
     
+    HEADING_WORDS: ClassVar[set[str]] = {
+        "information",
+        "details",
+        "vehicle",
+        "customer",
+        "company",
+        "business",
+        "account",
+        "alternative",
+        "additional",
+        "employees",
+        "registered",
+        "office",
+        "notes",
+        "tests",
+        "false",
+        "positive",
+        "number",
+        "report",
+        "summary",
+        "overview",
+    }
+    
     # Pattern for detecting names: "FirstName Surname" or "FirstName LastName"
     # Surname can end with -ová for married women
     NAME_PATTERN: re.Pattern[str] = re.compile(
-        r'\b([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+)\s+([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]{2,}(?:ová|ova|ý|á|ý|ec|ek)?)\b'
+        r'\b([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+)[^\S\n]+([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]{2,}(?:ová|ova|ý|á|ý|ec|ek)?)\b'
     )
     registry: PatternRegistry
     
@@ -59,10 +84,17 @@ class NameDetector(Detector):
             firstname = match.group(1)
             surname = match.group(2)
             full_name = match.group(0)
+            matched_words = {firstname.lower(), surname.lower()}
+
+            if matched_words & self.HEADING_WORDS:
+                continue
             
             # Classify gender
             gender = self._classify_gender(firstname, surname)
             confidence = self._calculate_confidence(firstname, surname)
+
+            if confidence < 0.5:
+                continue
             
             metadata: dict[str, object] = {
                 "firstname": firstname,
@@ -160,7 +192,13 @@ class NameDetector(Detector):
         Returns:
             Confidence score between 0.0 and 1.0
         """
+        firstname_lower = firstname.lower()
         surname_lower = surname.lower()
+        firstname_in_dictionary = firstname_lower in MALE_FIRST_NAMES or firstname_lower in FEMALE_FIRST_NAMES or firstname_lower in MALE_SURNAMES or firstname_lower in FEMALE_SURNAMES
+        surname_in_dictionary = surname_lower in MALE_FIRST_NAMES or surname_lower in FEMALE_FIRST_NAMES or surname_lower in MALE_SURNAMES or surname_lower in FEMALE_SURNAMES
+
+        if not firstname_in_dictionary and not surname_in_dictionary and not surname_lower.endswith(('ová', 'ova')):
+            return 0.0
         
         firstname_confidence = get_name_confidence(firstname)
         

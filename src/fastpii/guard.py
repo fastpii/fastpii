@@ -93,10 +93,11 @@ class PrivacyGuard:
 
         # Sort by: 1) type priority (checksum > personal > contact), 2) confidence, 3) span length
         # Identifiers with checksum validation should win over phone in overlaps
+        # Address should absorb postal_code (they're often part of the same entity)
         priority_order = {
-            "rodne_cislo": 10, "ico": 9, "dic": 8, "bank_account": 7,
-            "email": 6, "date_of_birth": 5, "name": 4, "address": 3,
-            "postal_code": 2, "vehicle_plate": 1, "phone": 0,
+            "rodne_cislo": 100, "ico": 95, "dic": 90, "bank_account": 85,
+            "address": 80, "email": 70, "date_of_birth": 60, "date": 60,
+            "name": 50, "postal_code": 40, "vehicle_plate": 30, "phone": 20,
         }
         sorted_findings = sorted(
             findings,
