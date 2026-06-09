@@ -4,13 +4,13 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![FastPII](https://img.shields.io/badge/FastPII-v0.2.2-orange)](https://github.com/fastpii/fastpii)
+[![FastPII](https://img.shields.io/badge/FastPII-v0.2.4-orange)](https://github.com/fastpii/fastpii)
 
 **Fast PII detection and redaction for Czech and Central European identifiers**
 
 Leveraging the FastAPI ecosystem for modern Python PII protection
 
-[Quick Start](#quick-start) • [Redaction API](#redaction-api) • [Detectors](#czech-identifiers) • [Documentation](#documentation) • [Integrations](#integrations)
+[Quick Start](#quick-start) • [Redaction API](#redaction-api) • [Detectors](#czech-identifiers) • [Benchmark](#benchmark) • [Documentation](#documentation) • [Integrations](#integrations)
 
 </div>
 
@@ -18,18 +18,13 @@ Leveraging the FastAPI ecosystem for modern Python PII protection
 
 ## Why FastPII?
 
-**Performance meets Accuracy:**
+Czech identifiers — rodné číslo, IČO, DIČ, bank accounts — have structural checksums that generic PII tools ignore. FastPII uses these checksums plus semantic context rules to cut false positives that catch regex-only tools.
 
-| PII Type | FastPII | Microsoft Presidio | AWS Macie | Google DLP |
-|----------|---------|---------------------|-----------|------------|
-| Rodné číslo (CZ) | **>95%** | 22.7% | 18.4% | 15.9% |
-| IČO (CZ) | **>99%** | 45.3% | 38.7% | 41.2% |
-| DIČ (CZ) | **>98%** | 31.2% | 24.6% | 28.8% |
+**What makes FastPII different:**
 
-**Why the difference?**
-
-- Competitors use regex pattern matching only (77% false positive rate)
-- FastPII uses checksum validation + semantic rules (<1% false positives)
+- **Checksum validation** — Rodné číslo (Mod 11), IČO (weighted Mod 11), bank accounts (two-part checksum) — rejects structurally invalid identifiers that regex-only tools accept
+- **Context-aware detection** — Phone numbers require nearby context words or +420 prefix; postal codes require PSČ labels, city names, or address proximity; dates of birth need birth-related keywords nearby
+- **Entity overlap resolution** — When address and postal code overlap, the higher-priority entity wins. No duplicate redactions.
 
 ## Features
 
@@ -58,7 +53,7 @@ from fastpii import PrivacyGuard
 guard = PrivacyGuard(regions=["cz"])
 
 # Detect PII
-text = "Jan Novák, RČ: 8001011238, IČO: 25596641"
+text = "Jan Novák, RČ: 800101/1238, IČO: 25596641"
 result = guard.detect(text)
 
 for finding in result.findings:
@@ -69,7 +64,7 @@ for finding in result.findings:
         print(f"  Metadata: {finding.metadata}")
 
 # Validate specific identifiers
-validation = guard.validate("8001011238", "rodne_cislo")
+validation = guard.validate("800101/1238", "rodne_cislo")
 print(f"Valid: {validation.is_valid}")
 if validation.metadata:
     print(f"Gender: {validation.metadata.get('gender')}")
@@ -84,7 +79,7 @@ FastPII provides four redaction modes to handle detected PII:
 
 ```python
 guard = PrivacyGuard(regions=["cz"])
-guard.anonymize("Email: jan@email.cz, RČ: 8001011238")
+guard.anonymize("Email: jan@email.cz, RČ: 800101/1238")
 # → "Email: [REDACTED], RČ: [REDACTED]"
 
 # Custom placeholder
@@ -95,7 +90,7 @@ guard.anonymize("Jan Novák lives in Prague", replacement="[PERSON]")
 ### Redact — Replace with PII type label
 
 ```python
-guard.redact("Email: jan@email.cz, RČ: 8001011238")
+guard.redact("Email: jan@email.cz, RČ: 800101/1238")
 # → "Email: [EMAIL], RČ: [RODNE_CISLO]"
 ```
 
@@ -117,19 +112,68 @@ All redaction methods use position-based replacement (sorted by position descend
 
 ## Czech Identifiers
 
-| Identifier | Type | Accuracy | Features |
-|------------|------|----------|----------|
-| Rodné číslo | Birth number | >95% | Checksum, date extraction, gender |
-| IČO | Company ID | >99% | Weighted Mod 11 checksum |
-| DIČ | VAT number | >98% | Multi-format validation |
-| Bank Account | Bank account | >99% | Two-part Mod 11 checksum |
-| Postal Code (PSČ) | Postal code | >99% | Region mapping |
-| Phone Number | Phone | >95% | Mobile/landline, operator |
-| Email | Email address | >95% | Czech TLD detection, domain validation |
-| Name | Personal name | >90% | Czech name database, gender classification |
-| Address | Street address | >85% | Czech address pattern matching |
-| Date of Birth | Birth date | >90% | Context-aware date detection |
-| Vehicle Plate | License plate | >95% | Regional code validation |
+| Identifier | Type | Features |
+|------------|------|----------|
+| Rodné číslo | Birth number | Mod 11 checksum, date extraction, gender |
+| IČO | Company ID | Weighted Mod 11 checksum |
+| DIČ | VAT number | Multi-format validation |
+| Bank Account | Bank account | Two-part Mod 11 checksum |
+| Postal Code (PSČ) | Postal code | Region mapping, context validation |
+| Phone Number | Phone | Mobile/landline, operator, context-aware |
+| Email | Email address | Czech TLD detection, markdown mailto handling |
+| Name | Personal name | Czech name database, gender classification |
+| Address | Street address | Component scoring (street/number/city/postal) |
+| Date of Birth | Birth date | Context-aware (birth keywords, intervening date blocking) |
+| Vehicle Plate | License plate | Regional code validation |
+
+## Benchmark
+
+Tested on Czech-focused evaluation datasets covering real-world documents (contracts, medical records, business registries, support tickets) and adversarial false-positive traps.
+
+**v0.2.4 overall:**
+
+| Metric | Score |
+|--------|-------|
+| Precision | **84.2%** |
+| Recall | **80.0%** |
+| F1 | **82.1%** |
+
+**Per-detector highlights:**
+
+| Detector | Precision | Recall | Notes |
+|----------|-----------|--------|-------|
+| IČO | 100% | 100% | Checksum-validated, no FPs |
+| DIČ | 100% | 100% | Multi-format detection |
+| Email | 100% | 100% | Markdown mailto handled |
+| Date of Birth | 100% | 86% | Context-gated; rejects generic dates |
+| Date | 100% | 100% | Non-birth dates detected separately |
+| Phone | 100% | 100% | Context or +420 prefix required |
+| Vehicle Plate | 100% | 100% | Regional code validation |
+| Address | 71% | 63% | Component scoring; partial matches in structured layouts |
+| Postal Code | 100% | 71% | Subsumed by address in overlaps; bare codes context-gated |
+| Name | 80% | 100% | Dict-matched; "Novák Consulting" FP |
+| Rodné číslo | 67% | 50% | Invalid checksums correctly rejected; context-ambiguous FPs |
+| Bank Account | 100% | 0% | Requires labeled context (v0.2.5) |
+
+**Adversarial false-positive trap (text7.txt):** 5 FPs from identifiers appearing in non-PII context ("code 25596641", "reference CZ25596641"). A planned "strict" mode will handle these.
+
+## Roadmap
+
+### v0.2.5 (Next)
+
+- **Company-aware name detection** — Block corporate names like "Novák Consulting s.r.o." from name detector
+- **Extended bank-account labels** — Support "Account Number:", "Secondary Account:", "Account:" as context triggers
+- **Full-address span merging** — Merge street + number + city + postal into single address finding when adjacent
+- **Optional "strict" mode** — For adversarial contexts (legal docs, support tickets). Higher precision, lower recall. Requires explicit PII labels or stronger context signals
+
+### v0.3+ — Real-world integrations
+
+- FastAPI middleware
+- LangChain output parser
+- RAG pipeline sanitization
+- MCP server for Claude Desktop
+
+The priority after v0.2.5 is **getting real users**, not squeezing another percentage point from synthetic benchmarks. Real-world usage in FastAPI projects, LangChain pipelines, and RAG systems will reveal more than another 500 test cases.
 
 ## Integrations
 
@@ -149,12 +193,12 @@ app = create_app()
 from fastpii.integrations.langchain import PIIAnonymizer
 
 anonymizer = PIIAnonymizer(regions=["cz"])
-safe_text = anonymizer("Jan Novák, RČ: 8001011238")
+safe_text = anonymizer("Jan Novák, RČ: 800101/1238")
 # Output: "Jan Novák, [REDACTED]"
 
 # Redaction modes available
 result = anonymizer.anonymize("Email: jan@email.cz")
-result = anonymizer.redact("RČ: 8001011238")
+result = anonymizer.redact("RČ: 800101/1238")
 result = anonymizer.mask("IČO: 25596641")
 result = anonymizer.remove("Phone: +420 777 123 456")
 ```
@@ -162,7 +206,7 @@ result = anonymizer.remove("Phone: +420 777 123 456")
 ### CLI
 
 ```bash
-fastpii detect "Jan Novák, RČ: 8001011238"
+fastpii detect "Jan Novák, RČ: 800101/1238"
 fastpii validate 8001011238 --detector rodne_cislo
 fastpii list-detectors
 ```
