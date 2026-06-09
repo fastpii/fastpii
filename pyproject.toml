@@ -1,12 +1,12 @@
 [project]
 name = "fastpii"
 version = "0.2.4"
-description = "Fast PII detection for Czech and Central European identifiers"
+description = "Privacy infrastructure for AI applications handling Czech and European data"
 readme = "README.md"
 authors = [{name = "FastPII Team", email = "support@fastpii.com"}]
 license = {text = "Apache-2.0"}
 requires-python = ">=3.10"
-keywords = ["privacy", "gdpr", "czech", "pii", "compliance", "detection", "pii-detection", "data-protection"]
+keywords = ["privacy", "gdpr", "czech", "pii", "compliance", "detection", "pii-detection", "data-protection", "ai", "llm", "rag"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
