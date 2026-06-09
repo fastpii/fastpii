@@ -5,7 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![PyPI](https://img.shields.io/pypi/v/fastpii.svg)](https://pypi.org/project/fastpii/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![FastPII](https://img.shields.io/badge/FastPII-v0.2.4-orange)](https://github.com/fastpii/fastpii)
+[![FastPII](https://img.shields.io/badge/FastPII-v0.2.4.1-orange)](https://github.com/fastpii/fastpii)
 
 **Privacy infrastructure for AI applications handling Czech and European data**
 

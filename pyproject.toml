@@ -1,6 +1,6 @@
 [project]
 name = "fastpii"
-version = "0.2.4"
+version = "0.2.4.1"
 description = "Privacy infrastructure for AI applications handling Czech and European data"
 readme = "README.md"
 authors = [{name = "FastPII Team", email = "support@fastpii.com"}]
