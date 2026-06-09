@@ -36,9 +36,28 @@ CZECH_CITIES = {
     "mělník", "neratovice", "beroun", "bílina", "krnov", "králíky", "kroměříž",
     "hodonín", "chrudim", "rychnov nad kněžnou", "pelhřimov", "žďár nad sázavou",
     "sokolov", "sokolnice", "kyjov", "blansko", "velké mezířící", "velké opatovice",
-    "chotěboř", "náchod", "děčín", "broumov", "tábor", "sestě", "český krumlov",
-    "třebíč", "vsetín", "nový jíčín", "přerov", "krnov", "frenštát pod radhoštěm",
+    "chotěboř", "náchod", "broumov", "tábor", "český krumlov",
+    "třebíč", "vsetín", "nový jíčín", "přerov", "frenštát pod radhoštěm",
     "uherské hradiště", "uherský brod", "znojmo", "břeclav", "veselí nad moravou",
+}
+
+# Words that look like addresses (Capitalized + number) but are NOT addresses.
+# These are common Czech context words, months, identifiers, etc.
+NON_ADDRESS_WORDS = {
+    # Identifier context words
+    "narozen", "narozena", "narození", "nar", "datum", "rodné", "rodného",
+    # Title/prefix words
+    "číslo", "čís", "č", "p", "psč", "ičo", "ič", "dič", "dpč",
+    # Months
+    "leden", "únor", "březen", "duben", "květen", "červen", "červenec",
+    "srpen", "září", "říjen", "listopad", "prosinec",
+    "ledna", "února", "března", "dubna", "května", "června", "července",
+    "srpna", "září", "října", "listopadu", "prosince",
+    # Common non-street words that appear before numbers
+    "roku", "den", "dnů", "strana", "str", "část", "období",
+    "tel", "telefon", "mobil", "fax",
+    # English context words (for multilingual texts)
+    "born", "before", "after", "from", "date", "year", "age",
 }
 
 # Common Czech street patterns
@@ -170,6 +189,15 @@ class AddressDetector(Detector):
         # Street name should be reasonable length
         if len(street) < 3:
             return False
+        
+        # Filter out common Czech words that are NOT street names.
+        # Check each WORD in the street part against the exclusion list.
+        # We use exact word matching (not substring) to avoid false positives
+        # like "str" matching inside "Ostravská".
+        words_lower = street.lower().split()
+        for word in words_lower:
+            if word in NON_ADDRESS_WORDS:
+                return False
         
         # Number should be reasonable
         if not number.isdigit() and '/' not in number:

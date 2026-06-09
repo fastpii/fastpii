@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![FastPII](https://img.shields.io/badge/FastPII-v0.2.1-orange)](https://github.com/fastpii/fastpii)
+[![FastPII](https://img.shields.io/badge/FastPII-v0.2.2-orange)](https://github.com/fastpii/fastpii)
 
 **Fast PII detection and redaction for Czech and Central European identifiers**
 

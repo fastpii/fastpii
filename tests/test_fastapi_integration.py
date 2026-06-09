@@ -22,8 +22,11 @@ class TestFastAPIIntegration:
         
         assert data["text"] == "Jan Novák, RČ: 8001011238"
         assert len(data["findings"]) >= 1
-        assert data["findings"][0]["type"] == "rodne_cislo"
-        assert "800101" in data["findings"][0]["value"]
+        types = {f["type"] for f in data["findings"]}
+        assert "rodne_cislo" in types
+        # Find the rodne_cislo finding and check its value
+        rn_findings = [f for f in data["findings"] if f["type"] == "rodne_cislo"]
+        assert "800101" in rn_findings[0]["value"]
         assert data["processing_time_ms"] >= 0
 
     def test_detect_endpoint_ico(self, client):

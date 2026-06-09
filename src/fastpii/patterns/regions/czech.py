@@ -156,14 +156,15 @@ class CzechPatternLoader:
         # Email Address
         # RFC 5322 simplified pattern
         # Czech domains: .cz, .sk prioritized
+        # Allow Czech diacritical characters in local part
         patterns.append(PatternDefinition(
             entity_type="email",
             name="standard",
-            regex=r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
+            regex=r"\b[A-Za-z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b",
             region="cz",
             score=0.95,
             context_words=["email", "e-mail", "@"],
-            validation_regex=r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$"
+            validation_regex=r"^[A-Za-z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
         ))
         
         return patterns

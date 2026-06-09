@@ -64,6 +64,72 @@ class PrivacyGuard:
                 if detector.name not in detector_list:
                     detector_list.append(detector.name)
 
+        # Remove overlapping findings: keep the one with higher confidence
+        # (or the longer span if confidence is equal)
+        all_findings = self._deduplicate_findings(all_findings)
+
+        # Update detector list based on surviving findings
+        detector_list = list(dict.fromkeys(f.type for f in all_findings))
+
+        processing_time_ms = int((perf_counter() - start_time) * 1000)
+
+        return DetectionResult(
+            text=text,
+            findings=all_findings,
+            detector_names=detector_list,
+            processing_time_ms=processing_time_ms
+        )
+
+    @staticmethod
+    def _deduplicate_findings(findings: list[Finding]) -> list[Finding]:
+        """Remove overlapping findings, keeping higher confidence ones.
+
+        When two findings overlap (share character positions), the one
+        with higher confidence wins. If equal confidence, the longer
+        span wins. If still equal, priority types win.
+        """
+        if not findings:
+            return findings
+
+        # Sort by: 1) type priority (checksum > personal > contact), 2) confidence, 3) span length
+        # Identifiers with checksum validation should win over phone in overlaps
+        priority_order = {
+            "rodne_cislo": 10, "ico": 9, "dic": 8, "bank_account": 7,
+            "email": 6, "date_of_birth": 5, "name": 4, "address": 3,
+            "postal_code": 2, "vehicle_plate": 1, "phone": 0,
+        }
+        sorted_findings = sorted(
+            findings,
+            key=lambda f: (
+                priority_order.get(f.type, 0),
+                f.confidence,
+                f.end - f.start,
+            ),
+            reverse=True,
+        )
+
+        result: list[Finding] = []
+        for finding in sorted_findings:
+            # Binary search for possible overlap position
+            overlaps = False
+            for existing in result:
+                if finding.start >= existing.end:
+                    # result is sorted by start, so no more overlaps possible
+                    # after existing. But result isn't sorted by start yet,
+                    # so we can't break early.
+                    continue
+                if finding.end <= existing.start:
+                    continue
+                # Overlap found
+                overlaps = True
+                break
+            if not overlaps:
+                result.append(finding)
+
+        # Restore original order by position
+        result.sort(key=lambda f: f.start)
+        return result
+
         processing_time_ms = int((perf_counter() - start_time) * 1000)
 
         return DetectionResult(

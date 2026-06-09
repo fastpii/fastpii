@@ -1,6 +1,6 @@
 [project]
 name = "fastpii"
-version = "0.2.1"
+version = "0.2.2"
 description = "Fast PII detection for Czech and Central European identifiers"
 readme = "README.md"
 authors = [{name = "FastPII Team", email = "support@fastpii.com"}]
@@ -28,6 +28,18 @@ dependencies = []
 fastpii = "fastpii.cli:main"
 
 [project.optional-dependencies]
+fastapi = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+]
+langchain = [
+    "langchain-core>=0.1.0",
+]
+all = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "langchain-core>=0.1.0",
+]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",
