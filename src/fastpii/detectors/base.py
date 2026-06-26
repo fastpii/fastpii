@@ -1,14 +1,6 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 
 from fastpii.models import Finding
-
-
-@dataclass
-class DetectorMetadata:
-    name: str
-    region: str
-    description: str
 
 
 class Detector(ABC):

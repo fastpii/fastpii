@@ -4,7 +4,24 @@ import json
 import sys
 from pathlib import Path
 
-from fastpii import PrivacyGuard, DetectionResult, ValidationResult
+from fastpii import FastPII, PrivacyGuard, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST, DetectionResult, ValidationResult
+from fastpii.core.confidence import ConfidenceScorer
+
+
+def _build_engine(regions: list[str], use_defaults: bool = False) -> FastPII:
+    if use_defaults:
+        return PrivacyGuard(regions=regions)
+    scorer = ConfidenceScorer(
+        base_scores=DEFAULT_CONFIDENCE_SCORES,
+        context_boost=DEFAULT_CONTEXT_BOOST,
+    )
+    engine = FastPII(priority=DEFAULT_PRIORITY, confidence_scorer=scorer)
+    from fastpii.countries import get_country_pack
+    for region_code in regions:
+        pack_cls = get_country_pack(region_code)
+        if pack_cls is not None:
+            engine.register(pack_cls())
+    return engine
 
 
 def main() -> None:
@@ -13,37 +30,46 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Detect PII in text
-  fastpii detect "Jan Novák, RČ: 8001011234"
-  
+  # Detect PII in text (Czech)
+  fastpii detect "Jan Novák, RČ: 8001011234" -r cz
+
+  # Detect PII in multiple regions
+  fastpii detect "PESEL: 44051401458" -r cz pl
+
   # Detect PII from file
-  fastpii detect --file document.txt
-  
+  fastpii detect --file document.txt -r cz
+
   # Validate specific identifier
-  fastpii validate 8001011234 --detector rodne_cislo
-  
+  fastpii validate 8001011234 --detector rodne_cislo -r cz
+
   # List available detectors
-  fastpii list-detectors
+  fastpii list-detectors -r cz
+
+  # Use convenience defaults
+  fastpii detect "Jan Novák, RČ: 8001011234" -r cz --use-defaults
         """
     )
-    
+
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     detect_parser = subparsers.add_parser("detect", help="Detect PII in text or file")
     _ = detect_parser.add_argument("text", nargs="?", help="Text to analyze")
     _ = detect_parser.add_argument("--file", "-f", type=Path, help="Read text from file")
-    _ = detect_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Regions to enable")
+    _ = detect_parser.add_argument("--regions", "-r", nargs="+", required=True, help="Region codes to enable (e.g. cz pl de fr)")
+    _ = detect_parser.add_argument("--use-defaults", action="store_true", help="Use convenience defaults (PrivacyGuard)")
     _ = detect_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
     _ = detect_parser.add_argument("--output", "-o", type=Path, help="Write output to file")
 
     validate_parser = subparsers.add_parser("validate", help="Validate a specific identifier")
     _ = validate_parser.add_argument("value", help="Value to validate")
     _ = validate_parser.add_argument("--detector", "-d", required=True, help="Detector to use")
-    _ = validate_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Regions to enable")
+    _ = validate_parser.add_argument("--regions", "-r", nargs="+", required=True, help="Region codes to enable")
+    _ = validate_parser.add_argument("--use-defaults", action="store_true", help="Use convenience defaults (PrivacyGuard)")
     _ = validate_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
 
     list_parser = subparsers.add_parser("list-detectors", help="List available detectors")
-    _ = list_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Regions to enable")
+    _ = list_parser.add_argument("--regions", "-r", nargs="+", required=True, help="Region codes to enable")
+    _ = list_parser.add_argument("--use-defaults", action="store_true", help="Use convenience defaults (PrivacyGuard)")
     _ = list_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
 
     args: argparse.Namespace = parser.parse_args()
@@ -76,8 +102,8 @@ def handle_detect(args: argparse.Namespace) -> None:
         print("Error: Either text or --file must be provided", file=sys.stderr)
         sys.exit(1)
 
-    gateway = PrivacyGuard(regions=args.regions)
-    result = gateway.detect(text)
+    engine = _build_engine(args.regions, use_defaults=args.use_defaults)
+    result = engine.detect(text)
 
     if args.format == "json":
         output = result_to_json(result)
@@ -92,13 +118,13 @@ def handle_detect(args: argparse.Namespace) -> None:
 
 
 def handle_validate(args: argparse.Namespace) -> None:
-    gateway = PrivacyGuard(regions=args.regions)
-    
+    engine = _build_engine(args.regions, use_defaults=args.use_defaults)
+
     try:
-        result = gateway.validate(args.value, detector_name=args.detector)
+        result = engine.validate(args.value, detector_name=args.detector)
     except KeyError:
         print(f"Error: Detector '{args.detector}' not found", file=sys.stderr)
-        print(f"Available detectors: {', '.join(d.name for d in gateway.list_detectors())}", file=sys.stderr)
+        print(f"Available detectors: {', '.join(d.name for d in engine.list_detectors())}", file=sys.stderr)
         sys.exit(1)
 
     if args.format == "json":
@@ -110,8 +136,8 @@ def handle_validate(args: argparse.Namespace) -> None:
 
 
 def handle_list_detectors(args: argparse.Namespace) -> None:
-    gateway = PrivacyGuard(regions=args.regions)
-    detectors = gateway.list_detectors()
+    engine = _build_engine(args.regions, use_defaults=args.use_defaults)
+    detectors = engine.list_detectors()
 
     if args.format == "json":
         data = [{"name": d.name, "region": d.region, "description": d.description} for d in detectors]
@@ -149,7 +175,7 @@ def result_to_json(result: DetectionResult) -> str:
 
 def result_to_text(result: DetectionResult) -> str:
     lines = [f"Detected {len(result.findings)} finding(s) in {result.processing_time_ms}ms:", ""]
-    
+
     if not result.findings:
         lines.append("  No PII detected.")
     else:
@@ -158,13 +184,13 @@ def result_to_text(result: DetectionResult) -> str:
             lines.append(f"      Position: {finding.start}-{finding.end}")
             lines.append(f"      Region: {finding.region}")
             lines.append(f"      Confidence: {finding.confidence:.1%}")
-            
+
             if finding.metadata:
                 lines.append("      Metadata:")
                 for key, value in finding.metadata.items():
                     lines.append(f"        - {key}: {value}")
             lines.append("")
-    
+
     return "\n".join(lines)
 
 
@@ -186,12 +212,12 @@ def validation_to_text(result: ValidationResult) -> str:
         f"  Value: {result.value}",
         f"  Status: {status}"
     ]
-    
+
     if result.metadata:
         lines.append("  Metadata:")
         for key, value in result.metadata.items():
             lines.append(f"    - {key}: {value}")
-    
+
     return "\n".join(lines)
 
 

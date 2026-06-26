@@ -1,9 +1,43 @@
 import pytest
 
-from fastpii import PrivacyGuard, Finding
+from fastpii import FastPII, PrivacyGuard, Finding, DEFAULT_PRIORITY
+from fastpii.countries.cz import CzechPack
+from fastpii.countries.pl import PolishPack
 
 
 class TestPrivacyGuard:
+    def test_explicit_engine_starts_empty(self):
+        engine = FastPII(priority=DEFAULT_PRIORITY)
+
+        assert engine.list_detectors() == []
+
+    def test_explicit_engine_registers_single_pack(self):
+        engine = FastPII(priority=DEFAULT_PRIORITY)
+        engine.register(CzechPack())
+
+        detectors = engine.list_detectors()
+
+        assert len(detectors) >= 1
+        assert all(detector.region == "cz" for detector in detectors)
+
+    def test_explicit_engine_registers_multiple_packs(self):
+        engine = FastPII(priority=DEFAULT_PRIORITY)
+        engine.register_many([CzechPack(), PolishPack()])
+
+        regions = {detector.region for detector in engine.list_detectors()}
+
+        assert "cz" in regions
+        assert "pl" in regions
+
+    def test_explicit_engine_detects_only_registered_regions(self):
+        engine = FastPII(priority=DEFAULT_PRIORITY)
+        engine.register(PolishPack())
+
+        result = engine.detect("PESEL: 44051401458")
+
+        assert any(f.type == "pesel" for f in result.findings)
+        assert all(f.region == "pl" for f in result.findings)
+
     def test_gateway_creation_with_czech_region(self):
         gateway = PrivacyGuard(regions=["cz"])
 
@@ -12,7 +46,8 @@ class TestPrivacyGuard:
         assert len(detectors) >= 1
 
     def test_gateway_creation_with_no_regions_loads_all(self):
-        gateway = PrivacyGuard()
+        with pytest.warns(DeprecationWarning):
+            gateway = PrivacyGuard()
 
         detectors = gateway.list_detectors()
 
@@ -84,7 +119,8 @@ class TestPrivacyGuard:
             def validate(self, value: str) -> bool:
                 return value == "test"
 
-        gateway = PrivacyGuard()
+        with pytest.warns(DeprecationWarning):
+            gateway = PrivacyGuard()
         custom_detector = CustomDetector()
 
         gateway.register_detector(custom_detector)

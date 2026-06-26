@@ -23,7 +23,6 @@ class BankAccountDetector(Detector):
             region="cz",
             description="Czech bank account number detector with MOD11 checksum validation"
         )
-        # Use shared registry if none provided (singleton pattern)
         self.registry = registry or get_shared_registry()
 
     @override
@@ -31,20 +30,20 @@ class BankAccountDetector(Detector):
         patterns = self.registry.get_patterns("bank_account", "cz")
         if not patterns:
             return []
-        
-        pattern_def = patterns[0]  # Use the standard pattern
+
+        pattern_def = patterns[0]
         findings: list[Finding] = []
 
         for match in pattern_def.compiled.finditer(text):
             account_part = match.group(1)
             bank_code = match.group(2)
             full_value = f"{account_part}/{bank_code}"
-            
+
             is_valid = self.validate(full_value)
-            
+
             if is_valid:
                 metadata = self._extract_metadata(full_value)
-                
+
                 findings.append(Finding(
                     type="bank_account",
                     value=full_value,
@@ -60,26 +59,24 @@ class BankAccountDetector(Detector):
     @override
     def validate(self, value: str) -> bool:
         from fastpii.validators.bank_account import validate_bank_account
-        
+
         is_valid, _error = validate_bank_account(value)
         return is_valid
 
     def _extract_metadata(self, value: str) -> dict[str, object]:
         from fastpii.validators.bank_account import parse_bank_account
-        
-        # Use validator's parse function (validators are independent from registry)
-        # Validators use validation patterns for parsing, different from detection patterns
+
         prefix, base, bank_code = parse_bank_account(value)
-        
+
         if prefix is None:
             return {"bank_code": ""}
-        
+
         metadata: dict[str, object] = {
             "bank_code": bank_code or "",
             "base": base or ""
         }
-        
+
         if prefix:
             metadata["prefix"] = prefix
-        
+
         return metadata

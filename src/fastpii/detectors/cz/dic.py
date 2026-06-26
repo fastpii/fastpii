@@ -23,7 +23,6 @@ class DICDetector(Detector):
             region="cz",
             description="Czech VAT number (DIČ) detector"
         )
-        # Use shared registry if none provided (singleton pattern)
         self.registry = registry or get_shared_registry()
 
     @override
@@ -31,18 +30,18 @@ class DICDetector(Detector):
         patterns = self.registry.get_patterns("dic", "cz")
         if not patterns:
             return []
-        
-        pattern_def = patterns[0]  # Use the standard pattern
+
+        pattern_def = patterns[0]
         findings: list[Finding] = []
 
         for match in pattern_def.compiled.finditer(text):
             value = match.group(1)
-            
+
             is_valid = self.validate(value)
-            
+
             if is_valid:
                 metadata = self._extract_metadata(value)
-                
+
                 findings.append(Finding(
                     type="dic",
                     value=f"CZ{value}",
@@ -59,14 +58,14 @@ class DICDetector(Detector):
     def validate(self, value: str) -> bool:
         if value.startswith("CZ"):
             value = value[2:]
-        
+
         if len(value) == 8:
             return self._validate_ico_format(value)
         elif len(value) == 9:
             return value[0] == "6"
         elif len(value) == 10:
             return self._validate_birth_number_format(value)
-        
+
         return False
 
     def _validate_ico_format(self, value: str) -> bool:
@@ -81,12 +80,12 @@ class DICDetector(Detector):
 
     def _extract_metadata(self, value: str) -> dict[str, object]:
         metadata: dict[str, object] = {}
-        
+
         if len(value) == 8:
             metadata["type"] = "company"
         elif len(value) == 9:
             metadata["type"] = "special"
         elif len(value) == 10:
             metadata["type"] = "individual"
-        
+
         return metadata

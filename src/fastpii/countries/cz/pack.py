@@ -1,0 +1,173 @@
+from fastpii.countries import CountryPack, register_country
+from fastpii.countries.base import CountryMetadata, EntityDefinition, EntityType
+from fastpii.detectors.base import Detector
+from fastpii.detectors.cz import (
+    RodneCisloDetector,
+    ICODetector,
+    DICDetector,
+    BankAccountDetector,
+    PostalCodeDetector,
+    PhoneNumberDetector,
+    EmailDetector,
+    NameDetector,
+    AddressDetector,
+    DateOfBirthDetector,
+    VehiclePlateDetector,
+)
+
+
+CZECH_METADATA = CountryMetadata(
+    code="cz",
+    name="Czech Republic",
+    official_name="Ceská republika",
+    language_codes=("cs", "cs-CZ"),
+    iso_3166_alpha2="CZ",
+    iso_3166_alpha3="CZE",
+    currency_code="CZK",
+)
+
+CZECH_ENTITIES: list[EntityDefinition] = [
+    EntityDefinition(
+        entity_type="rodne_cislo",
+        display_name="Rodné číslo",
+        description="Czech birth number / national ID",
+        region="cz",
+        has_checksum=True,
+        context_words=("rodné číslo", "RČ", "rod. č.", "birth number"),
+        examples=("8001011238", "900101/1234"),
+        invalid_examples=("8001011239", "000000000"),
+    ),
+    EntityDefinition(
+        entity_type="ico",
+        display_name="IČO",
+        description="Czech company identification number",
+        region="cz",
+        has_checksum=True,
+        context_words=("IČO", "IČ", "identifikační číslo", "company ID"),
+        examples=("25596641", "69663963"),
+        invalid_examples=("12345678", "00000000"),
+    ),
+    EntityDefinition(
+        entity_type="dic",
+        display_name="DIČ",
+        description="Czech VAT identification number",
+        region="cz",
+        has_checksum=True,
+        context_words=("DIČ", "daňové číslo", "VAT", "tax ID"),
+        examples=("CZ25596641", "CZ7801233540"),
+        invalid_examples=("CZ12345678", "CZ00000000"),
+    ),
+    EntityDefinition(
+        entity_type="bank_account",
+        display_name="Bankovní účet",
+        description="Czech bank account number",
+        region="cz",
+        has_checksum=True,
+        context_words=("účet", "číslo účtu", "bankovní účet", "bank account"),
+        examples=("19-2000145399/0800", "1234567890/0100"),
+        invalid_examples=("19-12/0800", "abc/0100"),
+    ),
+    EntityDefinition(
+        entity_type="postal_code",
+        display_name="PSČ",
+        description="Czech postal code",
+        region="cz",
+        has_checksum=False,
+        context_words=("PSČ", "poštovní směrovací číslo", "postal code", "zip"),
+        examples=("120 00", "110 00"),
+        invalid_examples=("00000", "123456"),
+    ),
+    EntityDefinition(
+        entity_type="phone",
+        display_name="Telefon",
+        description="Czech phone number (mobile and landline)",
+        region="cz",
+        has_checksum=False,
+        context_words=("tel", "telefon", "mobil", "phone", "contact"),
+        examples=("+420 777 123 456", "+420 221 234 567"),
+        invalid_examples=("123", "9999999999"),
+    ),
+    EntityDefinition(
+        entity_type="email",
+        display_name="E-mail",
+        description="Email address",
+        region="cz",
+        has_checksum=False,
+        context_words=("email", "e-mail", "@"),
+        examples=("jan@seznam.cz", "info@firma.cz"),
+        invalid_examples=("@domain.cz", "user@"),
+    ),
+    EntityDefinition(
+        entity_type="name",
+        display_name="Jméno",
+        description="Czech personal name with gender classification",
+        region="cz",
+        has_checksum=False,
+        context_words=(),
+        examples=("Jan Novák", "Marie Nováková"),
+        invalid_examples=("Praha", "123"),
+    ),
+    EntityDefinition(
+        entity_type="address",
+        display_name="Adresa",
+        description="Czech street address",
+        region="cz",
+        has_checksum=False,
+        context_words=("adresa", "ulice", "address"),
+        examples=("Vinohradská 1523/45, Praha"),
+        invalid_examples=("123", "abc"),
+    ),
+    EntityDefinition(
+        entity_type="date_of_birth",
+        display_name="Datum narození",
+        description="Date of birth with context awareness",
+        region="cz",
+        has_checksum=False,
+        context_words=("narozen", "narozena", "narození", "born", "dob"),
+        examples=("15. 3. 1990", "1.1.2000"),
+        invalid_examples=("99.99.9999", "32.13.2000"),
+    ),
+    EntityDefinition(
+        entity_type="vehicle_plate",
+        display_name="SPZ",
+        description="Czech vehicle registration plate",
+        region="cz",
+        has_checksum=False,
+        context_words=("SPZ", "vozidlo", "auto"),
+        examples=("1A2 3456", "3B5 7890"),
+        invalid_examples=("Q12 3456", "12345"),
+    ),
+]
+
+
+@register_country
+class CzechPack(CountryPack):
+    code = "cz"
+
+    @property
+    def name(self) -> str:
+        return "Czech Republic"
+
+    @property
+    def metadata(self) -> CountryMetadata:
+        return CZECH_METADATA
+
+    @property
+    def detectors(self) -> list[Detector]:
+        return [
+            RodneCisloDetector(),
+            ICODetector(),
+            DICDetector(),
+            BankAccountDetector(),
+            PostalCodeDetector(),
+            PhoneNumberDetector(),
+            EmailDetector(),
+            NameDetector(),
+            AddressDetector(),
+            DateOfBirthDetector(),
+            VehiclePlateDetector(),
+        ]
+
+    @property
+    def entities(self) -> list[EntityDefinition]:
+        return CZECH_ENTITIES

@@ -1,13 +1,3 @@
-"""
-Date of Birth Detector.
-
-Detects Czech date of birth patterns:
-- DD.MM.YYYY (standard format)
-- DD. MM. YYYY (with spaces)
-- DD.MM.YY (short year)
-- Contextual detection (born, narozen/a, datum narození)
-"""
-
 import re
 from datetime import datetime
 
@@ -28,8 +18,11 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class DateOfBirthDetector(Detector):
-    """Czech date of birth detector."""
     CONTEXT_WINDOW: int = 150
+    MAX_NEWLINES: int = 5
+    CONTEXT_CONFIDENCE: float = 0.95
+    NO_CONTEXT_CONFIDENCE: float = 0.70
+
     MONTH_NAMES: dict[str, int] = {
         "january": 1,
         "february": 2,
@@ -44,9 +37,7 @@ class DateOfBirthDetector(Detector):
         "november": 11,
         "december": 12,
     }
-    
-    # Date patterns
-    # Full format: DD.MM.YYYY
+
     DATE_PATTERN_FULL: re.Pattern[str] = re.compile(
         r'\b(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})\b'
     )
@@ -54,15 +45,14 @@ class DateOfBirthDetector(Detector):
         r'\b(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})\b',
         re.IGNORECASE,
     )
-    
-    # Context words that indicate this is a date of birth
+
     BIRTH_CONTEXT_WORDS: set[str] = {
         "narozen", "narozena", "narození", "datum narození",
         "nar.", "dat. nar.", "r.", "rodiven",
         "birth", "born", "date of birth", "dob",
     }
     registry: PatternRegistry
-    
+
     def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(
             name="date_of_birth",
@@ -70,12 +60,11 @@ class DateOfBirthDetector(Detector):
             description="Czech date of birth detector"
         )
         self.registry = registry or get_shared_registry()
-    
+
     @override
     def detect(self, text: str) -> list[Finding]:
-        """Detect dates of birth in text."""
         findings: list[Finding] = []
-        
+
         for match in self.DATE_PATTERN_FULL.finditer(text):
             day = int(match.group(1))
             month = int(match.group(2))
@@ -93,68 +82,55 @@ class DateOfBirthDetector(Detector):
                 findings.append(finding)
 
         findings.sort(key=lambda finding: finding.start)
-        
+
         return findings
-    
+
     @override
     def validate(self, value: str) -> bool:
-        """Validate if string looks like a date of birth."""
         match = self.DATE_PATTERN_FULL.match(value.strip())
         if not match:
             return False
-        
+
         day = int(match.group(1))
         month = int(match.group(2))
         year = int(match.group(3))
-        
+
         return self._is_valid_date(day, month, year)
-    
+
     def _is_valid_date(self, day: int, month: int, year: int) -> bool:
-        """Check if date components form a valid date."""
         if month < 1 or month > 12:
             return False
         if day < 1 or day > 31:
             return False
         if year < 1900 or year > datetime.now().year + 2:
             return False
-        
-        # Check days in month
+
         days_in_month = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        
-        # Leap year check
+
         if month == 2:
             if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0):
                 days_in_month[2] = 29
-        
+
         if day > days_in_month[month]:
             return False
-        
-        return True
-    
-    def _calculate_confidence(self, text: str, _position: int, _match_value: str) -> float:
-        """Calculate confidence based on context."""
-        if self._has_birth_context_nearby(text, _position):
-            return 0.95
 
-        return 0.70
+        return True
+
+    def _calculate_confidence(self, text: str, _position: int, _match_value: str) -> float:
+        if self._has_birth_context_nearby(text, _position):
+            return self.CONTEXT_CONFIDENCE
+
+        return self.NO_CONTEXT_CONFIDENCE
 
     def _has_birth_context_nearby(self, text: str, position: int) -> bool:
-        """Check for birth context within the window before the date.
-
-        Searches up to CONTEXT_WINDOW chars back, allowing up to 5 newlines.
-        However, if another date pattern or blank line appears between
-        the birth context word and this date, the context is considered
-        broken — it likely refers to that other date, not this one.
-        """
         window_start = max(0, position - self.CONTEXT_WINDOW)
 
-        # Allow up to 5 newlines back from the date position
         newline_count = 0
         line_start = -1
         for i in range(position - 1, max(0, window_start - 1), -1):
             if text[i] == '\n':
                 newline_count += 1
-                if newline_count == 5:
+                if newline_count == self.MAX_NEWLINES:
                     line_start = i + 1
                     break
 
@@ -163,15 +139,10 @@ class DateOfBirthDetector(Detector):
 
         context_window = text[window_start:position].lower()
 
-        # Check for birth context words
         for word in self.BIRTH_CONTEXT_WORDS:
             if word in context_window:
-                # Found birth context — but check if another date sits between the
-                # context word and our date. If so, the context likely belongs to that
-                # other date, not this one.
                 context_pos = context_window.rfind(word)
                 after_context = context_window[context_pos + len(word):]
-                # Check for a date-like pattern (DD.MM.YYYY) between context and our date
                 if re.search(r'\d{1,2}\.\s*\d{1,2}\.\s*\d{4}', after_context):
                     return False
                 return True
@@ -186,7 +157,6 @@ class DateOfBirthDetector(Detector):
         month: int,
         year: int,
     ) -> Finding | None:
-        """Create a finding for a matched date."""
         if not self._is_valid_date(day, month, year):
             return None
 
@@ -203,18 +173,15 @@ class DateOfBirthDetector(Detector):
             region="cz",
             metadata=metadata,
         )
-    
+
     def _extract_metadata(self, day: int, month: int, year: int) -> dict[str, object]:
-        """Extract metadata from date components."""
-        # Determine age
         today = datetime.now()
         age = today.year - year
         if (today.month, today.day) < (month, day):
             age -= 1
-        
-        # Format ISO date
+
         iso_date = f"{year:04d}-{month:02d}-{day:02d}"
-        
+
         metadata: dict[str, object] = {
             "day": day,
             "month": month,
@@ -222,15 +189,13 @@ class DateOfBirthDetector(Detector):
             "iso_date": iso_date,
             "age": age if age >= 0 else None,
         }
-        
-        # Zodiac sign (optional metadata)
+
         metadata["zodiac_sign"] = self._get_zodiac_sign(day, month)
-        
+
         return metadata
-    
+
     @staticmethod
     def _get_zodiac_sign(day: int, month: int) -> str:
-        """Get zodiac sign from date."""
         if (month == 3 and day >= 21) or (month == 4 and day <= 19):
             return "aries"
         elif (month == 4 and day >= 20) or (month == 5 and day <= 20):

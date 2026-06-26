@@ -35,14 +35,17 @@ def validate_prefix_prefix(value: str) -> tuple[bool, str]:
     - Pad with leading zeros to 6 digits
     - Apply weights [10,5,8,4,2,1] left to right
     - Sum must be divisible by 11
+    - Reject all-same-digit sequences (degenerate MOD11 pass)
     """
     if not value:
-        return True, ""  # Empty is valid (no prefix)
+        return True, ""
     
     if not _PREFIX_COMPILED.match(value):
         return False, "Prefix must be 1-6 digits"
     
-    # Pad to 6 digits
+    if len(set(value)) == 1:
+        return False, "Prefix cannot be all same digits"
+    
     padded = value.zfill(6)
     digits = [int(d) for d in padded]
     weights = [10, 5, 8, 4, 2, 1]
@@ -64,9 +67,13 @@ def validate_base_part(value: str) -> tuple[bool, str]:
     - Pad with leading zeros to 10 digits
     - Apply weights [6,3,7,9,10,5,8,4,2,1] left to right
     - Sum must be divisible by 11
+    - Reject all-same-digit sequences (degenerate MOD11 pass)
     """
     if not _BASE_COMPILED.match(value):
         return False, "Base part must be 1-10 digits"
+    
+    if len(set(value)) == 1:
+        return False, "Base part cannot be all same digits"
     
     # Pad to 10 digits
     padded = value.zfill(10)

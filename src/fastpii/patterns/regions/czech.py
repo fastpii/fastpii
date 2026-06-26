@@ -7,6 +7,14 @@ Follows industrial standards for plugin architectures.
 
 from fastpii.patterns.base import PatternDefinition
 
+RODNE_CISLO_SCORE = 0.95
+ICO_SCORE = 1.0
+DIC_SCORE = 0.95
+BANK_ACCOUNT_SCORE = 1.0
+POSTAL_CODE_SCORE = 0.95
+PHONE_MOBILE_SCORE = 0.95
+PHONE_LANDLINE_SCORE = 0.90
+EMAIL_SCORE = 0.95
 
 class CzechPatternLoader:
     """
@@ -60,7 +68,7 @@ class CzechPatternLoader:
             name="standard",
             regex=r"\b(\d{6}[/\s]?\d{3,4})\b",
             region="cz",
-            score=0.95,
+            score=RODNE_CISLO_SCORE,
             context_words=["rodné číslo", "RČ", "rod. č.", "birth number"],
             checksum_algo="validate_birth_number_format",
             validation_regex=r"^(\d{6}[/\s]?\d{3,4})$",
@@ -75,7 +83,7 @@ class CzechPatternLoader:
             name="standard",
             regex=r"\b(\d{8})\b",
             region="cz",
-            score=1.0,
+            score=ICO_SCORE,
             context_words=["IČO", "IČ", "identiﬁkační číslo", "company ID"],
             checksum_algo="validate_ico",
             validation_regex=r"^\d{1,8}$"
@@ -91,7 +99,7 @@ class CzechPatternLoader:
             name="standard",
             regex=r"\bCZ(\d{8,10})\b",
             region="cz",
-            score=0.95,
+            score=DIC_SCORE,
             context_words=["DIČ", "daňové číslo", "VAT", "tax ID"],
             checksum_algo="validate_dic",
             validation_regex=r"^\d{8,10}$",
@@ -107,7 +115,7 @@ class CzechPatternLoader:
             name="standard",
             regex=r"\b(\d{1,6}-?\d{1,10})/(\d{4})\b",
             region="cz",
-            score=1.0,
+            score=BANK_ACCOUNT_SCORE,
             context_words=["účet", "číslo účtu", "bankovní účet", "bank account"],
             checksum_algo="validate_bank_account",
             validation_regex=r"^(\d{1,6})?-(\d{2,10})/(\d{4})$|^(\d{2,10})/(\d{4})$",
@@ -122,7 +130,7 @@ class CzechPatternLoader:
             name="standard",
             regex=r"\b(\d{3})\s?(\d{2})\b",
             region="cz",
-            score=0.95,
+            score=POSTAL_CODE_SCORE,
             context_words=["PSČ", "poštovní směrovací číslo", "postal code"],
             validation_regex=r"^\d{3}\s?\d{2}$",
             extraction_regex=r"^(\d{3})\s?(\d{2})$"
@@ -137,7 +145,7 @@ class CzechPatternLoader:
             name="mobile",
             regex=r"(?<!\d)(?:\+420[\s-]?)?(?:60[1-8]|7\d{2})[\s-]?\d{3}[\s-]?\d{3}(?!\d)",
             region="cz",
-            score=0.95,
+            score=PHONE_MOBILE_SCORE,
             context_words=["tel", "telefon", "mobil", "mobile", "phone", "contact", "number"],
             extraction_regex=r"(?:\+420[\s-]?)?(60[1-8]|7\d{2})[\s-]?(\d{3})[\s-]?(\d{3})"
         ))
@@ -152,7 +160,7 @@ class CzechPatternLoader:
             name="landline",
             regex=r"(?<!\d)(?:\+420[\s-]?)?[2-5](?:[\s-]?\d{4}[\s-]?\d{4}|[\s-]?\d{2}[\s-]?\d{3}[\s-]?\d{3})(?!\d)",
             region="cz",
-            score=0.90,
+            score=PHONE_LANDLINE_SCORE,
             context_words=["tel", "telefon", "pevná linka", "landline", "contact", "number"],
             extraction_regex=r"(?:\+420[\s-]?)?([2-5])[\s-]?(\d{4})[\s-]?(\d{4})"
         ))
@@ -166,7 +174,7 @@ class CzechPatternLoader:
             name="standard",
             regex=r"\b[A-Za-z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b",
             region="cz",
-            score=0.95,
+            score=EMAIL_SCORE,
             context_words=["email", "e-mail", "@"],
             validation_regex=r"^[A-Za-z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
         ))

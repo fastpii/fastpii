@@ -54,3 +54,5 @@ test-*/
 # Build artifacts
 *.wheel
 *.tar.gz
+.playwright-mcp/
+docs/

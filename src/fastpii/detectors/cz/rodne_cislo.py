@@ -17,6 +17,7 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class RodneCisloDetector(Detector):
+    CONFIDENCE_9_DIGIT: float = 0.85
     registry: PatternRegistry
 
     def __init__(self, registry: PatternRegistry | None = None) -> None:
@@ -25,7 +26,6 @@ class RodneCisloDetector(Detector):
             region="cz",
             description="Czech birth number (rodné číslo) detector with checksum validation"
         )
-        # Use shared registry if none provided (singleton pattern)
         self.registry = registry or get_shared_registry()
 
     @override
@@ -33,24 +33,24 @@ class RodneCisloDetector(Detector):
         patterns = self.registry.get_patterns("rodne_cislo", "cz")
         if not patterns:
             return []
-        
-        pattern_def = patterns[0]  # Use the standard pattern
+
+        pattern_def = patterns[0]
         findings: list[Finding] = []
 
         for match in pattern_def.compiled.finditer(text):
             raw_value = match.group(1).replace('/', '').replace(' ', '')
-            
+
             is_valid = self.validate(raw_value)
-            
+
             if is_valid:
                 metadata = self._extract_metadata(raw_value)
-                
+
                 findings.append(Finding(
                     type="rodne_cislo",
                     value=raw_value,
                     start=match.start(),
                     end=match.end(),
-                    confidence=pattern_def.score if len(raw_value) == 10 else 0.85,
+                    confidence=pattern_def.score if len(raw_value) == 10 else self.CONFIDENCE_9_DIGIT,
                     region="cz",
                     metadata=metadata
                 ))
@@ -60,19 +60,19 @@ class RodneCisloDetector(Detector):
     @override
     def validate(self, value: str) -> bool:
         cleaned = value.replace('/', '').replace(' ', '')
-        
+
         if len(cleaned) not in (9, 10):
             return False
-        
+
         if not cleaned.isdigit():
             return False
-        
+
         if not self._validate_date(cleaned):
             return False
-        
+
         if len(cleaned) == 10:
             return self._validate_checksum(cleaned)
-        
+
         return True
 
     def _validate_date(self, rc: str) -> bool:
@@ -80,14 +80,14 @@ class RodneCisloDetector(Detector):
             year = int(rc[0:2])
             month = int(rc[2:4])
             day = int(rc[4:6])
-            
+
             if month > 70:
                 month -= 70
             elif month > 50:
                 month -= 50
             elif month > 20:
                 month -= 20
-            
+
             if len(rc) == 10:
                 if year < 54:
                     year += 2000
@@ -98,7 +98,7 @@ class RodneCisloDetector(Detector):
                     year += 1900
                 else:
                     year += 1800
-            
+
             _ = datetime(year, month, day)
             return True
 
@@ -109,31 +109,31 @@ class RodneCisloDetector(Detector):
         try:
             number = int(rc[:9])
             checksum_digit = int(rc[9])
-            
+
             mod = number % 11
-            
+
             if mod == 10:
                 expected_checksum = 0
             else:
                 expected_checksum = mod
-            
+
             return checksum_digit == expected_checksum
         except (ValueError, IndexError):
             return False
 
     def _extract_metadata(self, rc: str) -> dict[str, object]:
         metadata: dict[str, object] = {}
-        
+
         try:
             year = int(rc[0:2])
             month = int(rc[2:4])
             day = int(rc[4:6])
-            
+
             is_female = month > 50
-            
+
             if len(rc) == 10:
                 metadata["checksum_valid"] = self._validate_checksum(rc)
-            
+
             if len(rc) == 10:
                 if year < 54:
                     year += 2000
@@ -144,7 +144,7 @@ class RodneCisloDetector(Detector):
                     year += 1900
                 else:
                     year += 1800
-            
+
             metadata["birth_date"] = f"{year:04d}-{month % 50:02d}-{day:02d}"
             metadata["gender"] = "female" if is_female else "male"
             metadata["article_9"] = True

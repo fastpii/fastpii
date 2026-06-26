@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import re
 
+DEFAULT_PATTERN_SCORE = 0.95
 
 @dataclass
 class PatternDefinition:
@@ -35,7 +36,7 @@ class PatternDefinition:
     name: str
     regex: str
     region: str
-    score: float = 1.0
+    score: float = DEFAULT_PATTERN_SCORE
     context_words: list[str] = field(default_factory=list)
     checksum_algo: str | None = None
     compiled: re.Pattern[str] = field(init=False, repr=False)

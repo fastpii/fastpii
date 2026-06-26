@@ -1,7 +1,7 @@
 [project]
 name = "fastpii"
-version = "0.2.4.1"
-description = "Privacy infrastructure for AI applications handling Czech and European data"
+version = "0.4.0"
+description = "Privacy infrastructure for AI applications handling European data"
 readme = "README.md"
 authors = [{name = "FastPII Team", email = "support@fastpii.com"}]
 license = {text = "Apache-2.0"}
@@ -109,4 +109,9 @@ exclude_lines = [
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
 ]

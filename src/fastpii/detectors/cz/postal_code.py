@@ -16,9 +16,8 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class PostalCodeDetector(Detector):
-    # Backward compatibility: expose pattern constant
     CZECH_POSTAL_CODE_PATTERN: str = r'\b(\d{3})\s?(\d{2})\b'
-    
+
     PRAGUE_CODES: set[str] = {
         "110", "111", "112", "113", "114", "115", "116", "117", "118", "119",
         "120", "121", "122", "123", "124", "125", "126", "127", "128", "129",
@@ -31,17 +30,19 @@ class PostalCodeDetector(Detector):
         "190", "191", "192", "193", "194", "195", "196", "197", "198", "199",
     }
 
-    # Context words that indicate this is a postal code
     POSTAL_CONTEXT_WORDS: tuple[str, ...] = (
         "psč", "p.s.c", "poštovní", "postal", "zip", "postcode", "post code",
     )
 
-    # Context regex for matching PSČ/Postal/Zip labels near a postal code
+    CONTEXT_CHARS: int = 30
+    COMMA_CONTEXT_CHARS: int = 5
+    CONTEXT_CONFIDENCE: float = 0.95
+    NO_CONTEXT_CONFIDENCE: float = 0.80
+
     _context_regex = re.compile(
         r"(?i)\b(?:psč|p\.s\.c|poštovní|postal|zip|postcode|post\s*code)\b\s*:?"
     )
 
-    # Czech city names for proximity check
     _city_regex = re.compile(
         r"(?i)\b(?:Praha|Brno|Ostrava|Plzeň|Liberec|Olomouc|České\s+Budějovice|"
         r"Hradec\s+Králové|Pardubice|Ústí\s+nad\s+Labem|Zlín|Karlovy\s+Vary|"
@@ -65,7 +66,7 @@ class PostalCodeDetector(Detector):
         patterns = self.registry.get_patterns("postal_code", "cz")
         if not patterns:
             return []
-        
+
         pattern_def = patterns[0]
         findings: list[Finding] = []
 
@@ -73,17 +74,15 @@ class PostalCodeDetector(Detector):
             prefix = match.group(1)
             suffix = match.group(2)
             value = f"{prefix} {suffix}" if ' ' in match.group(0) else f"{prefix}{suffix}"
-            
+
             if not self._is_valid_postal_code(prefix, suffix):
                 continue
 
-            # Context validation: require PSČ label, city name, or address proximity
             if not self._has_valid_context(text, match.start(), match.end(), value):
                 continue
 
             metadata = self._extract_metadata(value)
-            
-            # Higher confidence when context word present, lower when only city proximity
+
             confidence = self._calculate_confidence(text, match.start())
 
             findings.append(Finding(
@@ -101,81 +100,65 @@ class PostalCodeDetector(Detector):
     @override
     def validate(self, value: str) -> bool:
         cleaned = value.replace(' ', '')
-        
+
         if len(cleaned) != 5:
             return False
-        
+
         if not cleaned.isdigit():
             return False
-        
+
         if cleaned[0] == '0':
             return False
-        
+
         return True
 
     def _is_valid_postal_code(self, prefix: str, suffix: str) -> bool:
         if not prefix.isdigit() or not suffix.isdigit():
             return False
-        
+
         if len(prefix) != 3 or len(suffix) != 2:
             return False
-        
+
         if prefix[0] == '0':
             return False
-        
+
         return True
 
     def _has_valid_context(self, text: str, start: int, end: int, value: str) -> bool:
-        """Check if the postal code appears in a valid context.
-
-        A postal code is valid when at least one of:
-        1. A PSČ/Postal/Zip label appears within 30 chars before the code
-        2. A known Czech city name appears within 30 chars after the code
-        3. The postal code appears right after a comma (address pattern)
-        4. The postal code has the XXX XX format (with space), which is
-           the standard Czech formatting — much less likely to be random digits
-        """
-        # 1. Check for PSČ/Postal label within 30 chars before
-        context_start = max(0, start - 30)
+        context_start = max(0, start - self.CONTEXT_CHARS)
         before_window = text[context_start:start]
         if self._context_regex.search(before_window):
             return True
 
-        # 2. Check for known Czech city name within 30 chars after
-        after_end = min(len(text), end + 30)
+        after_end = min(len(text), end + self.CONTEXT_CHARS)
         after_window = text[end:after_end]
         if self._city_regex.search(after_window):
             return True
 
-        # 3. Comma or address label before (e.g., "Vinohradská 1523/45, 120 00")
-        #    Check for ", " or "Address:" or "Adresa:" pattern before
-        before_5 = text[max(0, start - 5):start]
+        before_5 = text[max(0, start - self.COMMA_CONTEXT_CHARS):start]
         if before_5.rstrip().endswith(','):
             return True
 
-        # 4. Standard XXX XX format (with space) is strong signal
-        #    Random 5-digit numbers in IDs/codes rarely use the XXX XX space
         if ' ' in value:
             return True
 
         return False
 
     def _calculate_confidence(self, text: str, position: int) -> float:
-        """Calculate confidence based on context strength."""
-        context_start = max(0, position - 30)
+        context_start = max(0, position - self.CONTEXT_CHARS)
         before_window = text[context_start:position]
-        
+
         if self._context_regex.search(before_window):
-            return 0.95
-        
-        return 0.80
+            return self.CONTEXT_CONFIDENCE
+
+        return self.NO_CONTEXT_CONFIDENCE
 
     def _extract_metadata(self, value: str) -> dict[str, object]:
         cleaned = value.replace(' ', '')
         prefix = cleaned[:3]
-        
+
         metadata: dict[str, object] = {}
-        
+
         if prefix in self.PRAGUE_CODES:
             metadata["region"] = "Praha"
         elif prefix.startswith("1"):
@@ -198,5 +181,5 @@ class PostalCodeDetector(Detector):
             metadata["region"] = "Moravskoslezský"
         else:
             metadata["region"] = "other"
-        
+
         return metadata

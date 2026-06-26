@@ -1,11 +1,26 @@
-from fastpii import PrivacyGuard
+from fastpii import FastPII, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST
+from fastpii.core.confidence import ConfidenceScorer
+from fastpii.countries import get_country_pack
 
 
 class MCPServer:
-    gateway: PrivacyGuard
+    engine: FastPII
 
-    def __init__(self, regions: list[str] | None = None) -> None:
-        self.gateway = PrivacyGuard(regions=regions or ["cz"])
+    def __init__(self, engine: FastPII) -> None:
+        self.engine = engine
+
+    @classmethod
+    def from_regions(cls, regions: list[str]) -> "MCPServer":
+        scorer = ConfidenceScorer(
+            base_scores=DEFAULT_CONFIDENCE_SCORES,
+            context_boost=DEFAULT_CONTEXT_BOOST,
+        )
+        engine = FastPII(priority=DEFAULT_PRIORITY, confidence_scorer=scorer)
+        for region_code in regions:
+            pack_cls = get_country_pack(region_code)
+            if pack_cls is not None:
+                engine.register(pack_cls())
+        return cls(engine=engine)
 
     def list_tools(self) -> list[dict[str, object]]:
         return [
@@ -18,12 +33,6 @@ class MCPServer:
                         "text": {
                             "type": "string",
                             "description": "Text to analyze for PII"
-                        },
-                        "regions": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "Region codes for detectors (e.g., ['cz'])",
-                            "default": ["cz"]
                         },
                         "detector_names": {
                             "type": "array",
@@ -48,12 +57,6 @@ class MCPServer:
                         "detector_name": {
                             "type": "string",
                             "description": "Detector name (e.g., 'rodne_cislo', 'ico', 'dic')"
-                        },
-                        "regions": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "Region codes for detectors (e.g., ['cz'])",
-                            "default": ["cz"]
                         }
                     },
                     "required": ["value", "detector_name"]
@@ -61,17 +64,10 @@ class MCPServer:
             },
             {
                 "name": "list_detectors",
-                "description": "List all available PII detectors for enabled regions.",
+                "description": "List all available PII detectors for the configured regions.",
                 "inputSchema": {
                     "type": "object",
-                    "properties": {
-                        "regions": {
-                            "type": "array",
-                            "items": {"type": "string"},
-                            "description": "Region codes (e.g., ['cz'])",
-                            "default": ["cz"]
-                        }
-                    },
+                    "properties": {},
                     "required": []
                 }
             }
@@ -93,12 +89,12 @@ class MCPServer:
         detector_list: list[str] | None = None
         if isinstance(detector_names, list) and all(isinstance(item, str) for item in detector_names):
             detector_list = [item for item in detector_names if isinstance(item, str)]
-        
+
         if not isinstance(text, str) or not text:
             return {"error": "Missing required parameter: text"}
-        
-        result = self.gateway.detect(text, detector_names=detector_list)
-        
+
+        result = self.engine.detect(text, detector_names=detector_list)
+
         return {
             "text": result.text,
             "findings": [
@@ -120,14 +116,14 @@ class MCPServer:
     def _handle_validate_identifier(self, arguments: dict[str, object]) -> dict[str, object]:
         value = arguments.get("value")
         detector_name = arguments.get("detector_name")
-        
+
         if not isinstance(value, str) or not value:
             return {"error": "Missing required parameter: value"}
         if not isinstance(detector_name, str) or not detector_name:
             return {"error": "Missing required parameter: detector_name"}
-        
+
         try:
-            result = self.gateway.validate(value, detector_name=detector_name)
+            result = self.engine.validate(value, detector_name=detector_name)
             return {
                 "detector": result.detector,
                 "value": result.value,
@@ -137,13 +133,13 @@ class MCPServer:
         except KeyError:
             return {
                 "error": f"Detector '{detector_name}' not found",
-                "available_detectors": [d.name for d in self.gateway.list_detectors()]
+                "available_detectors": [d.name for d in self.engine.list_detectors()]
             }
 
     def _handle_list_detectors(self, arguments: dict[str, object]) -> dict[str, object]:
         _ = arguments
-        detectors = self.gateway.list_detectors()
-        
+        detectors = self.engine.list_detectors()
+
         return {
             "detectors": [
                 {

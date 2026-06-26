@@ -1,19 +1,21 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from fastpii import PrivacyGuard
+from fastpii import FastPII, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST
+from fastpii.core.confidence import ConfidenceScorer
+from fastpii.countries import get_country_pack
 
 
 class DetectRequest(BaseModel):
     text: str
-    regions: list[str] = ["cz"]
+    regions: list[str]
     detector_names: list[str] | None = None
 
 
 class ValidateRequest(BaseModel):
     value: str
     detector_name: str
-    regions: list[str] = ["cz"]
+    regions: list[str]
 
 
 class FindingResponse(BaseModel):
@@ -46,18 +48,31 @@ class DetectorInfo(BaseModel):
     description: str
 
 
-def create_app() -> FastAPI:
+def _build_engine(regions: list[str]) -> FastPII:
+    scorer = ConfidenceScorer(
+        base_scores=DEFAULT_CONFIDENCE_SCORES,
+        context_boost=DEFAULT_CONTEXT_BOOST,
+    )
+    engine = FastPII(priority=DEFAULT_PRIORITY, confidence_scorer=scorer)
+    for region_code in regions:
+        pack_cls = get_country_pack(region_code)
+        if pack_cls is not None:
+            engine.register(pack_cls())
+    return engine
+
+
+def create_app(engine: FastPII | None = None) -> FastAPI:
     app = FastAPI(
         title="FastPII API",
         description="Czech and Central European PII Detection API",
-        version="0.1.0"
+        version="0.2.0"
     )
 
     @app.post("/detect", response_model=DetectionResponse)
     async def detect_pii(request: DetectRequest):
-        guard = PrivacyGuard(regions=request.regions)
-        result = guard.detect(request.text, detector_names=request.detector_names)
-        
+        app_engine = engine or _build_engine(request.regions)
+        result = app_engine.detect(request.text, detector_names=request.detector_names)
+
         return DetectionResponse(
             text=result.text,
             findings=[
@@ -78,13 +93,12 @@ def create_app() -> FastAPI:
 
     @app.post("/validate", response_model=ValidationResponse)
     async def validate_identifier(request: ValidateRequest):
-        guard = PrivacyGuard(regions=request.regions)
-        
+        app_engine = engine or _build_engine(request.regions)
         try:
-            result = guard.validate(request.value, detector_name=request.detector_name)
+            result = app_engine.validate(request.value, detector_name=request.detector_name)
         except KeyError:
             raise HTTPException(status_code=404, detail=f"Detector '{request.detector_name}' not found")
-        
+
         return ValidationResponse(
             detector=result.detector,
             value=result.value,
@@ -94,9 +108,14 @@ def create_app() -> FastAPI:
 
     @app.get("/detectors", response_model=list[DetectorInfo])
     async def list_detectors(regions: list[str] | None = None):
-        guard = PrivacyGuard(regions=regions or ["cz"])
-        detectors = guard.list_detectors()
-        
+        if engine is not None:
+            detectors = engine.list_detectors()
+        else:
+            if regions is None:
+                raise HTTPException(status_code=400, detail="regions parameter is required when no engine is pre-configured")
+            app_engine = _build_engine(regions)
+            detectors = app_engine.list_detectors()
+
         return [
             DetectorInfo(
                 name=d.name,
