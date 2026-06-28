@@ -7,6 +7,7 @@ Shared infrastructure used across all country packs:
 - Checksum algorithms
 - Normalization utilities
 - Regex helpers
+- Transformation engine and strategies
 """
 
 from fastpii.core._compat import override

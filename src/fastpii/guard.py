@@ -4,6 +4,13 @@ from time import perf_counter
 from fastpii.countries import CountryPack, get_country_pack, get_country_packs
 from fastpii.core.confidence import ConfidenceScorer
 from fastpii.core.overlap import deduplicate_findings
+from fastpii.core.transform import (
+    AnonymizeStrategy,
+    RedactStrategy,
+    MaskStrategy,
+    RemoveStrategy,
+    TransformationEngine,
+)
 from fastpii.detectors.base import Detector
 from fastpii.detectors.registry import DetectorRegistry
 from fastpii.models import Finding, DetectionResult, ValidationResult
@@ -98,31 +105,19 @@ class FastPII:
 
     def anonymize(self, text: str, replacement: str = "[REDACTED]") -> str:
         result = self.detect(text)
-        anonymized = list(text)
-        for finding in sorted(result.findings, key=lambda f: f.start, reverse=True):
-            anonymized[finding.start:finding.end] = list(replacement)
-        return "".join(anonymized)
+        return TransformationEngine.apply(result, AnonymizeStrategy(replacement))
 
     def redact(self, text: str) -> str:
         result = self.detect(text)
-        processed = list(text)
-        for finding in sorted(result.findings, key=lambda f: f.start, reverse=True):
-            processed[finding.start:finding.end] = list(f"[{finding.type.upper()}]")
-        return "".join(processed)
+        return TransformationEngine.apply(result, RedactStrategy())
 
     def mask(self, text: str) -> str:
         result = self.detect(text)
-        processed = list(text)
-        for finding in sorted(result.findings, key=lambda f: f.start, reverse=True):
-            processed[finding.start:finding.end] = list("*" * len(finding.value))
-        return "".join(processed)
+        return TransformationEngine.apply(result, MaskStrategy())
 
     def remove(self, text: str) -> str:
         result = self.detect(text)
-        processed = list(text)
-        for finding in sorted(result.findings, key=lambda f: f.start, reverse=True):
-            processed[finding.start:finding.end] = []
-        return "".join(processed)
+        return TransformationEngine.apply(result, RemoveStrategy())
 
 
 DEFAULT_PRIORITY: dict[str, int] = {
