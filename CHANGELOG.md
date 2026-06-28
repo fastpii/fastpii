@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2025-06-28
+
+### Fixed
+
+- **Critical: `mask()` produced wrong-length output when detectors normalized values.** Phone numbers with formatting (`+420 777 888 999` → 12-char value but 16-char original span) and rodne cislo with slash (`800101/1238` → 10-char value but 11-char span) were masked with too few asterisks. `mask()` now uses `(finding.end - finding.start)` instead of `len(finding.value)` to preserve original text length in all cases.
+
+### Added
+
+- **TransformationEngine with strategy pattern** (`fastpii.core.transform`): Extracted transformation logic from `FastPII` into a `TransformationEngine` with pluggable strategies (`AnonymizeStrategy`, `RedactStrategy`, `MaskStrategy`, `RemoveStrategy`). Custom strategies can be created by implementing the `TransformationStrategy` protocol.
+- **63 edge-case tests** for transformation methods covering value/span mismatches, formatted phone numbers across CZ/PL/DE/FR, rodne cislo with slash, mask length invariants, custom strategies, and mixed-language documents.
+
+### Changed
+
+- `FastPII.anonymize()`, `redact()`, `mask()`, `remove()` now delegate to `TransformationEngine.apply()` instead of inline list-conversion + reverse-sort + slice-assignment boilerplate.
+- `TransformationStrategy`, `AnonymizeStrategy`, `RedactStrategy`, `MaskStrategy`, `RemoveStrategy`, `TransformationEngine` exported from top-level `fastpii` package.
+
 ## [Unreleased]
 
 ### Added
