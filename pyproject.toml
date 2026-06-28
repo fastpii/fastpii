@@ -1,6 +1,6 @@
 [project]
 name = "fastpii"
-version = "0.4.0"
+version = "0.4.1"
 description = "Privacy infrastructure for AI applications handling European data"
 readme = "README.md"
 authors = [{name = "FastPII Team", email = "support@fastpii.com"}]
@@ -93,7 +93,7 @@ disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --strict-markers --cov=fastpii --cov-report=term-missing"
+addopts = "-ra -q --strict-markers"
 testpaths = ["tests"]
 pythonpath = ["src"]
 
