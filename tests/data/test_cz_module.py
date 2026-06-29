@@ -64,9 +64,9 @@ class TestCzechBankCodesData:
         assert source.name == "CZ Bank Codes"
         assert source.license == "Public domain"
 
-    def test_validate_empty_data(self):
+    def test_validate_populated_data(self):
         codes = CzechBankCodesData()
-        assert codes.validate() is False
+        assert codes.validate() is True
 
 
 class TestCzechCitiesData:
@@ -80,8 +80,8 @@ class TestCzechCitiesData:
         data2 = cities.get_data()
         assert data1 is data2
 
-    def test_validate_empty_data(self):
-        assert CzechCitiesData().validate() is False
+    def test_validate_populated_data(self):
+        assert CzechCitiesData().validate() is True
 
 
 class TestCzechPostalCodesData:
@@ -95,8 +95,8 @@ class TestCzechPostalCodesData:
         data2 = codes.get_data()
         assert data1 is data2
 
-    def test_validate_empty_data(self):
-        assert CzechPostalCodesData().validate() is False
+    def test_validate_populated_data(self):
+        assert CzechPostalCodesData().validate() is True
 
 
 class TestCzechNamesData:
@@ -112,8 +112,8 @@ class TestCzechNamesData:
         data2 = names.get_data()
         assert data1 is data2
 
-    def test_validate_empty_data(self):
-        assert CzechNamesData().validate() is False
+    def test_validate_populated_data(self):
+        assert CzechNamesData().validate() is True
 
 
 class TestCzechModule:

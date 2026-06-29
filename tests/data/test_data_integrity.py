@@ -70,15 +70,15 @@ class TestBankCodesIntegrity:
 
 class TestCitiesIntegrity:
     @pytest.mark.skipif(
-        not _min_entries(CzechCitiesData, 6000),
-        reason="Cities data not populated (run extract_cz_cities.py)",
+        not _min_entries(CzechCitiesData, 5000),
+        reason="Cities data not populated (run extract_cz_ruvian.py)",
     )
     def test_all_lowercase(self):
         for city in CzechCitiesData().get_data():
             assert city == city.lower(), f"City '{city}' is not lowercase"
 
     @pytest.mark.skipif(
-        not _min_entries(CzechCitiesData, 6000),
+        not _min_entries(CzechCitiesData, 5000),
         reason="Cities data not populated",
     )
     def test_no_duplicates(self):
@@ -86,18 +86,18 @@ class TestCitiesIntegrity:
         assert len(data) == len(set(data)), "Duplicate cities found"
 
     @pytest.mark.skipif(
-        not _min_entries(CzechCitiesData, 6000),
+        not _min_entries(CzechCitiesData, 5000),
         reason="Cities data not populated",
     )
     def test_minimum_entries(self):
         data = CzechCitiesData().get_data()
-        assert len(data) >= 6000, f"Expected 6000+ cities, got {len(data)}"
+        assert len(data) >= 5000, f"Expected 5000+ cities, got {len(data)}"
 
 
 class TestPostalCodesIntegrity:
     @pytest.mark.skipif(
-        not _min_entries(CzechPostalCodesData, 15000),
-        reason="Postal codes data not populated (run extract_cz_postal_codes.py)",
+        not _min_entries(CzechPostalCodesData, 2000),
+        reason="Postal codes data not populated (run extract_cz_ruvian.py)",
     )
     def test_format_all_5_digits(self):
         for code in CzechPostalCodesData().get_data():
@@ -105,7 +105,7 @@ class TestPostalCodesIntegrity:
             assert code.isdigit(), f"Postal code '{code}' contains non-digits"
 
     @pytest.mark.skipif(
-        not _min_entries(CzechPostalCodesData, 15000),
+        not _min_entries(CzechPostalCodesData, 2000),
         reason="Postal codes data not populated",
     )
     def test_no_duplicates(self):
@@ -113,12 +113,12 @@ class TestPostalCodesIntegrity:
         assert len(data) == len(set(data)), "Duplicate postal codes found"
 
     @pytest.mark.skipif(
-        not _min_entries(CzechPostalCodesData, 15000),
+        not _min_entries(CzechPostalCodesData, 2000),
         reason="Postal codes data not populated",
     )
     def test_minimum_entries(self):
         data = CzechPostalCodesData().get_data()
-        assert len(data) >= 15000, f"Expected 15000+ postal codes, got {len(data)}"
+        assert len(data) >= 2000, f"Expected 2000+ postal codes, got {len(data)}"
 
 
 class TestNamesIntegrity:

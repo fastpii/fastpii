@@ -6,11 +6,11 @@ from fastpii.data.base import CountryData, DataSource
 class CzechCitiesData(CountryData[set[str]]):
     """Czech cities data module.
 
-    Provides access to Czech city names from OpenStreetMap.
+    Provides access to Czech city names from ČÚZK RÚIAN (Registrační územní identifikační síť).
     """
 
-    _source_url = "https://download.geofabrik.de/europe/czech-republic.html"
-    _source_license = "ODbL"
+    _source_url = "https://vdp.cuzk.gov.cz/vymenny_format/csv/"
+    _source_license = "CC-BY 4.0"
 
     def __init__(self) -> None:
         self._data: set[str] | None = None

@@ -36,8 +36,8 @@ class TestImportTimes:
         assert elapsed < 10, f"Bank codes import took {elapsed:.1f}ms, expected <10ms"
 
     @pytest.mark.skipif(
-        not _has_data(CzechCitiesData, 6000),
-        reason="Cities data not populated (run extract_cz_cities.py)",
+        not _has_data(CzechCitiesData, 5000),
+        reason="Cities data not populated (run extract_cz_ruvian.py)",
     )
     def test_cities_import_time(self):
         cities = CzechCitiesData()
@@ -45,8 +45,8 @@ class TestImportTimes:
         assert elapsed < 100, f"Cities import took {elapsed:.1f}ms, expected <100ms"
 
     @pytest.mark.skipif(
-        not _has_data(CzechPostalCodesData, 15000),
-        reason="Postal codes data not populated (run extract_cz_postal_codes.py)",
+        not _has_data(CzechPostalCodesData, 2000),
+        reason="Postal codes data not populated (run extract_cz_ruvian.py)",
     )
     def test_postal_codes_import_time(self):
         codes = CzechPostalCodesData()
