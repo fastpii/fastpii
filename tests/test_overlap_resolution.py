@@ -47,6 +47,25 @@ def collect_raw_findings(engine: FastPII, text: str, *detector_names: str) -> li
     return findings
 
 
+COMPREHENSIVE_CZ_DOC = (
+    "Jan Novák\n"
+    "Email: jan.novak@example.cz\n"
+    "RČ: 800101/1238\n"
+    "IČO: 25596641\n"
+    "DIČ: CZ25596641\n"
+    "Číslo účtu: 19-2000145399/0800\n"
+    "IBAN: CZ2908000000000192000145\n"
+    "Credit card: 4111111111111111\n"
+    "občanský průkaz: 123456789\n"
+    "Pojištění: 111/123456\n"
+    "Datum narození: 15.03.1980\n"
+    "Vinohradská 45\n"
+    "PSČ: 120 00\n"
+    "Tel: +420 777 123 456\n"
+    "SPZ: 1A2 3456\n"
+)
+
+
 def finding_signature(finding: Finding) -> tuple[str, int, int]:
     return (finding.type, finding.start, finding.end)
 
@@ -406,25 +425,7 @@ class TestNoFindingsDuplicated:
         assert [finding.type for finding in result] == ["email", "phone"]
 
     def test_engine_comprehensive_document_has_no_duplicate_span_type_pairs(self, engine: FastPII):
-        text = (
-            "Jan Novák\n"
-            "Email: jan.novak@example.cz\n"
-            "RČ: 800101/1238\n"
-            "IČO: 25596641\n"
-            "DIČ: CZ25596641\n"
-            "Číslo účtu: 19-2000145399/0800\n"
-            "IBAN: CZ2908000000000192000145\n"
-            "Credit card: 4111111111111111\n"
-            "občanský průkaz: 123456789\n"
-            "Pojištění: 111/123456\n"
-            "Datum narození: 15.03.1980\n"
-            "Vinohradská 45\n"
-            "PSČ: 120 00\n"
-            "Tel: +420 777 123 456\n"
-            "SPZ: 1A2 3456\n"
-        )
-
-        result = engine.detect(text)
+        result = engine.detect(COMPREHENSIVE_CZ_DOC)
         signatures = [finding_signature(finding) for finding in result.findings]
 
         assert len(signatures) == len(set(signatures))
@@ -441,25 +442,7 @@ class TestNoFindingsDuplicated:
 
 class TestMultiDetectorIntegration:
     def test_comprehensive_document_triggers_all_15_czech_detectors(self, engine: FastPII):
-        text = (
-            "Jan Novák\n"
-            "Email: jan.novak@example.cz\n"
-            "RČ: 800101/1238\n"
-            "IČO: 25596641\n"
-            "DIČ: CZ25596641\n"
-            "Číslo účtu: 19-2000145399/0800\n"
-            "IBAN: CZ2908000000000192000145\n"
-            "Credit card: 4111111111111111\n"
-            "občanský průkaz: 123456789\n"
-            "Pojištění: 111/123456\n"
-            "Datum narození: 15.03.1980\n"
-            "Vinohradská 45\n"
-            "PSČ: 120 00\n"
-            "Tel: +420 777 123 456\n"
-            "SPZ: 1A2 3456\n"
-        )
-
-        result = engine.detect(text)
+        result = engine.detect(COMPREHENSIVE_CZ_DOC)
         types = {finding.type for finding in result.findings}
 
         assert len(result.findings) == 15
@@ -482,74 +465,20 @@ class TestMultiDetectorIntegration:
         }
 
     def test_comprehensive_document_detector_names_match_finding_types(self, engine: FastPII):
-        text = (
-            "Jan Novák\n"
-            "Email: jan.novak@example.cz\n"
-            "RČ: 800101/1238\n"
-            "IČO: 25596641\n"
-            "DIČ: CZ25596641\n"
-            "Číslo účtu: 19-2000145399/0800\n"
-            "IBAN: CZ2908000000000192000145\n"
-            "Credit card: 4111111111111111\n"
-            "občanský průkaz: 123456789\n"
-            "Pojištění: 111/123456\n"
-            "Datum narození: 15.03.1980\n"
-            "Vinohradská 45\n"
-            "PSČ: 120 00\n"
-            "Tel: +420 777 123 456\n"
-            "SPZ: 1A2 3456\n"
-        )
-
-        result = engine.detect(text)
+        result = engine.detect(COMPREHENSIVE_CZ_DOC)
 
         assert set(result.detector_names) == {finding.type for finding in result.findings}
         assert len(result.detector_names) == 15
 
     def test_comprehensive_document_findings_are_sorted_by_start(self, engine: FastPII):
-        text = (
-            "Jan Novák\n"
-            "Email: jan.novak@example.cz\n"
-            "RČ: 800101/1238\n"
-            "IČO: 25596641\n"
-            "DIČ: CZ25596641\n"
-            "Číslo účtu: 19-2000145399/0800\n"
-            "IBAN: CZ2908000000000192000145\n"
-            "Credit card: 4111111111111111\n"
-            "občanský průkaz: 123456789\n"
-            "Pojištění: 111/123456\n"
-            "Datum narození: 15.03.1980\n"
-            "Vinohradská 45\n"
-            "PSČ: 120 00\n"
-            "Tel: +420 777 123 456\n"
-            "SPZ: 1A2 3456\n"
-        )
-
-        result = engine.detect(text)
+        result = engine.detect(COMPREHENSIVE_CZ_DOC)
 
         assert [finding.start for finding in result.findings] == sorted(
             finding.start for finding in result.findings
         )
 
     def test_comprehensive_document_has_unique_span_type_pairs(self, engine: FastPII):
-        text = (
-            "Jan Novák\n"
-            "Email: jan.novak@example.cz\n"
-            "RČ: 800101/1238\n"
-            "IČO: 25596641\n"
-            "DIČ: CZ25596641\n"
-            "Číslo účtu: 19-2000145399/0800\n"
-            "IBAN: CZ2908000000000192000145\n"
-            "Credit card: 4111111111111111\n"
-            "občanský průkaz: 123456789\n"
-            "Pojištění: 111/123456\n"
-            "Datum narození: 15.03.1980\n"
-            "Vinohradská 45\n"
-            "PSČ: 120 00\n"
-            "Tel: +420 777 123 456\n"
-            "SPZ: 1A2 3456\n"
-        )
-
-        result = engine.detect(text)
+        result = engine.detect(COMPREHENSIVE_CZ_DOC)
         signatures = [finding_signature(finding) for finding in result.findings]
 
         assert len(signatures) == len(set(signatures))
