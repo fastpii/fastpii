@@ -195,3 +195,14 @@ class TestCzechModule:
         CountryRegistry.register("cz", CzechModule)
         module = CountryRegistry.get("CZ")
         assert isinstance(module, CzechModule)
+
+    def test_benchmark_import_times(self):
+        module = CzechModule()
+        times = module.benchmark_import_times()
+        assert isinstance(times, dict)
+        assert "bank_codes" in times
+        assert "cities" in times
+        assert "postal_codes" in times
+        assert "names" in times
+        assert "insurance_codes" in times
+        assert all(isinstance(t, float) for t in times.values())
