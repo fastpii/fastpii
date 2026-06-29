@@ -66,15 +66,15 @@ class BankCodesExtractor(BaseExtractor, ABC):
         with open(output_path, "w") as f:
             self._write_header(f, source)
 
-            f.write(f"{set_var}: set[str] = {{\n")
+            _ = f.write(f"{set_var}: set[str] = {{\n")
             for code in sorted(bank_codes.keys()):
-                f.write(f'    "{code}",\n')
-            f.write("}\n\n")
+                _ = f.write(f'    "{code}",\n')
+            _ = f.write("}\n\n")
 
-            f.write(f"{dict_var}: dict[str, str] = {{\n")
+            _ = f.write(f"{dict_var}: dict[str, str] = {{\n")
             for code, name in sorted(bank_codes.items()):
                 name_escaped = name.replace('"', '\\"')
-                f.write(f'    "{code}": "{name_escaped}",\n')
-            f.write("}\n")
+                _ = f.write(f'    "{code}": "{name_escaped}",\n')
+            _ = f.write("}\n")
 
         print(f"Extracted {len(bank_codes)} {label} to {output_path}")

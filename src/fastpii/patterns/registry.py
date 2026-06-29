@@ -1,5 +1,6 @@
 from fastpii.core._compat import override
 from fastpii.patterns.base import BasePatternRegistry, PatternDefinition
+from fastpii.patterns.regions import PatternLoader
 
 
 __all__ = [
@@ -16,7 +17,7 @@ class PatternRegistry(BasePatternRegistry):
         self._patterns: dict[str, dict[str, list[PatternDefinition]]] = {}
         self._pattern_cache: dict[str, PatternDefinition] = {}
         self._loaded_regions: set[str] = set()
-        self._loaders: dict[str, type] = {}
+        self._loaders: dict[str, type[PatternLoader]] = {}
         self._discover_region_loaders()
     
     def _discover_region_loaders(self) -> None:

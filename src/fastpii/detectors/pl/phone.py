@@ -7,6 +7,7 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class PolishPhoneDetector(Detector):
+    registry: PatternRegistry
     CONTEXT_REGEX_PATTERN: str = r"(?i)\b(?:tel|telefon|kom[óo]rka|phone|mobile|contact|numer)\b\s*:?"
     CONTEXT_WINDOW: int = 50
 
@@ -17,7 +18,7 @@ class PolishPhoneDetector(Detector):
             description="Polish phone number detector (mobile and landline)"
         )
         self.registry = registry or get_shared_registry()
-        self._context_regex = re.compile(self.CONTEXT_REGEX_PATTERN)
+        self._context_regex: re.Pattern[str] = re.compile(self.CONTEXT_REGEX_PATTERN)
 
     @override
     def detect(self, text: str) -> list[Finding]:

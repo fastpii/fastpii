@@ -1,5 +1,7 @@
 import importlib
+from typing import cast
 
+from fastpii.patterns.regions import PatternLoader
 from fastpii.countries.pl.pack import PolishPack, POLISH_METADATA, POLISH_ENTITIES
 from fastpii.countries.pl.validators import (
     extract_pesel_metadata,
@@ -25,7 +27,7 @@ __all__ = [
     "validate_regon",
 ]
 
-PolishPatternLoader: type = getattr(
+PolishPatternLoader: type[PatternLoader] = cast(type[PatternLoader], getattr(
     importlib.import_module("fastpii.countries.pl.patterns"),
     "PolishPatternLoader",
-)
+))

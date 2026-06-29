@@ -1,15 +1,7 @@
 import re
-from collections.abc import Callable
-from typing import ClassVar, TypeVar
+from typing import ClassVar
 
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
-
+from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
@@ -21,14 +13,18 @@ class IdentityCardDetector(Detector):
     NO_CONTEXT_CONFIDENCE: float = 0.70
 
     _context_regex: ClassVar[re.Pattern[str]] = re.compile(
-        r"(?i)(?:občanský\s+průkaz|obč\.\s*průkaz|OP|č\.\s*průkazu|číslo\s+průkazu|"
-        r"průkaz\s+totožnosti|identity\s+card|id\s+card)",
+        (
+            r"(?i)(?:občanský\s+průkaz|obč\.\s*průkaz|OP|č\.\s*průkazu|číslo\s+průkazu|"
+            + r"průkaz\s+totožnosti|identity\s+card|id\s+card)"
+        ),
     )
 
     _negative_context_regex: ClassVar[re.Pattern[str]] = re.compile(
-        r"(?i)(?:celkem|total|suma|částka|amount|balance|zůstatek|počet|count|"
-        r"number|quantity|množství|hodnota|value|výsledek|result|součet|invoice|"
-        r"faktura|order|objednávka|reference|ref|account|účet)\s*[:\-=]?\s*$",
+        (
+            r"(?i)(?:celkem|total|suma|částka|amount|balance|zůstatek|počet|count|"
+            + r"number|quantity|množství|hodnota|value|výsledek|result|součet|invoice|"
+            + r"faktura|order|objednávka|reference|ref|account|účet)\s*[:\-=]?\s*$"
+        ),
     )
 
     NEW_FORMAT_PATTERN: ClassVar[re.Pattern[str]] = re.compile(
@@ -89,7 +85,7 @@ class IdentityCardDetector(Detector):
             has_context = self._has_context(text, match.start())
             confidence = self._calculate_confidence(has_context, format_type="new")
 
-            metadata: dict[str, object] = {
+            metadata = {
                 "format": "new",
                 "number": value,
             }

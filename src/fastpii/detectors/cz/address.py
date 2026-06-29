@@ -1,16 +1,7 @@
 import re
 
-from collections.abc import Callable
-from typing import ClassVar, TypeVar
 
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
-
+from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
@@ -38,7 +29,7 @@ STREET_PATTERNS = [
     r'[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+\s+[a-záčďéěíňóřšťúůýž]+\s+\d+',
 ]
 
-NON_ADDRESS_WORDS: ClassVar[set[str]] = {
+NON_ADDRESS_WORDS: set[str] = {
     "narozen", "narozena", "narození", "nar", "datum", "rodné", "rodného",
     "číslo", "čís", "č", "p", "psč", "ičo", "ič", "dič", "dpč",
     "leden", "únor", "březen", "duben", "květen", "červen", "červenec",

@@ -39,9 +39,9 @@ class FastPII:
         if priority is None:
             raise ValueError(
                 "Overlap priority is required. "
-                "Pass a dict mapping detector type names to integer priorities. "
-                "Higher priority types win when findings overlap. "
-                "Example: {'rodne_cislo': 100, 'ico': 95, 'address': 80, 'phone': 20}"
+                + "Pass a dict mapping detector type names to integer priorities. "
+                + "Higher priority types win when findings overlap. "
+                + "Example: {'rodne_cislo': 100, 'ico': 95, 'address': 80, 'phone': 20}"
             )
         self._priority = priority
         self._scorer = confidence_scorer

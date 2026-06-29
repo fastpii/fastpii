@@ -61,10 +61,10 @@ class CitiesExtractor(BaseExtractor, ABC):
         with open(output_path, "w") as f:
             self._write_header(f, source)
 
-            f.write("CITIES: set[str] = {\n")
+            _ = f.write("CITIES: set[str] = {\n")
             for city in sorted(cities):
                 city_escaped = city.replace('"', '\\"')
-                f.write(f'    "{city_escaped}",\n')
-            f.write("}\n")
+                _ = f.write(f'    "{city_escaped}",\n')
+            _ = f.write("}\n")
 
         print(f"Extracted {len(cities)} cities to {output_path}")

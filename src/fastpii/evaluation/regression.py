@@ -23,14 +23,19 @@ def compare_results(
         return True, ["No previous results found — first run"]
 
     with open(previous_path, encoding="utf-8") as f:
-        previous: dict[str, dict[str, float]] = json.load(f)
+        previous = cast(dict[str, dict[str, float]], json.load(f))
 
     previous_overall = previous.get("overall", {})
     issues: list[str] = []
     passed = True
+    current_values = {
+        "precision": current_metrics.precision,
+        "recall": current_metrics.recall,
+        "f1": current_metrics.f1,
+    }
 
     for metric, threshold in REGRESSION_THRESHOLDS.items():
-        current_val = getattr(current_metrics, metric)
+        current_val = current_values[metric]
         previous_val = previous_overall.get(metric, 0.0)
         delta = current_val - previous_val
 
@@ -38,13 +43,13 @@ def compare_results(
             passed = False
             issues.append(
                 f"REGRESSION: {metric} dropped {delta:.2%} "
-                f"({previous_val:.2%} -> {current_val:.2%}, "
-                f"threshold: {threshold:.2%})"
+                + f"({previous_val:.2%} -> {current_val:.2%}, "
+                + f"threshold: {threshold:.2%})"
             )
         elif delta < 0:
             issues.append(
                 f"WARNING: {metric} decreased {delta:.2%} "
-                f"({previous_val:.2%} -> {current_val:.2%})"
+                + f"({previous_val:.2%} -> {current_val:.2%})"
             )
 
     return passed, issues

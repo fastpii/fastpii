@@ -1,3 +1,4 @@
+from fastpii.core._compat import override
 from fastpii.countries import CountryPack, register_country
 from fastpii.countries.base import CountryMetadata, EntityDefinition
 from fastpii.detectors.base import Detector
@@ -90,17 +91,20 @@ POLISH_ENTITIES: list[EntityDefinition] = [
 
 @register_country
 class PolishPack(CountryPack):
-    code = "pl"
+    code: str = "pl"
 
     @property
+    @override
     def name(self) -> str:
         return "Poland"
 
     @property
+    @override
     def metadata(self) -> CountryMetadata:
         return POLISH_METADATA
 
     @property
+    @override
     def detectors(self) -> list[Detector]:
         return [
             PeseleDetector(),
@@ -112,5 +116,6 @@ class PolishPack(CountryPack):
         ]
 
     @property
+    @override
     def entities(self) -> list[EntityDefinition]:
         return POLISH_ENTITIES

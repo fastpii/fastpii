@@ -61,10 +61,10 @@ class PostalCodesExtractor(BaseExtractor, ABC):
         with open(output_path, "w") as f:
             self._write_header(f, source)
 
-            f.write("POSTAL_CODES: set[str] = {\n")
+            _ = f.write("POSTAL_CODES: set[str] = {\n")
             for code in sorted(postal_codes):
                 code_escaped = code.replace('"', '\\"')
-                f.write(f'    "{code_escaped}",\n')
-            f.write("}\n")
+                _ = f.write(f'    "{code_escaped}",\n')
+            _ = f.write("}\n")
 
         print(f"Extracted {len(postal_codes)} postal codes to {output_path}")

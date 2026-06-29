@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 
@@ -119,7 +121,7 @@ def create_app(engine: FastPII | None = None) -> FastAPI:
         )
 
     @app.get("/detectors", response_model=list[DetectorInfo])
-    async def list_detectors(regions: list[str] | None = Query(None)):
+    async def list_detectors(regions: Annotated[list[str] | None, Query()] = None):
         if engine is not None:
             detectors = engine.list_detectors()
         else:

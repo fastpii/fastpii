@@ -1,15 +1,7 @@
 import re
-from collections.abc import Callable
-from typing import TypeVar
+from typing import ClassVar
 
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
-
+from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
@@ -42,7 +34,7 @@ class PostalCodeDetector(Detector):
     NO_CONTEXT_CONFIDENCE: float = 0.80
     VALIDATED_CONFIDENCE: float = 1.0
 
-    _context_regex = re.compile(
+    _context_regex: ClassVar[re.Pattern[str]] = re.compile(
         r"(?i)\b(?:psč|p\.s\.c|poštovní|postal|zip|postcode|post\s*code)\b\s*:?"
     )
 

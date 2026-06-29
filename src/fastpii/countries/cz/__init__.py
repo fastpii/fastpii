@@ -1,5 +1,7 @@
 import importlib
+from typing import cast
 
+from fastpii.patterns.regions import PatternLoader
 from fastpii.countries.cz.data import CzechModule, CZECH_METADATA
 from fastpii.countries.cz.pack import CzechPack, CZECH_METADATA as CZECH_PACK_METADATA, CZECH_ENTITIES
 from fastpii.countries.cz.validators import (
@@ -44,7 +46,7 @@ __all__ = [
     "validate_insurance_code",
 ]
 
-CzechPatternLoader: type = getattr(
+CzechPatternLoader: type[PatternLoader] = cast(type[PatternLoader], getattr(
     importlib.import_module("fastpii.countries.cz.patterns"),
     "CzechPatternLoader",
-)
+))

@@ -1,15 +1,7 @@
 import re
-from collections.abc import Callable
-from typing import TypeVar
+from typing import ClassVar
 
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
-
+from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
@@ -38,10 +30,10 @@ class PhoneNumberDetector(Detector):
     BANK_ACCOUNT_WINDOW_AFTER: int = 10
 
     registry: PatternRegistry
-    _context_regex = re.compile(
+    _context_regex: ClassVar[re.Pattern[str]] = re.compile(
         r"(?i)\b(?:phone|tel|telefon|mobil|mobile|contact|numbers?|číslo)\b\s*:?"
     )
-    _bank_account_regex = re.compile(r"\d{1,6}-\d{1,10}/\d{4}|\d{1,10}/\d{4}")
+    _bank_account_regex: ClassVar[re.Pattern[str]] = re.compile(r"\d{1,6}-\d{1,10}/\d{4}|\d{1,10}/\d{4}")
 
     def __init__(self, registry: PatternRegistry | None = None) -> None:
         super().__init__(

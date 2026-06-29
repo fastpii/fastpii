@@ -1,16 +1,8 @@
 from datetime import datetime
 
-from collections.abc import Callable
-from typing import ClassVar, TypeVar
+from typing import ClassVar
 
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
-
+from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry

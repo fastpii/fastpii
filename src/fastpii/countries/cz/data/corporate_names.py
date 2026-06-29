@@ -1,16 +1,8 @@
-from collections.abc import Callable
 from datetime import datetime
-from typing import ClassVar, TypeVar
+from typing import ClassVar
 
+from fastpii.core._compat import override
 from fastpii.data.base import CountryData, DataSource
-
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
 
 
 class CzechCorporateNamesData(CountryData[set[str]]):

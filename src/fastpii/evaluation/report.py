@@ -155,4 +155,4 @@ def generate_markdown_report(result: EvaluationResult, output_path: Path) -> Non
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines))
+        _ = f.write("\n".join(lines))

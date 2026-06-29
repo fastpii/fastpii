@@ -1,7 +1,6 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
-from fastpii.detectors.base import Detector
 
 
 __all__ = ["EntityType", "EntityDefinition", "CountryMetadata"]

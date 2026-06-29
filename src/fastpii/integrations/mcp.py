@@ -1,3 +1,5 @@
+from typing import cast
+
 from fastpii import FastPII, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST
 from fastpii.core.confidence import ConfidenceScorer
 from fastpii.countries import get_country_pack
@@ -90,8 +92,10 @@ class MCPServer:
         text = arguments.get("text")
         detector_names = arguments.get("detector_names")
         detector_list: list[str] | None = None
-        if isinstance(detector_names, list) and all(isinstance(item, str) for item in detector_names):
-            detector_list = [item for item in detector_names if isinstance(item, str)]
+        if isinstance(detector_names, list):
+            detector_names_list = cast(list[object], detector_names)
+            if all(isinstance(item, str) for item in detector_names_list):
+                detector_list = [item for item in detector_names_list if isinstance(item, str)]
 
         if not isinstance(text, str) or not text:
             return {"error": "Missing required parameter: text"}

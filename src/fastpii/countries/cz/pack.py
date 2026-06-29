@@ -1,5 +1,6 @@
+from fastpii.core._compat import override
 from fastpii.countries import CountryPack, register_country
-from fastpii.countries.base import CountryMetadata, EntityDefinition, EntityType
+from fastpii.countries.base import CountryMetadata, EntityDefinition
 from fastpii.detectors.base import Detector
 from fastpii.detectors.cz import (
     RodneCisloDetector,
@@ -189,17 +190,20 @@ CZECH_ENTITIES: list[EntityDefinition] = [
 
 @register_country
 class CzechPack(CountryPack):
-    code = "cz"
+    code: str = "cz"
 
     @property
+    @override
     def name(self) -> str:
         return "Czech Republic"
 
     @property
+    @override
     def metadata(self) -> CountryMetadata:
         return CZECH_METADATA
 
     @property
+    @override
     def detectors(self) -> list[Detector]:
         return [
             RodneCisloDetector(),
@@ -220,5 +224,6 @@ class CzechPack(CountryPack):
         ]
 
     @property
+    @override
     def entities(self) -> list[EntityDefinition]:
         return CZECH_ENTITIES

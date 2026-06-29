@@ -20,7 +20,7 @@ class FrenchPhoneDetector(Detector):
             description="French phone number detector (mobile and landline)"
         )
         self.registry = registry or get_shared_registry()
-        self._context_regex = re.compile(self.CONTEXT_PATTERN)
+        self._context_regex: re.Pattern[str] = re.compile(self.CONTEXT_PATTERN)
 
     @override
     def detect(self, text: str) -> list[Finding]:

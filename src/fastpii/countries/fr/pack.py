@@ -1,3 +1,4 @@
+from fastpii.core._compat import override
 from fastpii.countries import CountryPack, register_country
 from fastpii.countries.base import CountryMetadata, EntityDefinition
 from fastpii.detectors.base import Detector
@@ -90,17 +91,20 @@ FRENCH_ENTITIES: list[EntityDefinition] = [
 
 @register_country
 class FrenchPack(CountryPack):
-    code = "fr"
+    code: str = "fr"
 
     @property
+    @override
     def name(self) -> str:
         return "France"
 
     @property
+    @override
     def metadata(self) -> CountryMetadata:
         return FRENCH_METADATA
 
     @property
+    @override
     def detectors(self) -> list[Detector]:
         return [
             SIRENDetector(),
@@ -112,5 +116,6 @@ class FrenchPack(CountryPack):
         ]
 
     @property
+    @override
     def entities(self) -> list[EntityDefinition]:
         return FRENCH_ENTITIES

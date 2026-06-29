@@ -1,3 +1,4 @@
+from fastpii.core._compat import override
 from fastpii.countries import CountryPack, register_country
 from fastpii.countries.base import CountryMetadata, EntityDefinition
 from fastpii.detectors.base import Detector
@@ -90,17 +91,20 @@ GERMAN_ENTITIES: list[EntityDefinition] = [
 
 @register_country
 class GermanPack(CountryPack):
-    code = "de"
+    code: str = "de"
 
     @property
+    @override
     def name(self) -> str:
         return "Germany"
 
     @property
+    @override
     def metadata(self) -> CountryMetadata:
         return GERMAN_METADATA
 
     @property
+    @override
     def detectors(self) -> list[Detector]:
         return [
             SteuerIdDetector(),
@@ -112,5 +116,6 @@ class GermanPack(CountryPack):
         ]
 
     @property
+    @override
     def entities(self) -> list[EntityDefinition]:
         return GERMAN_ENTITIES

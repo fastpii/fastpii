@@ -1,5 +1,7 @@
 import importlib
+from typing import cast
 
+from fastpii.patterns.regions import PatternLoader
 from fastpii.countries.de.pack import GermanPack, GERMAN_METADATA, GERMAN_ENTITIES
 from fastpii.countries.de.validators import (
     extract_steuer_id_metadata,
@@ -27,7 +29,7 @@ __all__ = [
     "validate_ust_id",
 ]
 
-GermanPatternLoader: type = getattr(
+GermanPatternLoader: type[PatternLoader] = cast(type[PatternLoader], getattr(
     importlib.import_module("fastpii.countries.de.patterns"),
     "GermanPatternLoader",
-)
+))

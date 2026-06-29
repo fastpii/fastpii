@@ -6,17 +6,9 @@ for card type identification.
 """
 
 import re
-from collections.abc import Callable
-from typing import ClassVar, TypeVar
+from typing import ClassVar
 
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
-
+from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
@@ -34,15 +26,19 @@ class CreditCardDetector(Detector):
     NO_CONTEXT_CONFIDENCE: float = 0.60
 
     _context_regex: ClassVar[re.Pattern[str]] = re.compile(
-        r"(?i)(?:credit\s+card|card\s+number|card\s+no|card\s*#|card:|"
-        r"kreditní\s+karta|platební\s+karta|číslo\s+karty|"
-        r"visa|mastercard|amex|american\s+express|cvv|cvc|expiry|expiration)",
+        (
+            r"(?i)(?:credit\s+card|card\s+number|card\s+no|card\s*#|card:|"
+            + r"kreditní\s+karta|platební\s+karta|číslo\s+karty|"
+            + r"visa|mastercard|amex|american\s+express|cvv|cvc|expiry|expiration)"
+        ),
     )
 
     CARD_PATTERN: ClassVar[re.Pattern[str]] = re.compile(
-        r'\b(\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{1,4})\b|'
-        r'\b(\d{4}[\s-]?\d{6}[\s-]?\d{5})\b|'
-        r'\b(\d{13,16})\b'
+        (
+            r'\b(\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{1,4})\b|'
+            + r'\b(\d{4}[\s-]?\d{6}[\s-]?\d{5})\b|'
+            + r'\b(\d{13,16})\b'
+        )
     )
 
     CARD_PREFIXES: ClassVar[dict[str, list[tuple[int, int]]]] = {

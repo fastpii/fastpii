@@ -14,8 +14,8 @@ def deduplicate_findings(
     if priority is None:
         raise ValueError(
             "Overlap priority is required. "
-            "Pass an explicit priority dict mapping detector type names to integer priorities. "
-            "Higher priority types win when findings overlap."
+            + "Pass an explicit priority dict mapping detector type names to integer priorities. "
+            + "Higher priority types win when findings overlap."
         )
 
     sorted_findings = sorted(

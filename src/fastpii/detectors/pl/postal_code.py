@@ -27,8 +27,8 @@ class PolishPostalCodeDetector(Detector):
             description="Polish postal code detector"
         )
         self.registry = registry or get_shared_registry()
-        self._context_regex = re.compile(self.CONTEXT_REGEX_PATTERN)
-        self._city_regex = re.compile(
+        self._context_regex: re.Pattern[str] = re.compile(self.CONTEXT_REGEX_PATTERN)
+        self._city_regex: re.Pattern[str] = re.compile(
             r"(?i)\b(?:" + "|".join(re.escape(c) for c in self.MAJOR_POLISH_CITIES) + r")\b"
         )
 
@@ -83,5 +83,5 @@ class PolishPostalCodeDetector(Detector):
             return False
         return cleaned.isdigit()
 
-    def _extract_metadata(self, value: str) -> dict[str, object]:
+    def _extract_metadata(self, _value: str) -> dict[str, object]:
         return {}

@@ -1,14 +1,6 @@
-from collections.abc import Callable
-from typing import TYPE_CHECKING, ClassVar, TypeVar
+from typing import TYPE_CHECKING, ClassVar
 
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
-
+from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
@@ -20,6 +12,7 @@ if TYPE_CHECKING:
 class BankAccountDetector(Detector):
     registry: PatternRegistry
     EMPTY_BANK_NAME: ClassVar[str] = ""
+    bank_codes_data: "CzechBankCodesData"
 
     def __init__(self, registry: PatternRegistry | None = None, bank_codes_data: "CzechBankCodesData | None" = None) -> None:
         super().__init__(

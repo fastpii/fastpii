@@ -37,10 +37,10 @@ class PolishAddressDetector(Detector):
             description="Polish address detector"
         )
         self.registry = registry or get_shared_registry()
-        self._address_pattern = re.compile(
+        self._address_pattern: re.Pattern[str] = re.compile(
             rf"\b({self.STREET_PART_PATTERN})\s+({self.HOUSE_PART_PATTERN})(?:,\s*|,\s*({self.POSTAL_PART_PATTERN})\s+({self.CITY_PART_PATTERN})|\s+({self.CITY_PART_PATTERN})(?:,\s*({self.POSTAL_PART_PATTERN}))?)\b"
         )
-        self._simple_pattern = re.compile(rf"\b({self.STREET_PART_PATTERN})\s+({self.HOUSE_PART_PATTERN})\b")
+        self._simple_pattern: re.Pattern[str] = re.compile(rf"\b({self.STREET_PART_PATTERN})\s+({self.HOUSE_PART_PATTERN})\b")
 
     @override
     def detect(self, text: str) -> list[Finding]:

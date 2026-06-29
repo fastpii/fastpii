@@ -3,8 +3,8 @@ __all__ = ["ConfidenceScorer"]
 
 class ConfidenceScorer:
     def __init__(self, base_scores: dict[str, float], context_boost: float) -> None:
-        self._scores = base_scores
-        self._context_boost = context_boost
+        self._scores: dict[str, float] = base_scores
+        self._context_boost: float = context_boost
 
     def calculate(self, has_context: bool, has_checksum: bool = False, base_confidence: float | None = None) -> float:
         if base_confidence is not None:

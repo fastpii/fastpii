@@ -1,15 +1,7 @@
 import re
-from collections.abc import Callable
-from typing import TypeVar
+from typing import ClassVar
 
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
-
+from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
@@ -22,9 +14,11 @@ class EmailDetector(Detector):
     OTHER_DOMAIN_CONFIDENCE: float = 0.85
     registry: PatternRegistry
 
-    MARKDOWN_MAILTO_PATTERN = re.compile(
-        r'\[([A-Za-z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\]'
-        r'\(mailto:([A-Za-z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\)'
+    MARKDOWN_MAILTO_PATTERN: ClassVar[re.Pattern[str]] = re.compile(
+        (
+            r'\[([A-Za-z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\]'
+            + r'\(mailto:([A-Za-z0-9áčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\)'
+        )
     )
 
     def __init__(self, registry: PatternRegistry | None = None) -> None:

@@ -29,8 +29,8 @@ class FrenchPostalCodeDetector(Detector):
             description="French postal code detector"
         )
         self.registry = registry or get_shared_registry()
-        self._context_regex = re.compile(self.CONTEXT_PATTERN)
-        self._city_regex = re.compile(
+        self._context_regex: re.Pattern[str] = re.compile(self.CONTEXT_PATTERN)
+        self._city_regex: re.Pattern[str] = re.compile(
             r"(?i)\b(?:" + "|".join(re.escape(c) for c in self.MAJOR_FRENCH_CITIES) + r")\b"
         )
 

@@ -9,17 +9,9 @@ The number format is: 3-digit insurance code + 6-9 digit personal number
 """
 
 import re
-from collections.abc import Callable
-from typing import TYPE_CHECKING, ClassVar, TypeVar
+from typing import TYPE_CHECKING, ClassVar
 
-F = TypeVar("F", bound=Callable[..., object])
-
-try:
-    from typing_extensions import override
-except ImportError:
-    def override(method: F, /) -> F:
-        return method
-
+from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
@@ -41,8 +33,10 @@ class HealthInsuranceDetector(Detector):
     NO_CONTEXT_CONFIDENCE: float = 0.70
 
     _context_regex: ClassVar[re.Pattern[str]] = re.compile(
-        r"(?i)(?:pojištění|zdravotní\s+pojišťovna|pojišťovna|pojištěnec|"
-        r"číslo\s+pojištěnce|č\.\s*pojištěnce|health\s+insurance|insurance)",
+        (
+            r"(?i)(?:pojištění|zdravotní\s+pojišťovna|pojišťovna|pojištěnec|"
+            + r"číslo\s+pojištěnce|č\.\s*pojištěnce|health\s+insurance|insurance)"
+        ),
     )
 
     INSURANCE_NUMBER_PATTERN: re.Pattern[str] = re.compile(

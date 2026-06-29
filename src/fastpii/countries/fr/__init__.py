@@ -1,5 +1,7 @@
 import importlib
+from typing import cast
 
+from fastpii.patterns.regions import PatternLoader
 from fastpii.countries.fr.pack import FrenchPack, FRENCH_METADATA, FRENCH_ENTITIES
 from fastpii.countries.fr.validators import (
     extract_insee_metadata,
@@ -25,7 +27,7 @@ __all__ = [
     "validate_siret",
 ]
 
-FrenchPatternLoader: type = getattr(
+FrenchPatternLoader: type[PatternLoader] = cast(type[PatternLoader], getattr(
     importlib.import_module("fastpii.countries.fr.patterns"),
     "FrenchPatternLoader",
-)
+))

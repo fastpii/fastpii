@@ -66,18 +66,18 @@ class NamesExtractor(BaseExtractor, ABC):
 
         with open(output_path_male, "w") as f:
             self._write_header(f, source)
-            f.write("# Gender: male\n\n")
-            f.write("MALE_NAMES: set[str] = {\n")
+            _ = f.write("# Gender: male\n\n")
+            _ = f.write("MALE_NAMES: set[str] = {\n")
             for name in sorted(male_names):
-                f.write(f'    "{name.lower()}",\n')
-            f.write("}\n")
+                _ = f.write(f'    "{name.lower()}",\n')
+            _ = f.write("}\n")
 
         with open(output_path_female, "w") as f:
             self._write_header(f, source)
-            f.write("# Gender: female\n\n")
-            f.write("FEMALE_NAMES: set[str] = {\n")
+            _ = f.write("# Gender: female\n\n")
+            _ = f.write("FEMALE_NAMES: set[str] = {\n")
             for name in sorted(female_names):
-                f.write(f'    "{name.lower()}",\n')
-            f.write("}\n")
+                _ = f.write(f'    "{name.lower()}",\n')
+            _ = f.write("}\n")
 
         print(f"Extracted {len(male_names)} male names, {len(female_names)} female names")

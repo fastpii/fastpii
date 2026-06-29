@@ -54,9 +54,10 @@ class AnonymizeStrategy:
     """Replace PII with a fixed placeholder string."""
 
     def __init__(self, replacement: str = "[REDACTED]") -> None:
-        self.replacement = replacement
+        self.replacement: str = replacement
 
     def replace(self, finding: Finding, text: str) -> str:
+        _ = finding, text
         return self.replacement
 
 
@@ -64,6 +65,7 @@ class RedactStrategy:
     """Replace PII with its type label in brackets."""
 
     def replace(self, finding: Finding, text: str) -> str:
+        _ = text
         return f"[{finding.type.upper()}]"
 
 
@@ -71,6 +73,7 @@ class MaskStrategy:
     """Replace PII with asterisks, preserving the original text span length."""
 
     def replace(self, finding: Finding, text: str) -> str:
+        _ = text
         return "*" * (finding.end - finding.start)
 
 
@@ -78,6 +81,7 @@ class RemoveStrategy:
     """Remove PII entirely from the text."""
 
     def replace(self, finding: Finding, text: str) -> str:
+        _ = finding, text
         return ""
 
 

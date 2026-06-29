@@ -20,7 +20,7 @@ class NIPDetector(Detector):
             description="Polish tax ID (NIP) detector with checksum validation"
         )
         self.registry = registry or get_shared_registry()
-        self._context_regex = re.compile(self.CONTEXT_REGEX_PATTERN)
+        self._context_regex: re.Pattern[str] = re.compile(self.CONTEXT_REGEX_PATTERN)
 
     @override
     def detect(self, text: str) -> list[Finding]:

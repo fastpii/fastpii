@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 from fastpii import FastPII
 from fastpii.evaluation.iou_matcher import Span, match_spans
@@ -61,15 +62,30 @@ class Evaluator:
             if json_file.name == "schema.json":
                 continue
             with open(json_file, encoding="utf-8") as f:
-                data = json.load(f)
-            for s in data.get("samples", []):
+                data = cast(dict[str, object], json.load(f))
+            raw_sample_items = data.get("samples", [])
+            if not isinstance(raw_sample_items, list):
+                continue
+            sample_items = cast(list[object], raw_sample_items)
+            for sample_item in sample_items:
+                if not isinstance(sample_item, dict):
+                    continue
+                sample_data = cast(dict[str, object], sample_item)
+                raw_expected_findings = sample_data.get("expected_findings", [])
+                expected_findings: list[dict[str, str | int]] = []
+                if isinstance(raw_expected_findings, list):
+                    expected_findings = [
+                        cast(dict[str, str | int], finding)
+                        for finding in cast(list[object], raw_expected_findings)
+                        if isinstance(finding, dict)
+                    ]
                 samples.append(CorpusSample(
-                    id=s.get("id", ""),
-                    category=s.get("category", ""),
-                    description=s.get("description", ""),
-                    input=s.get("input", ""),
-                    expected_findings=s.get("expected_findings", []),
-                    difficulty=s.get("difficulty", ""),
+                    id=str(sample_data.get("id", "")),
+                    category=str(sample_data.get("category", "")),
+                    description=str(sample_data.get("description", "")),
+                    input=str(sample_data.get("input", "")),
+                    expected_findings=expected_findings,
+                    difficulty=str(sample_data.get("difficulty", "")),
                 ))
         return samples
 
@@ -147,7 +163,7 @@ class Evaluator:
                 detector_fp[det] = detector_fp.get(det, 0) + 1
                 if det not in confusion:
                     confusion[det] = {}
-                confusion[det].setdefault("none", 0)
+                _ = confusion[det].setdefault("none", 0)
                 confusion[det]["none"] += 1
 
             for fn_err in fn_errors:

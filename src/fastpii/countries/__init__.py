@@ -69,7 +69,7 @@ _PACK_MODULES: dict[str, str] = {
 def _ensure_loaded(code: str) -> None:
     if code not in _COUNTRY_PACKS and code in _PACK_MODULES:
         import importlib
-        importlib.import_module(_PACK_MODULES[code])
+        _ = importlib.import_module(_PACK_MODULES[code])
 
 
 def register_country(pack_cls: type[CountryPack]) -> type[CountryPack]:
