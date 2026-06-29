@@ -15,14 +15,9 @@ from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
 
-try:
-    from fastpii.countries.cz.data.cities import CzechCitiesData
-    from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
-    from fastpii.countries.cz.data.streets import CzechStreetsData
-except ImportError:
-    CzechCitiesData = None
-    CzechPostalCodesData = None
-    CzechStreetsData = None
+from fastpii.countries.cz.data.cities import CzechCitiesData
+from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
+from fastpii.countries.cz.data.streets import CzechStreetsData
 
 HORIZONTAL_WS = r'[^\S\n]+'
 OPTIONAL_HORIZONTAL_WS = r'[^\S\n]*'
@@ -42,20 +37,6 @@ STREET_PATTERNS = [
     r'[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+\s+\d+[/\s]?\d*',
     r'[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+\s+[a-záčďéěíňóřšťúůýž]+\s+\d+',
 ]
-
-FALLBACK_CITIES: set[str] = {
-    "praha", "brno", "ostrava", "plzeň", "liberec", "olomouc", "české budějovice",
-    "hradec králové", "pardubice", "most", "karlovy vary", "jíhlava", "písek",
-    "jablonec nad nisou", "těšínsko", "kladno", "mladá boleslav", "děčín",
-    "třinec", "ústí nad labem", "opava", "havířov", "kolin", "kolín", "zlín",
-    "příbram", "bruntál", "cheb", "trutnov", "šumperk", "litoměřice", "kadaň",
-    "mělník", "neratovice", "beroun", "bílina", "krnov", "králíky", "kroměříž",
-    "hodonín", "chrudim", "rychnov nad kněžnou", "pelhřimov", "žďár nad sázavou",
-    "sokolov", "sokolnice", "kyjov", "blansko", "velké mezířící", "velké opatovice",
-    "chotěboř", "náchod", "broumov", "tábor", "český krumlov",
-    "třebíč", "vsetín", "nový jíčín", "přerov", "frenštát pod radhoštěm",
-    "uherské hradiště", "uherský brod", "znojmo", "břeclav", "veselí nad moravou",
-}
 
 NON_ADDRESS_WORDS: ClassVar[set[str]] = {
     "narozen", "narozena", "narození", "nar", "datum", "rodné", "rodného",
@@ -111,26 +92,9 @@ class AddressDetector(Detector):
         )
         self.registry = registry or get_shared_registry()
 
-        if cities_data is not None:
-            self.cities = cities_data.get_data()
-        elif CzechCitiesData is not None:
-            self.cities = CzechCitiesData().get_data()
-        else:
-            self.cities = FALLBACK_CITIES
-
-        if streets_data is not None:
-            self.streets = streets_data.get_data()
-        elif CzechStreetsData is not None:
-            self.streets = CzechStreetsData().get_data()
-        else:
-            self.streets = set()
-
-        if postal_codes_data is not None:
-            self.postal_codes = postal_codes_data.get_data()
-        elif CzechPostalCodesData is not None:
-            self.postal_codes = CzechPostalCodesData().get_data()
-        else:
-            self.postal_codes = set()
+        self.cities = (cities_data or CzechCitiesData()).get_data()
+        self.streets = (streets_data or CzechStreetsData()).get_data()
+        self.postal_codes = (postal_codes_data or CzechPostalCodesData()).get_data()
 
     @override
     def detect(self, text: str) -> list[Finding]:
@@ -230,14 +194,10 @@ class AddressDetector(Detector):
         return city_lower in self.cities or any(c in city_lower for c in self.cities)
 
     def _is_valid_street(self, street: str) -> bool:
-        if not self.streets:
-            return False
         return street.lower().strip() in self.streets
 
     def _is_valid_postal_code(self, postal_code: str) -> bool:
         cleaned = postal_code.replace(" ", "")
-        if not self.postal_codes:
-            return False
         return cleaned in self.postal_codes
 
     def _is_likely_address(self, street: str, number: str) -> bool:

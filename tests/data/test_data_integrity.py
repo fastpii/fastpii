@@ -98,8 +98,8 @@ class TestCitiesIntegrity:
 
 class TestPostalCodesIntegrity:
     @pytest.mark.skipif(
-        not _min_entries(CzechPostalCodesData, 2000),
-        reason="Postal codes data not populated (run extract_cz_ruvian.py)",
+        not _min_entries(CzechPostalCodesData, 10000),
+        reason="Postal codes data not populated (run extract_cz_posta_psc.py)",
     )
     def test_format_all_5_digits(self):
         for code in CzechPostalCodesData().get_data():
@@ -107,7 +107,7 @@ class TestPostalCodesIntegrity:
             assert code.isdigit(), f"Postal code '{code}' contains non-digits"
 
     @pytest.mark.skipif(
-        not _min_entries(CzechPostalCodesData, 2000),
+        not _min_entries(CzechPostalCodesData, 10000),
         reason="Postal codes data not populated",
     )
     def test_no_duplicates(self):
@@ -115,12 +115,12 @@ class TestPostalCodesIntegrity:
         assert len(data) == len(set(data)), "Duplicate postal codes found"
 
     @pytest.mark.skipif(
-        not _min_entries(CzechPostalCodesData, 2000),
+        not _min_entries(CzechPostalCodesData, 10000),
         reason="Postal codes data not populated",
     )
     def test_minimum_entries(self):
         data = CzechPostalCodesData().get_data()
-        assert len(data) >= 2000, f"Expected 2000+ postal codes, got {len(data)}"
+        assert len(data) >= 10000, f"Expected 10000+ postal codes, got {len(data)}"
 
 
 class TestNamesIntegrity:

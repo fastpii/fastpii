@@ -133,8 +133,6 @@ class RodneCisloDetector(Detector):
 
             if len(rc) == 10:
                 metadata["checksum_valid"] = self._validate_checksum(rc)
-
-            if len(rc) == 10:
                 if year < 54:
                     year += 2000
                 else:

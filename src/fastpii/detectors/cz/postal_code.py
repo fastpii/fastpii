@@ -13,13 +13,8 @@ except ImportError:
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
-
-try:
-    from fastpii.countries.cz.data.cities import CzechCitiesData
-    from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
-except ImportError:
-    CzechCitiesData = None
-    CzechPostalCodesData = None
+from fastpii.countries.cz.data.cities import CzechCitiesData
+from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
 
 
 class PostalCodeDetector(Detector):
@@ -68,19 +63,8 @@ class PostalCodeDetector(Detector):
         )
         self.registry = registry or get_shared_registry()
 
-        if postal_codes_data is not None:
-            self.postal_codes = postal_codes_data.get_data()
-        elif CzechPostalCodesData is not None:
-            self.postal_codes = CzechPostalCodesData().get_data()
-        else:
-            self.postal_codes = set()
-
-        if cities_data is not None:
-            self.cities = cities_data.get_data()
-        elif CzechCitiesData is not None:
-            self.cities = CzechCitiesData().get_data()
-        else:
-            self.cities = set()
+        self.postal_codes = (postal_codes_data or CzechPostalCodesData()).get_data()
+        self.cities = (cities_data or CzechCitiesData()).get_data()
 
     @override
     def detect(self, text: str) -> list[Finding]:
@@ -146,8 +130,6 @@ class PostalCodeDetector(Detector):
         return True
 
     def _is_known_postal_code(self, value: str) -> bool:
-        if not self.postal_codes:
-            return False
         cleaned = value.replace(" ", "")
         return cleaned in self.postal_codes
 
@@ -172,13 +154,8 @@ class PostalCodeDetector(Detector):
         return False
 
     def _city_in_text(self, text: str) -> bool:
-        if not self.cities:
-            return False
         text_lower = text.lower()
-        for city in self.cities:
-            if len(city) > 3 and city in text_lower:
-                return True
-        return False
+        return any(len(city) > 3 and city in text_lower for city in self.cities)
 
     def _calculate_confidence(self, text: str, position: int, value: str) -> float:
         context_start = max(0, position - self.CONTEXT_CHARS)

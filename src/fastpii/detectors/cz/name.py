@@ -49,7 +49,7 @@ class NameDetector(Detector):
     MIN_CONFIDENCE: float = 0.5
 
     NAME_PATTERN: re.Pattern[str] = re.compile(
-        r'\b([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+)[^\S\n]+([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]{2,}(?:ová|ova|ý|á|ý|ec|ek)?)\b'
+        r'\b([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+)[^\S\n]+([A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]{2,}(?:ová|ova|ý|á|ec|ek)?)\b'
     )
     registry: PatternRegistry
     names_data: CzechNamesData
@@ -186,22 +186,19 @@ class NameDetector(Detector):
 
         if name_lower in self.male_first_names:
             return 'm'
-        elif name_lower in self.female_first_names:
+        if name_lower in self.female_first_names:
             return 'f'
-        else:
-            if name_lower.endswith('a') or name_lower.endswith('e') or name_lower.endswith('ě'):
-                return 'f'
-            else:
-                return 'm'
+        if name_lower.endswith(('a', 'e', 'ě')):
+            return 'f'
+        return 'm'
 
     def get_name_confidence(self, name: str) -> float:
         name_lower = name.lower().strip()
 
         if name_lower in self.male_first_names or name_lower in self.female_first_names:
             return 0.95
-        elif name_lower.endswith('a') or name_lower.endswith('e'):
+        if name_lower.endswith(('a', 'e')):
             return 0.75
-        elif name_lower[-1] not in 'aeěyi':
+        if name_lower[-1] not in 'aeěyi':
             return 0.70
-        else:
-            return 0.50
+        return 0.50
