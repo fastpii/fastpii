@@ -4,12 +4,13 @@ Each country implements this with their specific source
 (e.g., scrape ČNB for Czech Republic, Bundesbank for Germany).
 """
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from typing import override
 
 from fastpii.data.extractors.base import BaseExtractor
 
 
-class BankCodesExtractor(BaseExtractor):
+class BankCodesExtractor(BaseExtractor, ABC):
     """Abstract base class for bank code extraction.
 
     Extract bank codes from a national banking authority and generate
@@ -30,10 +31,12 @@ class BankCodesExtractor(BaseExtractor):
                 return "Public domain"
     """
 
+    @override
     def _data_type(self) -> str:
         return "Bank Codes"
 
     @abstractmethod
+    @override
     def extract(self) -> dict[str, str]:
         """Extract bank codes from source.
 

@@ -4,12 +4,13 @@ Each country implements this with their specific source
 (e.g., CZSO for Czech Republic, PESEL registry for Poland).
 """
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from typing import override
 
 from fastpii.data.extractors.base import BaseExtractor
 
 
-class NamesExtractor(BaseExtractor):
+class NamesExtractor(BaseExtractor, ABC):
     """Abstract base class for name extraction.
 
     Extract male and female names from a source and generate
@@ -30,10 +31,12 @@ class NamesExtractor(BaseExtractor):
                 return "Public domain"
     """
 
+    @override
     def _data_type(self) -> str:
         return "Names"
 
     @abstractmethod
+    @override
     def extract(self) -> dict[str, set[str]]:
         """Extract names from source.
 
@@ -53,10 +56,11 @@ class NamesExtractor(BaseExtractor):
             output_path_female: path to output female names Python file.
         """
         names = self.extract()
-        total = len(names.get("male", set())) + len(names.get("female", set()))
+        male_names = names.get("male", set())
+        female_names = names.get("female", set())
+        total = len(male_names) + len(female_names)
         source = self.get_source(entry_count=total)
 
-        male_names = names.get("male", set())
         with open(output_path_male, "w") as f:
             self._write_header(f, source)
             f.write("# Gender: male\n\n")
@@ -65,7 +69,6 @@ class NamesExtractor(BaseExtractor):
                 f.write(f'    "{name.lower()}",\n')
             f.write("}\n")
 
-        female_names = names.get("female", set())
         with open(output_path_female, "w") as f:
             self._write_header(f, source)
             f.write("# Gender: female\n\n")

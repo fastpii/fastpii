@@ -6,6 +6,7 @@ so country-specific extractors only implement extract() and metadata methods.
 
 from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import IO
 
 from fastpii.data.base import DataSource
 
@@ -26,7 +27,14 @@ class BaseExtractor(ABC):
 
     @abstractmethod
     def extract(self) -> object:
-        """Perform the data extraction and return the raw data."""
+        """Perform the data extraction and return the raw data.
+
+        Subclasses override with specific return types:
+            BankCodesExtractor -> dict[str, str]
+            CitiesExtractor -> set[str]
+            PostalCodesExtractor -> set[str]
+            NamesExtractor -> dict[str, set[str]]
+        """
 
     @abstractmethod
     def get_source_url(self) -> str:
@@ -54,7 +62,7 @@ class BaseExtractor(ABC):
         """Human-readable data type name for source metadata."""
         return "Data"
 
-    def _write_header(self, f: object, source: DataSource) -> None:
+    def _write_header(self, f: IO[str], source: DataSource) -> None:
         """Write standard file header with source metadata.
 
         Args:

@@ -4,12 +4,13 @@ Each country implements this with their specific source
 (typically OpenStreetMap or national postal service).
 """
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from typing import override
 
 from fastpii.data.extractors.base import BaseExtractor
 
 
-class PostalCodesExtractor(BaseExtractor):
+class PostalCodesExtractor(BaseExtractor, ABC):
     """Abstract base class for postal code extraction.
 
     Extract postal codes from a geographic source and generate
@@ -30,10 +31,12 @@ class PostalCodesExtractor(BaseExtractor):
                 return "ODbL"
     """
 
+    @override
     def _data_type(self) -> str:
         return "Postal Codes"
 
     @abstractmethod
+    @override
     def extract(self) -> set[str]:
         """Extract postal codes from source.
 

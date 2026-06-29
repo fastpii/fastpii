@@ -4,12 +4,13 @@ Typically extracts from OpenStreetMap, but each country implements
 their specific extraction logic.
 """
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from typing import override
 
 from fastpii.data.extractors.base import BaseExtractor
 
 
-class CitiesExtractor(BaseExtractor):
+class CitiesExtractor(BaseExtractor, ABC):
     """Abstract base class for city extraction.
 
     Extract city names from a geographic source and generate
@@ -30,10 +31,12 @@ class CitiesExtractor(BaseExtractor):
                 return "ODbL"
     """
 
+    @override
     def _data_type(self) -> str:
         return "Cities"
 
     @abstractmethod
+    @override
     def extract(self) -> set[str]:
         """Extract cities from source.
 
