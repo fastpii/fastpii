@@ -35,7 +35,7 @@ class PostalCodeHandler(osmium.SimpleHandler):
         super().__init__()
         self.postal_codes: set[str] = set()
 
-    def _extract_postal_codes(self, tags: osmium.TagList) -> None:
+    def _extract_postal_codes(self, tags) -> None:
         if "addr:postcode" in tags:
             code = tags["addr:postcode"].strip()
             code_clean = code.replace(" ", "")
@@ -81,6 +81,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     osm_file = sys.argv[1]
-    output = "src/fastpii/data/countries/cz/_postal_codes.py"
+    output = "src/fastpii/data/countries/cz/_data/postal_codes.py"
     extractor = CzechPostalCodesExtractor(osm_file)
     extractor.save(output)

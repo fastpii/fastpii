@@ -6,10 +6,11 @@ from fastpii.data.base import CountryData, DataSource
 class CzechNamesData(CountryData[dict[str, set[str]]]):
     """Czech names data module.
 
-    Provides access to Czech male and female first names from CZSO.
+    Provides access to Czech male and female first names from the
+    Ministry of Interior registry of approved names.
     """
 
-    _source_url = "https://www.czso.cz/csu/cz/aha/jmena_rodne"
+    _source_url = "https://mv.gov.cz/clanek/seznam-rodove-neutralnich-jmen.aspx"
     _source_license = "Public domain"
 
     def __init__(self) -> None:
@@ -17,8 +18,8 @@ class CzechNamesData(CountryData[dict[str, set[str]]]):
 
     def get_data(self) -> dict[str, set[str]]:
         if self._data is None:
-            from fastpii.data.countries.cz._names_male import MALE_NAMES
-            from fastpii.data.countries.cz._names_female import FEMALE_NAMES
+            from fastpii.countries.cz.data._data.names_male import MALE_NAMES
+            from fastpii.countries.cz.data._data.names_female import FEMALE_NAMES
             self._data = {"male": set(MALE_NAMES), "female": set(FEMALE_NAMES)}
         return self._data
 

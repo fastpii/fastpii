@@ -4,7 +4,7 @@ from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
-from fastpii.validators.de import is_valid_steuer_id, extract_steuer_id_metadata
+from fastpii.countries.de.validators import is_valid_steuer_id, extract_steuer_id_metadata
 
 
 class SteuerIdDetector(Detector):

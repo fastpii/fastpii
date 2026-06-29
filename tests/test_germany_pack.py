@@ -1,12 +1,28 @@
-from fastpii import PrivacyGuard
+import pytest
+
+from fastpii import FastPII, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST
 from fastpii.countries import get_country_pack
 from fastpii.countries.de.pack import GERMAN_ENTITIES, GERMAN_METADATA, GermanPack
+from fastpii.core.confidence import ConfidenceScorer
 from fastpii.detectors.de.address import GermanAddressDetector
 from fastpii.detectors.de.handelsregister import HandelsregisterDetector
 from fastpii.detectors.de.phone import GermanPhoneDetector
 from fastpii.detectors.de.postal_code import GermanPostalCodeDetector
 from fastpii.detectors.de.steuer_id import SteuerIdDetector
 from fastpii.detectors.de.ust_id import UStIdNrDetector
+
+
+@pytest.fixture
+def engine():
+    guard = FastPII(
+        priority=DEFAULT_PRIORITY,
+        confidence_scorer=ConfidenceScorer(
+            base_scores=DEFAULT_CONFIDENCE_SCORES,
+            context_boost=DEFAULT_CONTEXT_BOOST,
+        ),
+    )
+    guard.register(GermanPack())
+    return guard
 
 
 class TestSteuerIdDetector:
@@ -260,8 +276,7 @@ class TestGermanPack:
 
 
 class TestGermanyIntegration:
-    def test_detect_all_de_entities(self):
-        gateway = PrivacyGuard(regions=["de"])
+    def test_detect_all_de_entities(self, engine):
         text = (
             "Steuer-ID: 86095742719\n"
             "USt-IdNr: DE136695976\n"
@@ -271,7 +286,7 @@ class TestGermanyIntegration:
             "Adresse: Hauptstraße 12\n"
         )
 
-        result = gateway.detect(text)
+        result = engine.detect(text)
 
         assert len(result.findings) >= 6
         assert result.text == text
@@ -285,12 +300,11 @@ class TestGermanyIntegration:
             "address",
         }
 
-    def test_validate(self):
-        gateway = PrivacyGuard(regions=["de"])
+    def test_validate(self, engine):
 
-        steuer_result = gateway.validate("86095742719", "steuer_id")
-        ust_result = gateway.validate("DE136695976", "ust_id")
-        address_result = gateway.validate("Hauptstraße 12, 10115 Berlin", "address")
+        steuer_result = engine.validate("86095742719", "steuer_id")
+        ust_result = engine.validate("DE136695976", "ust_id")
+        address_result = engine.validate("Hauptstraße 12, 10115 Berlin", "address")
 
         assert steuer_result.is_valid is True
         assert steuer_result.metadata["checksum_valid"] is True
@@ -298,30 +312,27 @@ class TestGermanyIntegration:
         assert ust_result.metadata["checksum_valid"] is True
         assert address_result.is_valid is True
 
-    def test_anonymize(self):
-        gateway = PrivacyGuard(regions=["de"])
+    def test_anonymize(self, engine):
         text = "Steuer-ID: 86095742719, USt-IdNr: DE136695976"
 
-        anonymized = gateway.anonymize(text)
+        anonymized = engine.anonymize(text)
 
         assert "86095742719" not in anonymized
         assert "DE136695976" not in anonymized
         assert anonymized.count("[REDACTED]") == 2
 
-    def test_redact(self):
-        gateway = PrivacyGuard(regions=["de"])
+    def test_redact(self, engine):
         text = "Steuer-ID: 86095742719, USt-IdNr: DE136695976"
 
-        redacted = gateway.redact(text)
+        redacted = engine.redact(text)
 
         assert "[STEUER_ID]" in redacted
         assert "[UST_ID]" in redacted
 
-    def test_mask(self):
-        gateway = PrivacyGuard(regions=["de"])
+    def test_mask(self, engine):
         text = "Telefon: +49 30 1234567"
 
-        masked = gateway.mask(text)
+        masked = engine.mask(text)
 
         assert "+49 30 1234567" not in masked
         assert "*******" in masked

@@ -7,11 +7,11 @@ data has not been populated (placeholder data is empty).
 
 import pytest
 
-from fastpii.data.countries.cz.bank_codes import CzechBankCodesData
-from fastpii.data.countries.cz.cities import CzechCitiesData
-from fastpii.data.countries.cz.insurance_codes import CzechInsuranceCodesData
-from fastpii.data.countries.cz.names import CzechNamesData
-from fastpii.data.countries.cz.postal_codes import CzechPostalCodesData
+from fastpii.countries.cz.data.bank_codes import CzechBankCodesData
+from fastpii.countries.cz.data.cities import CzechCitiesData
+from fastpii.countries.cz.data.insurance_codes import CzechInsuranceCodesData
+from fastpii.countries.cz.data.names import CzechNamesData
+from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
 
 
 def _min_entries(data_class, min_count: int) -> bool:

@@ -1,5 +1,8 @@
-from fastpii import PrivacyGuard
+import pytest
+
+from fastpii import FastPII, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST
 from fastpii.countries import get_country_pack
+from fastpii.core.confidence import ConfidenceScorer
 from fastpii.countries.pl.pack import PolishPack
 from fastpii.detectors.pl import (
     NIPDetector,
@@ -9,6 +12,19 @@ from fastpii.detectors.pl import (
     PolishPostalCodeDetector,
     REGONDetector,
 )
+
+
+@pytest.fixture
+def engine():
+    guard = FastPII(
+        priority=DEFAULT_PRIORITY,
+        confidence_scorer=ConfidenceScorer(
+            base_scores=DEFAULT_CONFIDENCE_SCORES,
+            context_boost=DEFAULT_CONTEXT_BOOST,
+        ),
+    )
+    guard.register(PolishPack())
+    return guard
 
 
 class TestPESELDetector:
@@ -345,26 +361,24 @@ class TestPolishPack:
 
 
 class TestPolandIntegration:
-    def test_detect_all_pl_entities(self):
-        gateway = PrivacyGuard(regions=["pl"])
+    def test_detect_all_pl_entities(self, engine):
         text = (
             "PESEL: 44051401458, NIP: 5260250274, REGON: 123456785, "
             "kod pocztowy: 00-001, tel: +48 512 345 678, adres: Długa 15"
         )
 
-        result = gateway.detect(text)
+        result = engine.detect(text)
 
         assert len(result.findings) == 6
         assert result.text == text
         assert set(result.detector_names) == {"pesel", "nip", "regon", "postal_code", "phone", "address"}
         assert result.processing_time_ms >= 0
 
-    def test_validate_pl_entities(self):
-        gateway = PrivacyGuard(regions=["pl"])
+    def test_validate_pl_entities(self, engine):
 
-        pesel_result = gateway.validate("44051401458", "pesel")
-        nip_result = gateway.validate("5260250274", "nip")
-        regon_result = gateway.validate("123456785", "regon")
+        pesel_result = engine.validate("44051401458", "pesel")
+        nip_result = engine.validate("5260250274", "nip")
+        regon_result = engine.validate("123456785", "regon")
 
         assert pesel_result.is_valid is True
         assert pesel_result.metadata["birth_date"] == "1944-05-14"
@@ -374,27 +388,24 @@ class TestPolandIntegration:
         assert regon_result.is_valid is True
         assert regon_result.metadata["checksum_valid"] is True
 
-    def test_anonymize_pl_entities(self):
-        gateway = PrivacyGuard(regions=["pl"])
+    def test_anonymize_pl_entities(self, engine):
         text = "PESEL: 44051401458, NIP: 5260250274, REGON: 123456785"
 
-        anonymized = gateway.anonymize(text)
+        anonymized = engine.anonymize(text)
 
         assert anonymized == "PESEL: [REDACTED], NIP: [REDACTED], REGON: [REDACTED]"
 
-    def test_redact_pl_entities(self):
-        gateway = PrivacyGuard(regions=["pl"])
+    def test_redact_pl_entities(self, engine):
         text = "PESEL: 44051401458, NIP: 5260250274, REGON: 123456785"
 
-        redacted = gateway.redact(text)
+        redacted = engine.redact(text)
 
         assert redacted == "PESEL: [PESEL], NIP: [NIP], REGON: [REGON]"
 
-    def test_mask_pl_entities(self):
-        gateway = PrivacyGuard(regions=["pl"])
+    def test_mask_pl_entities(self, engine):
         text = "PESEL: 44051401458, NIP: 5260250274, REGON: 123456785"
 
-        masked = gateway.mask(text)
+        masked = engine.mask(text)
 
         assert "44051401458" not in masked
         assert "5260250274" not in masked

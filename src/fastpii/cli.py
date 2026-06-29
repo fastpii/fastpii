@@ -4,13 +4,18 @@ import json
 import sys
 from pathlib import Path
 
-from fastpii import FastPII, PrivacyGuard, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST, DetectionResult, ValidationResult
+from fastpii import (
+    FastPII,
+    DEFAULT_PRIORITY,
+    DEFAULT_CONFIDENCE_SCORES,
+    DEFAULT_CONTEXT_BOOST,
+    DetectionResult,
+    ValidationResult,
+)
 from fastpii.core.confidence import ConfidenceScorer
 
 
-def _build_engine(regions: list[str], use_defaults: bool = False) -> FastPII:
-    if use_defaults:
-        return PrivacyGuard(regions=regions)
+def _build_engine(regions: list[str]) -> FastPII:
     scorer = ConfidenceScorer(
         base_scores=DEFAULT_CONFIDENCE_SCORES,
         context_boost=DEFAULT_CONTEXT_BOOST,
@@ -45,8 +50,6 @@ Examples:
   # List available detectors
   fastpii list-detectors -r cz
 
-  # Use convenience defaults
-  fastpii detect "Jan Novák, RČ: 8001011234" -r cz --use-defaults
         """
     )
 
@@ -56,7 +59,6 @@ Examples:
     _ = detect_parser.add_argument("text", nargs="?", help="Text to analyze")
     _ = detect_parser.add_argument("--file", "-f", type=Path, help="Read text from file")
     _ = detect_parser.add_argument("--regions", "-r", nargs="+", required=True, help="Region codes to enable (e.g. cz pl de fr)")
-    _ = detect_parser.add_argument("--use-defaults", action="store_true", help="Use convenience defaults (PrivacyGuard)")
     _ = detect_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
     _ = detect_parser.add_argument("--output", "-o", type=Path, help="Write output to file")
 
@@ -64,12 +66,10 @@ Examples:
     _ = validate_parser.add_argument("value", help="Value to validate")
     _ = validate_parser.add_argument("--detector", "-d", required=True, help="Detector to use")
     _ = validate_parser.add_argument("--regions", "-r", nargs="+", required=True, help="Region codes to enable")
-    _ = validate_parser.add_argument("--use-defaults", action="store_true", help="Use convenience defaults (PrivacyGuard)")
     _ = validate_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
 
     list_parser = subparsers.add_parser("list-detectors", help="List available detectors")
     _ = list_parser.add_argument("--regions", "-r", nargs="+", required=True, help="Region codes to enable")
-    _ = list_parser.add_argument("--use-defaults", action="store_true", help="Use convenience defaults (PrivacyGuard)")
     _ = list_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
 
     args: argparse.Namespace = parser.parse_args()
@@ -102,7 +102,7 @@ def handle_detect(args: argparse.Namespace) -> None:
         print("Error: Either text or --file must be provided", file=sys.stderr)
         sys.exit(1)
 
-    engine = _build_engine(args.regions, use_defaults=args.use_defaults)
+    engine = _build_engine(args.regions)
     result = engine.detect(text)
 
     if args.format == "json":
@@ -118,7 +118,7 @@ def handle_detect(args: argparse.Namespace) -> None:
 
 
 def handle_validate(args: argparse.Namespace) -> None:
-    engine = _build_engine(args.regions, use_defaults=args.use_defaults)
+    engine = _build_engine(args.regions)
 
     try:
         result = engine.validate(args.value, detector_name=args.detector)
@@ -136,7 +136,7 @@ def handle_validate(args: argparse.Namespace) -> None:
 
 
 def handle_list_detectors(args: argparse.Namespace) -> None:
-    engine = _build_engine(args.regions, use_defaults=args.use_defaults)
+    engine = _build_engine(args.regions)
     detectors = engine.list_detectors()
 
     if args.format == "json":

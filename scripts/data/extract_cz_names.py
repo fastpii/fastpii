@@ -144,7 +144,7 @@ class CzechNamesExtractor(NamesExtractor):
 
 
 if __name__ == "__main__":
-    male_output = "src/fastpii/data/countries/cz/_names_male.py"
-    female_output = "src/fastpii/data/countries/cz/_names_female.py"
+    male_output = "src/fastpii/data/countries/cz/_data/names_male.py"
+    female_output = "src/fastpii/data/countries/cz/_data/names_female.py"
     extractor = CzechNamesExtractor()
     extractor.save(male_output, female_output)

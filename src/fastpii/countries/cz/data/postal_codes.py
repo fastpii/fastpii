@@ -18,7 +18,7 @@ class CzechPostalCodesData(CountryData[set[str]]):
 
     def get_data(self) -> set[str]:
         if self._data is None:
-            from fastpii.data.countries.cz._postal_codes import POSTAL_CODES
+            from fastpii.countries.cz.data._data.postal_codes import POSTAL_CODES
             self._data = set(POSTAL_CODES)
         return self._data
 

@@ -1,8 +1,8 @@
 _REGION_LOADER_MODULES: dict[str, str] = {
-    "cz": "fastpii.patterns.regions.czech",
-    "pl": "fastpii.patterns.regions.poland",
-    "de": "fastpii.patterns.regions.germany",
-    "fr": "fastpii.patterns.regions.france",
+    "cz": "fastpii.countries.cz.patterns",
+    "pl": "fastpii.countries.pl.patterns",
+    "de": "fastpii.countries.de.patterns",
+    "fr": "fastpii.countries.fr.patterns",
 }
 
 _LOADER_CLASS_NAMES: dict[str, str] = {

@@ -3,14 +3,14 @@ from datetime import datetime
 from fastpii.data.base import CountryData, DataSource
 
 
-class CzechInsuranceCodesData(CountryData[dict[str, str]]):
-    """Czech health insurance codes data module.
+class CzechBankCodesData(CountryData[dict[str, str]]):
+    """Czech bank codes data module.
 
-    Provides access to Czech health insurance company codes.
-    Only 7 insurance companies exist in Czech Republic.
+    Provides access to Czech bank codes and names from the
+    Czech National Bank registry.
     """
 
-    _source_url = "https://www.mfcr.cz/"
+    _source_url = "https://www.czso.cz/csu/cz/bankovni-kody"
     _source_license = "Public domain"
 
     def __init__(self) -> None:
@@ -18,13 +18,13 @@ class CzechInsuranceCodesData(CountryData[dict[str, str]]):
 
     def get_data(self) -> dict[str, str]:
         if self._data is None:
-            from fastpii.data.countries.cz._insurance_codes import INSURANCE_NAMES
-            self._data = dict(INSURANCE_NAMES)
+            from fastpii.countries.cz.data._data.bank_codes import BANK_NAMES
+            self._data = dict(BANK_NAMES)
         return self._data
 
     def get_source(self) -> DataSource:
         return DataSource(
-            name="CZ Insurance Codes",
+            name="CZ Bank Codes",
             url=self._source_url,
             license=self._source_license,
             last_updated=datetime.now(),

@@ -4,11 +4,11 @@ import time
 
 import pytest
 
-from fastpii.data.countries.cz.bank_codes import CzechBankCodesData
-from fastpii.data.countries.cz.cities import CzechCitiesData
-from fastpii.data.countries.cz.insurance_codes import CzechInsuranceCodesData
-from fastpii.data.countries.cz.names import CzechNamesData
-from fastpii.data.countries.cz.postal_codes import CzechPostalCodesData
+from fastpii.countries.cz.data.bank_codes import CzechBankCodesData
+from fastpii.countries.cz.data.cities import CzechCitiesData
+from fastpii.countries.cz.data.insurance_codes import CzechInsuranceCodesData
+from fastpii.countries.cz.data.names import CzechNamesData
+from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
 
 
 def _has_data(data_class, min_entries: int) -> bool:
@@ -67,7 +67,7 @@ class TestImportTimes:
         reason="Data not populated — total import time requires real data",
     )
     def test_total_import_time(self):
-        from fastpii.data.countries.cz import CzechModule
+        from fastpii.countries.cz.data import CzechModule
 
         module = CzechModule()
         times = module.benchmark_import_times()

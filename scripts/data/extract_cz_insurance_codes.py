@@ -52,6 +52,6 @@ class CzechInsuranceCodesExtractor(BankCodesExtractor):
 
 
 if __name__ == "__main__":
-    output = "src/fastpii/data/countries/cz/_insurance_codes.py"
+    output = "src/fastpii/data/countries/cz/_data/insurance_codes.py"
     extractor = CzechInsuranceCodesExtractor()
     extractor.save(output, set_var="VALID_INSURANCE_CODES", dict_var="INSURANCE_NAMES", label="insurance codes")

@@ -17,7 +17,7 @@ class CzechCitiesData(CountryData[set[str]]):
 
     def get_data(self) -> set[str]:
         if self._data is None:
-            from fastpii.data.countries.cz._cities import CITIES
+            from fastpii.countries.cz.data._data.cities import CITIES
             self._data = set(CITIES)
         return self._data
 

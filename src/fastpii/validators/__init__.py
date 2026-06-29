@@ -2,10 +2,19 @@
 Czech identifier validators package
 """
 
-from .ico_validator import is_valid_ico, validate_ico, calculate_ico_checksum
-from .birth_number import is_valid_birth_number, validate_birth_number_format
-from .bank_account import is_valid_bank_account, validate_bank_account, parse_bank_account
-from .dic_validator import is_valid_dic, validate_dic, format_dic
+from fastpii.countries.cz.validators import (
+    is_valid_birth_number,
+    calculate_ico_checksum,
+    format_dic,
+    is_valid_ico,
+    is_valid_bank_account,
+    is_valid_dic,
+    parse_bank_account,
+    validate_bank_account,
+    validate_birth_number_format,
+    validate_dic,
+    validate_ico,
+)
 
 __all__ = [
     # IČO

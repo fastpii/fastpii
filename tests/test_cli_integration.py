@@ -1,12 +1,17 @@
-import subprocess
 import json
+import subprocess
+import sys
+
 import pytest
+
+
+PYTHON = sys.executable
 
 
 class TestCLIIntegration:
     def test_cli_detect_rodne_cislo(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "Jan Novák, RČ: 8001011238", "-r", "cz"],
+            [PYTHON, "-m", "fastpii.cli", "detect", "Jan Novák, RČ: 8001011238", "-r", "cz"],
             capture_output=True,
             text=True
         )
@@ -16,7 +21,7 @@ class TestCLIIntegration:
 
     def test_cli_detect_ico(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "IČO: 25596641", "-r", "cz"],
+            [PYTHON, "-m", "fastpii.cli", "detect", "IČO: 25596641", "-r", "cz"],
             capture_output=True,
             text=True
         )
@@ -29,7 +34,7 @@ class TestCLIIntegration:
         test_file.write_text("Jan Novák, RČ: 8001011238")
 
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "--file", str(test_file), "-r", "cz"],
+            [PYTHON, "-m", "fastpii.cli", "detect", "--file", str(test_file), "-r", "cz"],
             capture_output=True,
             text=True
         )
@@ -39,7 +44,7 @@ class TestCLIIntegration:
 
     def test_cli_detect_json_output(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "IČO: 25596641", "-r", "cz", "--format", "json"],
+            [PYTHON, "-m", "fastpii.cli", "detect", "IČO: 25596641", "-r", "cz", "--format", "json"],
             capture_output=True,
             text=True
         )
@@ -52,7 +57,7 @@ class TestCLIIntegration:
 
     def test_cli_validate_rodne_cislo_valid(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "validate", "8001011238", "--detector", "rodne_cislo", "-r", "cz"],
+            [PYTHON, "-m", "fastpii.cli", "validate", "8001011238", "--detector", "rodne_cislo", "-r", "cz"],
             capture_output=True,
             text=True
         )
@@ -62,7 +67,7 @@ class TestCLIIntegration:
 
     def test_cli_validate_rodne_cislo_invalid(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "validate", "invalid_number", "--detector", "rodne_cislo", "-r", "cz"],
+            [PYTHON, "-m", "fastpii.cli", "validate", "invalid_number", "--detector", "rodne_cislo", "-r", "cz"],
             capture_output=True,
             text=True
         )
@@ -72,7 +77,7 @@ class TestCLIIntegration:
 
     def test_cli_validate_detector_not_found(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "validate", "test", "--detector", "nonexistent", "-r", "cz"],
+            [PYTHON, "-m", "fastpii.cli", "validate", "test", "--detector", "nonexistent", "-r", "cz"],
             capture_output=True,
             text=True
         )
@@ -82,7 +87,7 @@ class TestCLIIntegration:
 
     def test_cli_list_detectors(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "list-detectors", "-r", "cz"],
+            [PYTHON, "-m", "fastpii.cli", "list-detectors", "-r", "cz"],
             capture_output=True,
             text=True
         )
@@ -94,7 +99,7 @@ class TestCLIIntegration:
 
     def test_cli_list_detectors_json_format(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "list-detectors", "-r", "cz", "--format", "json"],
+            [PYTHON, "-m", "fastpii.cli", "list-detectors", "-r", "cz", "--format", "json"],
             capture_output=True,
             text=True
         )
@@ -113,7 +118,7 @@ class TestCLIIntegration:
         output_file = tmp_path / "output.json"
 
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "IČO: 25596641", "-r", "cz", "--format", "json", "--output", str(output_file)],
+            [PYTHON, "-m", "fastpii.cli", "detect", "IČO: 25596641", "-r", "cz", "--format", "json", "--output", str(output_file)],
             capture_output=True,
             text=True
         )
@@ -126,7 +131,7 @@ class TestCLIIntegration:
 
     def test_cli_regions_parameter(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "RČ: 8001011238", "-r", "cz"],
+            [PYTHON, "-m", "fastpii.cli", "detect", "RČ: 8001011238", "-r", "cz"],
             capture_output=True,
             text=True
         )
@@ -135,7 +140,7 @@ class TestCLIIntegration:
 
     def test_cli_regions_required(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "RČ: 8001011238"],
+            [PYTHON, "-m", "fastpii.cli", "detect", "RČ: 8001011238"],
             capture_output=True,
             text=True
         )
@@ -144,7 +149,7 @@ class TestCLIIntegration:
 
     def test_cli_no_text_provided(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "-r", "cz"],
+            [PYTHON, "-m", "fastpii.cli", "detect", "-r", "cz"],
             capture_output=True,
             text=True
         )
@@ -153,7 +158,7 @@ class TestCLIIntegration:
 
     def test_cli_help(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "--help"],
+            [PYTHON, "-m", "fastpii.cli", "--help"],
             capture_output=True,
             text=True
         )
@@ -165,7 +170,7 @@ class TestCLIIntegration:
 
     def test_cli_detect_help(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "--help"],
+            [PYTHON, "-m", "fastpii.cli", "detect", "--help"],
             capture_output=True,
             text=True
         )
@@ -177,7 +182,7 @@ class TestCLIIntegration:
 
     def test_cli_validate_help(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "validate", "--help"],
+            [PYTHON, "-m", "fastpii.cli", "validate", "--help"],
             capture_output=True,
             text=True
         )
@@ -189,7 +194,7 @@ class TestCLIIntegration:
     def test_cli_multiple_identifiers(self):
         text = "RČ: 8001011238, IČO: 25596641"
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", text, "-r", "cz", "--format", "json"],
+            [PYTHON, "-m", "fastpii.cli", "detect", text, "-r", "cz", "--format", "json"],
             capture_output=True,
             text=True
         )
@@ -199,9 +204,9 @@ class TestCLIIntegration:
         output = json.loads(result.stdout)
         assert len(output["findings"]) >= 2
 
-    def test_cli_use_defaults_flag(self):
+    def test_cli_detect_without_defaults_flag(self):
         result = subprocess.run(
-            ["python", "-m", "fastpii.cli", "detect", "IČO: 25596641", "-r", "cz", "--use-defaults"],
+            [PYTHON, "-m", "fastpii.cli", "detect", "IČO: 25596641", "-r", "cz"],
             capture_output=True,
             text=True
         )

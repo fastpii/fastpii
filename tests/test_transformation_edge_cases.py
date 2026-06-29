@@ -11,14 +11,16 @@ import pytest
 
 from fastpii import (
     FastPII,
-    PrivacyGuard,
     DEFAULT_PRIORITY,
+    DEFAULT_CONFIDENCE_SCORES,
+    DEFAULT_CONTEXT_BOOST,
     TransformationEngine,
     AnonymizeStrategy,
     RedactStrategy,
     MaskStrategy,
     RemoveStrategy,
 )
+from fastpii.core.confidence import ConfidenceScorer
 from fastpii.countries.cz import CzechPack
 from fastpii.countries.pl import PolishPack
 from fastpii.countries.de import GermanPack
@@ -27,19 +29,41 @@ from fastpii.countries.fr import FrenchPack
 
 @pytest.fixture
 def cz_engine():
-    engine = FastPII(priority=DEFAULT_PRIORITY)
+    engine = FastPII(
+        priority=DEFAULT_PRIORITY,
+        confidence_scorer=ConfidenceScorer(
+            base_scores=DEFAULT_CONFIDENCE_SCORES,
+            context_boost=DEFAULT_CONTEXT_BOOST,
+        ),
+    )
     engine.register(CzechPack())
     return engine
 
 
 @pytest.fixture
 def guard():
-    return PrivacyGuard(regions=["cz"])
+    engine = FastPII(
+        priority=DEFAULT_PRIORITY,
+        confidence_scorer=ConfidenceScorer(
+            base_scores=DEFAULT_CONFIDENCE_SCORES,
+            context_boost=DEFAULT_CONTEXT_BOOST,
+        ),
+    )
+    engine.register(CzechPack())
+    return engine
 
 
 @pytest.fixture
 def multi_guard():
-    return PrivacyGuard(regions=["cz", "pl", "de", "fr"])
+    engine = FastPII(
+        priority=DEFAULT_PRIORITY,
+        confidence_scorer=ConfidenceScorer(
+            base_scores=DEFAULT_CONFIDENCE_SCORES,
+            context_boost=DEFAULT_CONTEXT_BOOST,
+        ),
+    )
+    engine.register_many([CzechPack(), PolishPack(), GermanPack(), FrenchPack()])
+    return engine
 
 
 class TestValueSpanMismatch:
@@ -174,7 +198,15 @@ class TestPolishIdentifiers:
 
     @pytest.fixture
     def pl_guard(self):
-        return PrivacyGuard(regions=["pl"])
+        engine = FastPII(
+            priority=DEFAULT_PRIORITY,
+            confidence_scorer=ConfidenceScorer(
+                base_scores=DEFAULT_CONFIDENCE_SCORES,
+                context_boost=DEFAULT_CONTEXT_BOOST,
+            ),
+        )
+        engine.register(PolishPack())
+        return engine
 
     def test_pesel(self, pl_guard):
         text = "PESEL: 44051401458"
@@ -309,7 +341,7 @@ class TestUnicodeAndEdgeCases:
         assert engine.remove(text) == text
 
 
-class TestFastPIIMatchesPrivacyGuard:
+class TestFastPIIEngineConsistency:
 
     def test_anonymize_matches(self, cz_engine, guard):
         text = "Email: jan@email.cz, RČ: 8001011238"

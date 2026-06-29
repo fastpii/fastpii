@@ -64,6 +64,6 @@ class CzechBankCodesExtractor(BankCodesExtractor):
 
 
 if __name__ == "__main__":
-    output = "src/fastpii/data/countries/cz/_bank_codes.py"
+    output = "src/fastpii/data/countries/cz/_data/bank_codes.py"
     extractor = CzechBankCodesExtractor()
     extractor.save(output)

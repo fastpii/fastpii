@@ -2,7 +2,7 @@
 # Country: CZ
 # Source: https://www.mfcr.cz/
 # License: Public domain
-# Extracted: 2026-06-29T12:01:58.290411
+# Extracted: 2026-06-29T12:23:13.176576
 # Entries: 7
 
 VALID_INSURANCE_CODES: set[str] = {

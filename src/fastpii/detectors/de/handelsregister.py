@@ -1,10 +1,11 @@
 import re
+from typing import cast
 
 from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
-from fastpii.validators.de import is_valid_handelsregister, parse_handelsregister
+from fastpii.countries.de.validators import is_valid_handelsregister, parse_handelsregister
 
 
 class HandelsregisterDetector(Detector):
@@ -57,4 +58,5 @@ class HandelsregisterDetector(Detector):
         return is_valid_handelsregister(value)
 
     def _extract_metadata(self, value: str) -> dict[str, object]:
-        return parse_handelsregister(value) or {}
+        parsed = parse_handelsregister(value)
+        return cast(dict[str, object], parsed) if parsed else {}

@@ -58,13 +58,13 @@ class BankAccountDetector(Detector):
 
     @override
     def validate(self, value: str) -> bool:
-        from fastpii.validators.bank_account import validate_bank_account
+        from fastpii.countries.cz.validators import validate_bank_account
 
         is_valid, _error = validate_bank_account(value)
         return is_valid
 
     def _extract_metadata(self, value: str) -> dict[str, object]:
-        from fastpii.validators.bank_account import parse_bank_account
+        from fastpii.countries.cz.validators import parse_bank_account
 
         prefix, base, bank_code = parse_bank_account(value)
 

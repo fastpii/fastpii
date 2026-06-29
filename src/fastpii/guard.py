@@ -1,7 +1,6 @@
-import warnings
 from time import perf_counter
 
-from fastpii.countries import CountryPack, get_country_pack, get_country_packs
+from fastpii.countries import CountryPack
 from fastpii.core.confidence import ConfidenceScorer
 from fastpii.core.overlap import deduplicate_findings
 from fastpii.core.transform import (
@@ -142,39 +141,3 @@ DEFAULT_CONFIDENCE_SCORES: dict[str, float] = {
 }
 
 DEFAULT_CONTEXT_BOOST: float = 0.10
-
-
-class PrivacyGuard(FastPII):
-    _regions: list[str]
-
-    def __init__(self, regions: list[str] | str | None = None) -> None:
-        if isinstance(regions, str):
-            regions = [regions]
-        if regions is None or regions == []:
-            warnings.warn(
-                "PrivacyGuard() with no regions loads all available packs implicitly. "
-                "Pass regions explicitly or use FastPII with explicit register() calls.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        self._regions = regions or []
-        super().__init__(
-            priority=DEFAULT_PRIORITY,
-            confidence_scorer=ConfidenceScorer(
-                base_scores=DEFAULT_CONFIDENCE_SCORES,
-                context_boost=DEFAULT_CONTEXT_BOOST,
-            ),
-        )
-        self._register_detectors()
-
-    def _register_detectors(self) -> None:
-        regions_to_load = self._regions if self._regions else self._available_regions()
-
-        for region_code in regions_to_load:
-            pack_cls = get_country_pack(region_code)
-            if pack_cls is not None:
-                self.register(pack_cls())
-
-    @staticmethod
-    def _available_regions() -> list[str]:
-        return list(get_country_packs().keys())

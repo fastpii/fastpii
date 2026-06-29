@@ -4,7 +4,7 @@ from fastpii.core._compat import override
 from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
-from fastpii.validators.fr import is_valid_siren
+from fastpii.countries.fr.validators import is_valid_siren
 
 
 class SIRENDetector(Detector):

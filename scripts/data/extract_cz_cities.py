@@ -39,7 +39,7 @@ class CityHandler(osmium.SimpleHandler):
         super().__init__()
         self.cities: set[str] = set()
 
-    def _extract_city(self, tags: osmium.TagList) -> None:
+    def _extract_city(self, tags) -> None:
         place_type = tags.get("place", "")
         if place_type in CITY_PLACE_TAGS:
             name = tags.get("name", "")
@@ -85,6 +85,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     osm_file = sys.argv[1]
-    output = "src/fastpii/data/countries/cz/_cities.py"
+    output = "src/fastpii/data/countries/cz/_data/cities.py"
     extractor = CzechCitiesExtractor(osm_file)
     extractor.save(output)

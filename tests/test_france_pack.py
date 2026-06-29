@@ -1,5 +1,8 @@
-from fastpii import PrivacyGuard
+import pytest
+
+from fastpii import FastPII, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST
 from fastpii.countries import get_country_pack
+from fastpii.core.confidence import ConfidenceScorer
 from fastpii.countries.fr.pack import FrenchPack
 from fastpii.detectors.fr import (
     FrenchAddressDetector,
@@ -10,6 +13,19 @@ from fastpii.detectors.fr import (
     SIRETDetector,
 )
 from fastpii.patterns.registry import PatternRegistry
+
+
+@pytest.fixture
+def engine():
+    guard = FastPII(
+        priority=DEFAULT_PRIORITY,
+        confidence_scorer=ConfidenceScorer(
+            base_scores=DEFAULT_CONFIDENCE_SCORES,
+            context_boost=DEFAULT_CONTEXT_BOOST,
+        ),
+    )
+    guard.register(FrenchPack())
+    return guard
 
 
 def make_fr_registry() -> PatternRegistry:
@@ -296,15 +312,14 @@ class TestFrenchPack:
 
 
 class TestFranceIntegration:
-    def test_detect(self):
-        guard = PrivacyGuard(regions=["fr"])
+    def test_detect(self, engine):
         text = (
             "SIREN: 552120222, SIRET: 73282932000074, NIR: 185047511600341, "
             "code postal: 13001, téléphone: +33 6 12 34 56 78, "
             "adresse: 15 Rue de Rivoli, 75001 Paris"
         )
 
-        result = guard.detect(text)
+        result = engine.detect(text)
 
         assert len(result.findings) >= 6
         assert result.text == text
@@ -318,12 +333,11 @@ class TestFranceIntegration:
             "address",
         }
 
-    def test_validate(self):
-        guard = PrivacyGuard(regions=["fr"])
+    def test_validate(self, engine):
 
-        siren_result = guard.validate("552120222", "siren")
-        siret_result = guard.validate("73282932000074", "siret")
-        insee_result = guard.validate("180012A00100161", "insee")
+        siren_result = engine.validate("552120222", "siren")
+        siret_result = engine.validate("73282932000074", "siret")
+        insee_result = engine.validate("180012A00100161", "insee")
 
         assert siren_result.is_valid is True
         assert siren_result.metadata["checksum_valid"] is True
@@ -332,32 +346,29 @@ class TestFranceIntegration:
         assert insee_result.is_valid is True
         assert insee_result.metadata["department"] == "Corse-du-Sud"
 
-    def test_anonymize(self):
-        guard = PrivacyGuard(regions=["fr"])
+    def test_anonymize(self, engine):
         text = "SIREN: 552120222, téléphone: +33 6 12 34 56 78"
 
-        anonymized = guard.anonymize(text)
+        anonymized = engine.anonymize(text)
 
         assert "552120222" not in anonymized
         assert "+33 6 12 34 56 78" not in anonymized
         assert anonymized.count("[REDACTED]") == 2
 
-    def test_redact(self):
-        guard = PrivacyGuard(regions=["fr"])
+    def test_redact(self, engine):
         text = "SIREN: 552120222, NIR: 185047511600341"
 
-        redacted = guard.redact(text)
+        redacted = engine.redact(text)
 
         assert "552120222" not in redacted
         assert "185047511600341" not in redacted
         assert "[SIREN]" in redacted
         assert "[INSEE]" in redacted
 
-    def test_mask(self):
-        guard = PrivacyGuard(regions=["fr"])
+    def test_mask(self, engine):
         text = "SIRET: 73282932000074, code postal: 75001"
 
-        masked = guard.mask(text)
+        masked = engine.mask(text)
 
         assert "73282932000074" not in masked
         assert "75001" not in masked

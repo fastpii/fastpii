@@ -114,37 +114,6 @@ for finding in result.findings:
     print(f"{finding.type}: {finding.value}")
 ```
 
-### Convenience API (PrivacyGuard)
-
-```python
-from fastpii import PrivacyGuard
-
-# Single-region detection
-guard = PrivacyGuard(regions=["cz"])
-result = guard.detect("Jan Novák, RČ: 800101/1238, IČO: 25596641")
-
-# Multi-region detection
-guard = PrivacyGuard(regions=["cz", "pl", "de", "fr"])
-```
-
-> **Note:** `PrivacyGuard()` without `regions` emits a `DeprecationWarning`. Explicit region specification is recommended.
-
-### Region Quick Start
-
-```python
-# Poland
-guard = PrivacyGuard(regions=["pl"])
-result = guard.detect("PESEL: 44051401458, NIP: 5260250274")
-
-# Germany
-guard = PrivacyGuard(regions=["de"])
-result = guard.detect("Steuer-ID: 86095742719, USt-IdNr: DE136695976")
-
-# France
-guard = PrivacyGuard(regions=["fr"])
-result = guard.detect("SIREN: 552120222, SIRET: 73282932000074")
-```
-
 ---
 
 ## Explicit Engine API
@@ -187,10 +156,6 @@ class CustomPhoneDetector(CzechPhoneDetector):
     CONTEXT_WORDS = {"tel", "phone", "call"}
     CONTEXT_WINDOW_SIZE = 50
 ```
-
-### Convenience Defaults
-
-For backward compatibility, `PrivacyGuard` provides built-in convenience defaults for overlap priority and confidence scoring. These are used internally by `PrivacyGuard` — for production use with `FastPII`, define your own priority and scoring configuration based on your domain requirements.
 
 ---
 

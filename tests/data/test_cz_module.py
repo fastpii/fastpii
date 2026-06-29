@@ -1,14 +1,14 @@
-"""Tests for fastpii.data.countries.cz module (CzechModule and data classes)."""
+"""Tests for fastpii.countries.cz.data module (CzechModule and data classes)."""
 
 import pytest
 
 from fastpii.data.base import CountryData, CountryMetadata, CountryModule
-from fastpii.data.countries.cz import CZECH_METADATA, CzechModule
-from fastpii.data.countries.cz.bank_codes import CzechBankCodesData
-from fastpii.data.countries.cz.cities import CzechCitiesData
-from fastpii.data.countries.cz.insurance_codes import CzechInsuranceCodesData
-from fastpii.data.countries.cz.names import CzechNamesData
-from fastpii.data.countries.cz.postal_codes import CzechPostalCodesData
+from fastpii.countries.cz.data import CZECH_METADATA, CzechModule
+from fastpii.countries.cz.data.bank_codes import CzechBankCodesData
+from fastpii.countries.cz.data.cities import CzechCitiesData
+from fastpii.countries.cz.data.insurance_codes import CzechInsuranceCodesData
+from fastpii.countries.cz.data.names import CzechNamesData
+from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
 from fastpii.data.registry import CountryRegistry
 
 
@@ -21,7 +21,7 @@ class TestCzechMetadata:
 
     def test_metadata_frozen(self):
         with pytest.raises(AttributeError):
-            CZECH_METADATA.code = "SK"
+            setattr(CZECH_METADATA, "code", "SK")
 
 
 class TestCzechInsuranceCodesData:
