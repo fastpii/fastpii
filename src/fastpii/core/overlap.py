@@ -18,14 +18,27 @@ def deduplicate_findings(
             + "Higher priority types win when findings overlap."
         )
 
+    valid_findings = [
+        finding
+        for finding in findings
+        if finding.start >= 0
+        and finding.end >= 0
+        and finding.start <= finding.end
+        and (finding.start != finding.end or finding.value == "")
+    ]
+
+    if not valid_findings:
+        return []
+
     sorted_findings = sorted(
-        findings,
+        valid_findings,
         key=lambda f: (
-            priority.get(f.type, 0),
-            f.confidence,
-            f.end - f.start,
+            -priority.get(f.type, 0),
+            -f.confidence,
+            -(f.end - f.start),
+            f.start,
+            f.end,
         ),
-        reverse=True,
     )
 
     result: list[Finding] = []

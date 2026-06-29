@@ -74,7 +74,7 @@ class MaskStrategy:
 
     def replace(self, finding: Finding, text: str) -> str:
         _ = text
-        return "*" * (finding.end - finding.start)
+        return "*" * max(0, finding.end - finding.start)
 
 
 class RemoveStrategy:
@@ -119,11 +119,35 @@ class TransformationEngine:
         Returns:
             The transformed text with all findings replaced according to the strategy.
         """
-        if not result.findings:
+        if not result.text or not result.findings:
             return result.text
 
         processed = list(result.text)
+        text_length = len(result.text)
+
         for finding in sorted(result.findings, key=lambda f: f.start, reverse=True):
-            replacement = strategy.replace(finding, result.text)
-            processed[finding.start:finding.end] = list(replacement)
+            start = finding.start
+            end = finding.end
+
+            if start < 0 or end < 0 or start >= text_length or start > end:
+                continue
+
+            end = min(end, text_length)
+            if start == end:
+                continue
+
+            safe_finding = finding
+            if end != finding.end:
+                safe_finding = Finding(
+                    type=finding.type,
+                    value=result.text[start:end],
+                    start=start,
+                    end=end,
+                    confidence=finding.confidence,
+                    region=finding.region,
+                    metadata=finding.metadata,
+                )
+
+            replacement = strategy.replace(safe_finding, result.text)
+            processed[start:end] = list(replacement)
         return "".join(processed)
