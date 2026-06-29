@@ -50,6 +50,9 @@ Examples:
   # List available detectors
   fastpii list-detectors -r cz
 
+  # Evaluate against benchmark corpus
+  fastpii evaluate --corpus tests/benchmarks/corpus --output reports -r cz
+
         """
     )
 
@@ -72,6 +75,14 @@ Examples:
     _ = list_parser.add_argument("--regions", "-r", nargs="+", required=True, help="Region codes to enable")
     _ = list_parser.add_argument("--format", "-fmt", choices=["json", "text"], default="text", help="Output format")
 
+    eval_parser = subparsers.add_parser("evaluate", help="Evaluate detectors against benchmark corpus")
+    _ = eval_parser.add_argument("--corpus", type=Path, required=True, help="Path to corpus directory")
+    _ = eval_parser.add_argument("--output", "-o", type=Path, default=Path("reports"), help="Output directory for reports")
+    _ = eval_parser.add_argument("--regions", "-r", nargs="+", default=["cz"], help="Region codes to enable")
+    _ = eval_parser.add_argument("--iou-threshold", type=float, default=0.5, help="IoU threshold for span matching (default: 0.5)")
+    _ = eval_parser.add_argument("--fail-on-regression", action="store_true", help="Exit with error code on regression")
+    _ = eval_parser.add_argument("--baseline", type=Path, help="Path to previous baseline JSON for regression detection")
+
     args: argparse.Namespace = parser.parse_args()
 
     if not args.command:
@@ -84,6 +95,8 @@ Examples:
         handle_validate(args)
     elif args.command == "list-detectors":
         handle_list_detectors(args)
+    elif args.command == "evaluate":
+        handle_evaluate(args)
 
 
 def handle_detect(args: argparse.Namespace) -> None:
@@ -219,6 +232,47 @@ def validation_to_text(result: ValidationResult) -> str:
             lines.append(f"    - {key}: {value}")
 
     return "\n".join(lines)
+
+
+def handle_evaluate(args: argparse.Namespace) -> None:
+    from fastpii.evaluation import Evaluator
+    from fastpii.evaluation.report import generate_json_report, generate_markdown_report
+    from fastpii.evaluation.regression import compare_results, save_baseline
+
+    engine = _build_engine(args.regions)
+    evaluator = Evaluator(engine, iou_threshold=args.iou_threshold)
+    result = evaluator.evaluate_corpus(args.corpus)
+
+    generate_json_report(result, args.output / "results.json")
+    generate_markdown_report(result, args.output / "report.md")
+
+    baseline_path = args.baseline or args.output / "baseline.json"
+
+    passed, issues = compare_results(result.overall_metrics, baseline_path)
+
+    print(f"\n{'=' * 60}")
+    print("FastPII Evaluation Results")
+    print(f"{'=' * 60}")
+    print(f"  Corpus:     {args.corpus}")
+    print(f"  Samples:    {result.total_samples}")
+    print(f"  Words:      {result.word_count}")
+    print(f"  Precision:  {result.overall_metrics.precision:.2%}")
+    print(f"  Recall:     {result.overall_metrics.recall:.2%}")
+    print(f"  F1:         {result.overall_metrics.f1:.2%}")
+    print(f"  F2:         {result.overall_metrics.f2:.2%}")
+    print(f"  FP/1000w:   {result.fp_per_1000_words:.2f}")
+    print(f"{'=' * 60}\n")
+
+    for issue in issues:
+        print(f"  {issue}")
+
+    save_baseline(baseline_path, result.overall_metrics)
+
+    print(f"\nReports saved to {args.output}/")
+    print(f"Baseline saved to {baseline_path}")
+
+    if not passed and args.fail_on_regression:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
