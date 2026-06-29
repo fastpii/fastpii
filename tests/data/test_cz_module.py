@@ -9,6 +9,7 @@ from fastpii.countries.cz.data.cities import CzechCitiesData
 from fastpii.countries.cz.data.insurance_codes import CzechInsuranceCodesData
 from fastpii.countries.cz.data.names import CzechNamesData
 from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
+from fastpii.countries.cz.data.streets import CzechStreetsData
 from fastpii.data.registry import CountryRegistry
 
 
@@ -116,6 +117,21 @@ class TestCzechNamesData:
         assert CzechNamesData().validate() is True
 
 
+class TestCzechStreetsData:
+    def test_get_data_returns_set(self):
+        data = CzechStreetsData().get_data()
+        assert isinstance(data, set)
+
+    def test_get_data_caches(self):
+        streets = CzechStreetsData()
+        data1 = streets.get_data()
+        data2 = streets.get_data()
+        assert data1 is data2
+
+    def test_validate_populated_data(self):
+        assert CzechStreetsData().validate() is True
+
+
 class TestCzechModule:
     def setup_method(self):
         CountryRegistry.clear()
@@ -157,6 +173,12 @@ class TestCzechModule:
         data = module.get_insurance_codes()
         assert isinstance(data, CzechInsuranceCodesData)
 
+    def test_get_streets(self):
+        module = CzechModule()
+        data = module.get_streets()
+        assert isinstance(data, CzechStreetsData)
+        assert isinstance(data, CountryData)
+
     def test_get_all_data(self):
         module = CzechModule()
         all_data = module.get_all_data()
@@ -165,6 +187,7 @@ class TestCzechModule:
         assert "postal_codes" in all_data
         assert "names" in all_data
         assert "insurance_codes" in all_data
+        assert "streets" in all_data
 
     def test_validate_all(self):
         module = CzechModule()
@@ -205,4 +228,5 @@ class TestCzechModule:
         assert "postal_codes" in times
         assert "names" in times
         assert "insurance_codes" in times
+        assert "streets" in times
         assert all(isinstance(t, float) for t in times.values())

@@ -4,6 +4,7 @@ from fastpii.countries.cz.data.cities import CzechCitiesData
 from fastpii.countries.cz.data.insurance_codes import CzechInsuranceCodesData
 from fastpii.countries.cz.data.names import CzechNamesData
 from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
+from fastpii.countries.cz.data.streets import CzechStreetsData
 from fastpii.data.registry import CountryRegistry
 
 CZECH_METADATA = CountryMetadata(
@@ -33,6 +34,9 @@ class CzechModule(CountryModule):
 
     def get_insurance_codes(self) -> CountryData[dict[str, str]]:
         return CzechInsuranceCodesData()
+
+    def get_streets(self) -> CountryData[set[str]]:
+        return CzechStreetsData()
 
 
 CountryRegistry.register("cz", CzechModule)

@@ -131,6 +131,10 @@ class CountryModule(ABC):
     def get_insurance_codes(self) -> "CountryData[dict[str, str]]":
         """Return insurance codes data."""
 
+    @abstractmethod
+    def get_streets(self) -> "CountryData[set[str]]":
+        """Return streets data."""
+
     def get_all_data(self) -> dict[str, "CountryData"]:
         """Return all data types for this country.
 
@@ -143,6 +147,7 @@ class CountryModule(ABC):
                 "postal_codes": self.get_postal_codes(),
                 "names": self.get_names(),
                 "insurance_codes": self.get_insurance_codes(),
+                "streets": self.get_streets(),
             }
         return self._all_data_cache
 

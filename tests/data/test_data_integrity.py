@@ -12,6 +12,7 @@ from fastpii.countries.cz.data.cities import CzechCitiesData
 from fastpii.countries.cz.data.insurance_codes import CzechInsuranceCodesData
 from fastpii.countries.cz.data.names import CzechNamesData
 from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
+from fastpii.countries.cz.data.streets import CzechStreetsData
 
 
 def _min_entries(data_class, min_count: int) -> bool:
@@ -165,3 +166,29 @@ class TestNamesIntegrity:
         assert "female" in data
         assert len(data["male"]) > 0
         assert len(data["female"]) > 0
+
+
+class TestStreetsIntegrity:
+    @pytest.mark.skipif(
+        not _min_entries(CzechStreetsData, 20000),
+        reason="Streets data not populated (run extract_cz_ruvian.py)",
+    )
+    def test_all_lowercase(self):
+        for street in CzechStreetsData().get_data():
+            assert street == street.lower(), f"Street '{street}' is not lowercase"
+
+    @pytest.mark.skipif(
+        not _min_entries(CzechStreetsData, 20000),
+        reason="Streets data not populated",
+    )
+    def test_no_duplicates(self):
+        data = CzechStreetsData().get_data()
+        assert len(data) == len(set(data)), "Duplicate streets found"
+
+    @pytest.mark.skipif(
+        not _min_entries(CzechStreetsData, 20000),
+        reason="Streets data not populated",
+    )
+    def test_minimum_entries(self):
+        data = CzechStreetsData().get_data()
+        assert len(data) >= 20000, f"Expected 20000+ streets, got {len(data)}"

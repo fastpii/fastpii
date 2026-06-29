@@ -14,6 +14,13 @@ from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
 
+try:
+    from fastpii.countries.cz.data.cities import CzechCitiesData
+    from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
+except ImportError:
+    CzechCitiesData = None
+    CzechPostalCodesData = None
+
 
 class PostalCodeDetector(Detector):
     CZECH_POSTAL_CODE_PATTERN: str = r'\b(\d{3})\s?(\d{2})\b'
@@ -38,28 +45,42 @@ class PostalCodeDetector(Detector):
     COMMA_CONTEXT_CHARS: int = 5
     CONTEXT_CONFIDENCE: float = 0.95
     NO_CONTEXT_CONFIDENCE: float = 0.80
+    VALIDATED_CONFIDENCE: float = 1.0
 
     _context_regex = re.compile(
         r"(?i)\b(?:psč|p\.s\.c|poštovní|postal|zip|postcode|post\s*code)\b\s*:?"
     )
 
-    _city_regex = re.compile(
-        r"(?i)\b(?:Praha|Brno|Ostrava|Plzeň|Liberec|Olomouc|České\s+Budějovice|"
-        r"Hradec\s+Králové|Pardubice|Ústí\s+nad\s+Labem|Zlín|Karlovy\s+Vary|"
-        r"Jihlava|Tábor|Český\s+Krumlov|Kladno|Mladá\s+Boleslav|Děčín|"
-        r"Kroměříž|Hodonín|Znojmo|Břeclav|Beroun|Kolín|Příbram|Šumperk|"
-        r"Trutnov|Cheb|Opava|Havířov|Třinec|Třebíč|Vsetín|Blansko)\b"
-    )
-
     registry: PatternRegistry
+    postal_codes: set[str]
+    cities: set[str]
 
-    def __init__(self, registry: PatternRegistry | None = None) -> None:
+    def __init__(
+        self,
+        registry: PatternRegistry | None = None,
+        postal_codes_data: CzechPostalCodesData | None = None,
+        cities_data: CzechCitiesData | None = None,
+    ) -> None:
         super().__init__(
             name="postal_code",
             region="cz",
             description="Czech postal code (PSČ) detector"
         )
         self.registry = registry or get_shared_registry()
+
+        if postal_codes_data is not None:
+            self.postal_codes = postal_codes_data.get_data()
+        elif CzechPostalCodesData is not None:
+            self.postal_codes = CzechPostalCodesData().get_data()
+        else:
+            self.postal_codes = set()
+
+        if cities_data is not None:
+            self.cities = cities_data.get_data()
+        elif CzechCitiesData is not None:
+            self.cities = CzechCitiesData().get_data()
+        else:
+            self.cities = set()
 
     @override
     def detect(self, text: str) -> list[Finding]:
@@ -83,7 +104,7 @@ class PostalCodeDetector(Detector):
 
             metadata = self._extract_metadata(value)
 
-            confidence = self._calculate_confidence(text, match.start())
+            confidence = self._calculate_confidence(text, match.start(), value)
 
             findings.append(Finding(
                 type="postal_code",
@@ -124,6 +145,12 @@ class PostalCodeDetector(Detector):
 
         return True
 
+    def _is_known_postal_code(self, value: str) -> bool:
+        if not self.postal_codes:
+            return False
+        cleaned = value.replace(" ", "")
+        return cleaned in self.postal_codes
+
     def _has_valid_context(self, text: str, start: int, end: int, value: str) -> bool:
         context_start = max(0, start - self.CONTEXT_CHARS)
         before_window = text[context_start:start]
@@ -132,7 +159,7 @@ class PostalCodeDetector(Detector):
 
         after_end = min(len(text), end + self.CONTEXT_CHARS)
         after_window = text[end:after_end]
-        if self._city_regex.search(after_window):
+        if self._city_in_text(after_window):
             return True
 
         before_5 = text[max(0, start - self.COMMA_CONTEXT_CHARS):start]
@@ -144,12 +171,24 @@ class PostalCodeDetector(Detector):
 
         return False
 
-    def _calculate_confidence(self, text: str, position: int) -> float:
+    def _city_in_text(self, text: str) -> bool:
+        if not self.cities:
+            return False
+        text_lower = text.lower()
+        for city in self.cities:
+            if len(city) > 3 and city in text_lower:
+                return True
+        return False
+
+    def _calculate_confidence(self, text: str, position: int, value: str) -> float:
         context_start = max(0, position - self.CONTEXT_CHARS)
         before_window = text[context_start:position]
 
         if self._context_regex.search(before_window):
             return self.CONTEXT_CONFIDENCE
+
+        if self._is_known_postal_code(value):
+            return self.VALIDATED_CONFIDENCE
 
         return self.NO_CONTEXT_CONFIDENCE
 
