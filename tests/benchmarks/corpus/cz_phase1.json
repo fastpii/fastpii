@@ -1,0 +1,1309 @@
+{
+  "version": "1.0",
+  "samples": [
+    {
+      "id": "CZ-RC-001",
+      "category": "contract",
+      "description": "Kupní smlouva s rodným číslem kupujícího",
+      "input": "Kupující Petr Novák, rodné číslo 800101/1238, se zavazuje uhradit kupní cenu do pěti dnů od podpisu smlouvy.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "800101/1238"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-RC-002",
+      "category": "medical_record",
+      "description": "Ambulantní záznam s RČ pacientky",
+      "input": "Pacientka Jana Veselá, RČ: 855312/1236, byla dne 14. 4. 2026 odeslána na interní vyšetření pro opakované bolesti hlavy.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "855312/1236"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-RC-003",
+      "category": "support_ticket",
+      "description": "Interní ticket se slashless rodným číslem",
+      "input": "Prosím o opravu údajů v zákaznickém účtu. V systému je u klienta vedené rodné číslo 5451011236 bez lomítka a adresa už byla opravena.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "5451011236"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-RC-004",
+      "category": "contract",
+      "description": "Předávací protokol s rokem 2001",
+      "input": "Nájemce uvádí do protokolu své RČ 015101/1234 a potvrzuje převzetí dvou sad klíčů od bytu č. 12.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "015101/1234"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-RC-005",
+      "category": "medical_record",
+      "description": "Gynekologická karta s ženským číslem",
+      "input": "Do zdravotní dokumentace byla doplněna hodnota rodného čísla 645731/1234, která byla ověřena podle občanského průkazu pacientky.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "645731/1234"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-RC-006",
+      "category": "bank_statement",
+      "description": "Úvěrový spis se starším RČ",
+      "input": "V úvěrovém spise dlužníka je uvedeno RČ 706215/1239 jako identifikátor klienta pro čerpání revolvingu.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "706215/1239"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-RC-007",
+      "category": "medical_record",
+      "description": "Laboratorní žádanka s rodným číslem seniora",
+      "input": "Žádanka na odběr: pacient Karel Dvořák, rodné číslo 685229/1237, odběr nalačno mezi 7:00 a 8:00.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "685229/1237"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-RC-008",
+      "category": "contract",
+      "description": "Archivní smlouva s devítimístným RČ",
+      "input": "V archivní kupní smlouvě z roku 1953 je u prodávajícího zapsáno rodné číslo 530101/123.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "530101/123"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-RC-009",
+      "category": "medical_record",
+      "description": "Starý kartotéční lístek s devítimístným RČ",
+      "input": "Kartotéční lístek uvádí RČ 491231/222 a poznámku o dlouhodobé léčbě na plicním oddělení.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "491231/222"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-RC-010",
+      "category": "support_ticket",
+      "description": "Near-valid rodné číslo se špatnou kontrolní číslicí",
+      "input": "Klient v e-mailu napsal, že jeho rodné číslo je 745101/1239, ale po kontrole se ukázalo, že poslední číslice nesedí na původní formulář.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "745101/1239"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-ICO-001",
+      "category": "business_registry",
+      "description": "Výpis z obchodního rejstříku",
+      "input": "Společnost ALFA STAV s.r.o., IČO: 25596641, se sídlem Brno, byla zapsána do obchodního rejstříku dne 2. 5. 2014.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "25596641"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-ICO-002",
+      "category": "invoice",
+      "description": "Faktura dodavatele s IČO",
+      "input": "Dodavatel: Morava servis a.s., IČO 27074358, DIČ CZ27074358. Datum vystavení faktury 12. 6. 2026.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "27074358"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-ICO-003",
+      "category": "business_registry",
+      "description": "Živnostenský list",
+      "input": "Živnostník zapsal do žádosti identifikační číslo 60458275 a přiložil výpis bez dlužných závazků vůči správě sociálního zabezpečení.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "60458275"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-ICO-004",
+      "category": "contract",
+      "description": "Rámcová servisní smlouva",
+      "input": "Objednatel uvádí IČO 70890692 a kontaktní osobu pro koordinaci servisních zásahů během víkendových odstávek.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "70890692"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-ICO-005",
+      "category": "invoice",
+      "description": "Dobropis s identifikačním číslem",
+      "input": "Na dobropisu bylo uvedeno identifikační číslo 28468473, které odpovídá dodavateli kancelářského vybavení.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "28468473"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-ICO-006",
+      "category": "business_registry",
+      "description": "Zápis pobočky do evidence",
+      "input": "Pobočka společnosti má v interní evidenci vedené IČO 26168685 a používá ho při objednávkách materiálu.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "26168685"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-ICO-007",
+      "category": "support_ticket",
+      "description": "Podpora firemního účtu",
+      "input": "Prosím o změnu fakturační adresy u zákazníka s IČO 27636828, původní sídlo už neplatí od začátku čtvrtletí.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "27636828"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-ICO-008",
+      "category": "invoice",
+      "description": "Zálohová faktura z dodavatelského portálu",
+      "input": "V portálu je u zálohové faktury přiloženo IČO 45244782 a variabilní symbol se shoduje s objednávkou.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "45244782"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-ICO-009",
+      "category": "business_registry",
+      "description": "Notářský zápis se společností",
+      "input": "V notářském zápisu je uvedeno IČO 60713984 jako identifikační číslo nově založené společnosti.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "60713984"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-ICO-010",
+      "category": "contract",
+      "description": "Objednávka B2B partnera",
+      "input": "Partner v objednávce uvádí své IČO 26876540 a žádá zasílání faktur výhradně elektronicky.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "26876540"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-DIC-001",
+      "category": "invoice",
+      "description": "Faktura s DIČ firmy",
+      "input": "Na faktuře dodavatele je uvedeno DIČ CZ25596641 a splatnost je stanovena na čtrnáct dnů.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "CZ25596641"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-DIC-002",
+      "category": "business_registry",
+      "description": "Daňová registrace společnosti",
+      "input": "Daňový poradce doplnil do spisu údaj DIČ CZ27074358 pro účely podání kontrolního hlášení.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "CZ27074358"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-DIC-003",
+      "category": "invoice",
+      "description": "Přenesená daňová povinnost",
+      "input": "Dodavatel stavebních prací uvádí na daňovém dokladu DIČ CZ60458275 a režim přenesené daňové povinnosti.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "CZ60458275"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-DIC-004",
+      "category": "contract",
+      "description": "Smlouva s DIČ fyzické osoby",
+      "input": "Mandatář uvedl do smlouvy své DIČ CZ8001011238 jako daňový identifikátor používaný při fakturaci služeb.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "CZ8001011238"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-DIC-005",
+      "category": "invoice",
+      "description": "Faktura OSVČ s rodným číslem v DIČ",
+      "input": "Na přijaté faktuře je zapsáno DIČ CZ0151011234 a účetní oddělení jej ověřilo proti registraci plátce.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "CZ0151011234"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-DIC-006",
+      "category": "business_registry",
+      "description": "Speciální devítimístné DIČ v přihlášce",
+      "input": "V přihlášce k registraci je uvedeno DIČ CZ601234567 a poznámka o přidělení zvláštního režimu.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "CZ601234567"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-DIC-007",
+      "category": "invoice",
+      "description": "Speciální DIČ bez mezery v textu",
+      "input": "Ve vystaveném dobropisu je uvedeno DIČ CZ612345678 a odběratel požaduje opravu textu záhlaví.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "CZ612345678"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-DIC-008",
+      "category": "support_ticket",
+      "description": "Podnět s plain form DIČ bez prefixu",
+      "input": "Zákazník napsal: v poli DIČ máte omylem uložené 601234567 bez předpony státu, prosím upravte nastavení exportu.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "601234567"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-DIC-009",
+      "category": "email",
+      "description": "Plain form DIČ v účetním e-mailu",
+      "input": "Dobrý den, v příloze posílám opravené DIČ 612345678, protože v minulém exportu se prefix CZ nezobrazil.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "612345678"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-DIC-010",
+      "category": "invoice",
+      "description": "DIČ odvozené z IČO v hlavičce",
+      "input": "Odběratel: VLT Trade s.r.o., IČO 70890692, DIČ CZ70890692, provozovna Praha 4.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "CZ70890692"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-BA-001",
+      "category": "bank_statement",
+      "description": "Výpis s běžným účtem bez prefixu",
+      "input": "Na bankovním výpisu je uvedeno číslo účtu 1357913579/0800 a odchozí platba za energie ve výši 3 420 Kč.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "1357913579/0800"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-BA-002",
+      "category": "invoice",
+      "description": "Faktura s účtem u Air Bank",
+      "input": "Prosíme o úhradu na účet 2000145399/3030, variabilní symbol zůstává stejný jako na objednávce.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "2000145399/3030"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-BA-003",
+      "category": "invoice",
+      "description": "Zálohová faktura s účtem u Raiffeisenbank",
+      "input": "Platbu zašlete na bankovní účet 1231231230/5500 nejpozději do 30. 6. 2026.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "1231231230/5500"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-BA-004",
+      "category": "contract",
+      "description": "Smlouva s účtem a prefixem",
+      "input": "Pro vrácení kauce použijeme účet 19-1357913579/0800 uvedený nájemcem v záhlaví smlouvy.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "19-1357913579/0800"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-BA-005",
+      "category": "bank_statement",
+      "description": "Firemní účet s prefixem u RB",
+      "input": "Na straně příjemce je evidován účet 86-2000145399/5500 a název platby Mzdová agenda květen.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "86-2000145399/5500"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-BA-006",
+      "category": "invoice",
+      "description": "Objednávka s účtem ČSOB",
+      "input": "V potvrzení objednávky zůstává číslo účtu 27-1231231230/3030 pro všechny další zálohy.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "27-1231231230/3030"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-BA-007",
+      "category": "contract",
+      "description": "Dodatkový účet dodavatele",
+      "input": "Dodavatel změnil platební údaje a nově uvádí účet 35-2000145399/0800 pro úhradu servisních prací.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "35-2000145399/0800"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-BA-008",
+      "category": "bank_statement",
+      "description": "Účet uvedený v interním převodu",
+      "input": "V interním převodním příkazu figuruje účet 43-1357913579/5500 jako cílový účet provozní zálohy.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "43-1357913579/5500"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-BA-009",
+      "category": "invoice",
+      "description": "Dlouhodobě používaný účet odběratele",
+      "input": "Účetní poznámka: odběratel vrací přeplatek na účet 63-1231231230/3030 podle poslední žádosti.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "63-1231231230/3030"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-BA-010",
+      "category": "support_ticket",
+      "description": "Podpora platební brány",
+      "input": "Prosím nastavte refundaci na účet 19-2000145399/0800, klient ho potvrdil v telefonátu z dnešního rána.",
+      "expected_findings": [
+        {
+          "type": "bank_account",
+          "value": "19-2000145399/0800"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-PH-001",
+      "category": "support_ticket",
+      "description": "Mobil s mezinárodní předvolbou",
+      "input": "Kontakt na zákazníka je +420 602 123 456, preferuje volání po 16. hodině.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "+420 602 123 456"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-PH-002",
+      "category": "email",
+      "description": "Domácí mobil s kontextem tel",
+      "input": "V případě dotazů volejte tel: 603 234 567, kancelář je otevřená do 17:00.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "603 234 567"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-PH-003",
+      "category": "support_ticket",
+      "description": "Mobil uvedený v podpisu",
+      "input": "Podpis žadatele obsahuje položku mobil 777 888 999 a prosbu o zpětné zavolání ještě dnes.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "777 888 999"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-PH-004",
+      "category": "contract",
+      "description": "Telefon kontaktní osoby ve smlouvě",
+      "input": "Kontaktní osoba objednatele: tel. 731 222 333, e-mail bude doplněn samostatně.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "731 222 333"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-PH-005",
+      "category": "support_ticket",
+      "description": "Pevná linka s mezinárodní předvolbou",
+      "input": "Pro technickou podporu použijte číslo +420 234 567 890, které je dostupné v pracovní době.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "+420 234 567 890"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-PH-006",
+      "category": "invoice",
+      "description": "Pevná linka v patičce faktury",
+      "input": "V patičce daňového dokladu je uvedena pevná linka 541 123 456 pro reklamace fakturace.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "541 123 456"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-PH-007",
+      "category": "email",
+      "description": "Mobilní číslo v přeposlaném mailu",
+      "input": "Paní účetní prosí o zaslání potvrzení, případně volejte na kontakt 724 555 666 během dopoledne.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "724 555 666"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-PH-008",
+      "category": "support_ticket",
+      "description": "Číslo s operátorským prefixem 608",
+      "input": "Do formuláře jsme doplnili telefon 608 111 222, protože zákazník odmítá komunikaci přes chat.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "608 111 222"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-PH-009",
+      "category": "contract",
+      "description": "Mezinárodní zápis mobilu ve smlouvě o dílo",
+      "input": "Zhotovitel uvádí pro operativní kontakt číslo +420 773 444 555 a souhlasí s SMS notifikacemi.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "+420 773 444 555"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-PH-010",
+      "category": "support_ticket",
+      "description": "Regionální pevná linka s kontextem číslo",
+      "input": "Číslo pro zpětné volání je 326 123 456; zákazník bude na lince po deváté hodině.",
+      "expected_findings": [
+        {
+          "type": "phone",
+          "value": "326 123 456"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-EM-001",
+      "category": "email",
+      "description": "Firemní e-mail v odpovědi zákazníkovi",
+      "input": "Dobrý den, prosím pište už jen na adresu jan.novak@firma.cz, stará schránka bude příští týden zrušena.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "jan.novak@firma.cz"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-EM-002",
+      "category": "support_ticket",
+      "description": "Seznam adresa v ticketu",
+      "input": "Zákazník uvádí kontaktní e-mail eva.svobodova@seznam.cz pro zaslání potvrzení o přijetí reklamace.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "eva.svobodova@seznam.cz"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-EM-003",
+      "category": "medical_record",
+      "description": "Nemocniční kontakt v poučení",
+      "input": "Výsledky budou zaslány na e-mail podpora@nemocnice-brno.cz, pokud pacient potvrdí souhlas v recepci.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "podpora@nemocnice-brno.cz"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-EM-004",
+      "category": "invoice",
+      "description": "E-mail v obchodní komunikaci",
+      "input": "Prosíme o zasílání faktur na ucetni@morava-servis.cz a do předmětu uvádějte číslo objednávky.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "ucetni@morava-servis.cz"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-EM-005",
+      "category": "email",
+      "description": "Plain mailto odkaz",
+      "input": "Kontakt na správce budovy je mailto:sprava.domu@centrum.cz, reakce bývá obvykle do druhého dne.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "sprava.domu@centrum.cz"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-EM-006",
+      "category": "email",
+      "description": "E-mail s osobním jménem a příjmením",
+      "input": "Za personální oddělení odpovídá Petra Černá, adresa petra.cerna@personalni-agentura.cz je uvedena v podpisu.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "petra.cerna@personalni-agentura.cz"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-EM-007",
+      "category": "support_ticket",
+      "description": "Technická podpora s aliasem",
+      "input": "Pokud problém přetrvá, napište na it-helpdesk@obec-lhota.cz a přiložte snímek obrazovky.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "it-helpdesk@obec-lhota.cz"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-EM-008",
+      "category": "email",
+      "description": "Zahraniční doména v českém textu",
+      "input": "Potvrzení účasti pošlete prosím na marek.hruby@consulting.eu ještě před koncem pracovního týdne.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "marek.hruby@consulting.eu"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-EM-009",
+      "category": "invoice",
+      "description": "Schránka pro PDF faktury",
+      "input": "PDF faktury posílejte na doklady@vlttrade.cz, papírové originály už nearchivujeme.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "doklady@vlttrade.cz"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-EM-010",
+      "category": "email",
+      "description": "Soukromá adresa v neformálním mailu",
+      "input": "Ozvěte se mi prosím na adrese lucie.kralova@email.cz, z pracovního účtu jsem tento týden mimo kancelář.",
+      "expected_findings": [
+        {
+          "type": "email",
+          "value": "lucie.kralova@email.cz"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-VP-001",
+      "category": "support_ticket",
+      "description": "SPZ nahlášená na recepci",
+      "input": "Na recepci byla nahlášena SPZ 1AB 2345 pro vjezd do podzemních garáží od pondělí do středy.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "1AB 2345"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-VP-002",
+      "category": "contract",
+      "description": "Služební vůz v předávacím protokolu",
+      "input": "Předávané vozidlo má registrační značku 2BC 4567 a bylo převzato bez viditelného poškození karoserie.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "2BC 4567"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-VP-003",
+      "category": "support_ticket",
+      "description": "Parkovací oprávnění s regionálním kódem 9",
+      "input": "Do systému parkování zapište auto s SPZ 9T3 1234, oprávnění platí do 31. 12. 2026.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "9T3 1234"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-VP-004",
+      "category": "mixed",
+      "description": "Protokol o škodní události",
+      "input": "Řidič firemního auta uvedl, že vozidlo se značkou 5U8 7654 stálo během nehody před skladem č. 3.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "5U8 7654"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-VP-005",
+      "category": "support_ticket",
+      "description": "Starší formát SPZ v žádosti o vjezd",
+      "input": "Vjezdová karta byla vystavena pro auto s registrační značkou ABC 1234 a modrým parkovacím průkazem.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "ABC 1234"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-VP-006",
+      "category": "support_ticket",
+      "description": "Povolení pro náhradní vůz",
+      "input": "Náhradní auto má SPZ 7H2 4401 a bude stát na místě B17 po dobu servisu.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "7H2 4401"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-VP-007",
+      "category": "contract",
+      "description": "Předání dodávky se starou značkou",
+      "input": "Do předávacího protokolu doplňte značku BKR 3210 a stav tachometru k datu převzetí.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "BKR 3210"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-VP-008",
+      "category": "support_ticket",
+      "description": "Vstup do areálu s novou tabulkou",
+      "input": "Bezpečnostní služba eviduje vozidlo 4P9 1122 jako pravidelného dodavatele do zadního skladu.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "4P9 1122"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-VP-009",
+      "category": "support_ticket",
+      "description": "Pražská značka v parkovacím seznamu",
+      "input": "Do seznamu vozidel pro parkování přidejte prosím MAB 7788, jde o služební automobil obchodního ředitele.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "MAB 7788"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-VP-010",
+      "category": "support_ticket",
+      "description": "Nový formát z parkovacího formuláře",
+      "input": "V parkovacím formuláři bylo vyplněno číslo vozidla 3K5 8877 a čas příjezdu 06:40.",
+      "expected_findings": [
+        {
+          "type": "vehicle_plate",
+          "value": "3K5 8877"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX-001",
+      "category": "mixed",
+      "description": "Faktura OSVČ se všemi kontaktními údaji",
+      "input": "Dodavatel Petr Novák, rodné číslo 800101/1238, IČO 25596641, DIČ CZ25596641, bankovní účet 19-1357913579/0800, tel: 603 234 567, e-mail jan.novak@firma.cz. Rozvoz zajišťuje vozidlo 1AB 2345.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "800101/1238"
+        },
+        {
+          "type": "ico",
+          "value": "25596641"
+        },
+        {
+          "type": "dic",
+          "value": "CZ25596641"
+        },
+        {
+          "type": "bank_account",
+          "value": "19-1357913579/0800"
+        },
+        {
+          "type": "phone",
+          "value": "603 234 567"
+        },
+        {
+          "type": "email",
+          "value": "jan.novak@firma.cz"
+        },
+        {
+          "type": "vehicle_plate",
+          "value": "1AB 2345"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-MIX-002",
+      "category": "mixed",
+      "description": "Servisní objednávka lékařky OSVČ",
+      "input": "MUDr. Jana Veselá potvrzuje objednávku. RČ 855312/1236, IČO 27074358, DIČ CZ27074358, účet 2000145399/3030, mobil +420 602 123 456, e-mail eva.svobodova@seznam.cz, vozidlo 2BC 4567 pro parkování u ambulance.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "855312/1236"
+        },
+        {
+          "type": "ico",
+          "value": "27074358"
+        },
+        {
+          "type": "dic",
+          "value": "CZ27074358"
+        },
+        {
+          "type": "bank_account",
+          "value": "2000145399/3030"
+        },
+        {
+          "type": "phone",
+          "value": "+420 602 123 456"
+        },
+        {
+          "type": "email",
+          "value": "eva.svobodova@seznam.cz"
+        },
+        {
+          "type": "vehicle_plate",
+          "value": "2BC 4567"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-MIX-003",
+      "category": "mixed",
+      "description": "Předávací list firemního vozu a smlouvy",
+      "input": "Předávací list uvádí: IČO 60458275, DIČ CZ60458275, kontaktní telefon 724 555 666, e-mail ucetni@morava-servis.cz, účet 1231231230/5500, řidič s rodným číslem 5451011236 a vůz 9T3 1234.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "60458275"
+        },
+        {
+          "type": "dic",
+          "value": "CZ60458275"
+        },
+        {
+          "type": "phone",
+          "value": "724 555 666"
+        },
+        {
+          "type": "email",
+          "value": "ucetni@morava-servis.cz"
+        },
+        {
+          "type": "bank_account",
+          "value": "1231231230/5500"
+        },
+        {
+          "type": "rodne_cislo",
+          "value": "5451011236"
+        },
+        {
+          "type": "vehicle_plate",
+          "value": "9T3 1234"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX-004",
+      "category": "mixed",
+      "description": "Registrace dodavatele do systému",
+      "input": "Nový dodavatel zapsal údaje: IČO 70890692, DIČ CZ70890692, RČ 645731/1234, účet 86-2000145399/5500, telefon 608 111 222, e-mail petra.cerna@personalni-agentura.cz a SPZ 5U8 7654.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "70890692"
+        },
+        {
+          "type": "dic",
+          "value": "CZ70890692"
+        },
+        {
+          "type": "rodne_cislo",
+          "value": "645731/1234"
+        },
+        {
+          "type": "bank_account",
+          "value": "86-2000145399/5500"
+        },
+        {
+          "type": "phone",
+          "value": "608 111 222"
+        },
+        {
+          "type": "email",
+          "value": "petra.cerna@personalni-agentura.cz"
+        },
+        {
+          "type": "vehicle_plate",
+          "value": "5U8 7654"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX-005",
+      "category": "mixed",
+      "description": "Interní profil externí účetní",
+      "input": "Profil externí účetní obsahuje RČ 530101/123, IČO 28468473, DIČ CZ601234567, účet 27-1231231230/3030, číslo 541 123 456, e-mail doklady@vlttrade.cz a vozidlo ABC 1234.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "530101/123"
+        },
+        {
+          "type": "ico",
+          "value": "28468473"
+        },
+        {
+          "type": "dic",
+          "value": "CZ601234567"
+        },
+        {
+          "type": "bank_account",
+          "value": "27-1231231230/3030"
+        },
+        {
+          "type": "phone",
+          "value": "541 123 456"
+        },
+        {
+          "type": "email",
+          "value": "doklady@vlttrade.cz"
+        },
+        {
+          "type": "vehicle_plate",
+          "value": "ABC 1234"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-MIX-006",
+      "category": "mixed",
+      "description": "Podpora B2B zákazníka s více identifikátory",
+      "input": "Firemní účet má IČO 26168685, DIČ CZ26168685, kontaktní mail it-helpdesk@obec-lhota.cz a pro refundaci používá účet 35-2000145399/0800. Volat lze na tel: 731 222 333.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "26168685"
+        },
+        {
+          "type": "dic",
+          "value": "CZ26168685"
+        },
+        {
+          "type": "email",
+          "value": "it-helpdesk@obec-lhota.cz"
+        },
+        {
+          "type": "bank_account",
+          "value": "35-2000145399/0800"
+        },
+        {
+          "type": "phone",
+          "value": "731 222 333"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX-007",
+      "category": "mixed",
+      "description": "Příjem pacienta s dopravou do ordinace",
+      "input": "Pacientka uvedla RČ 491231/222, kontakt +420 773 444 555 a e-mail lucie.kralova@email.cz. Na parkoviště bude vjíždět vozidlo 7H2 4401.",
+      "expected_findings": [
+        {
+          "type": "rodne_cislo",
+          "value": "491231/222"
+        },
+        {
+          "type": "phone",
+          "value": "+420 773 444 555"
+        },
+        {
+          "type": "email",
+          "value": "lucie.kralova@email.cz"
+        },
+        {
+          "type": "vehicle_plate",
+          "value": "7H2 4401"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX-008",
+      "category": "mixed",
+      "description": "Objednávka se speciálním DIČ bez prefixové chyby",
+      "input": "V objednávce je uvedeno IČO 27636828, DIČ CZ612345678, účet 43-1357913579/5500 a kontaktní adresa marek.hruby@consulting.eu.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "27636828"
+        },
+        {
+          "type": "dic",
+          "value": "CZ612345678"
+        },
+        {
+          "type": "bank_account",
+          "value": "43-1357913579/5500"
+        },
+        {
+          "type": "email",
+          "value": "marek.hruby@consulting.eu"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-MIX-009",
+      "category": "mixed",
+      "description": "Leasingová dokumentace k vozidlu",
+      "input": "Leasingová smlouva obsahuje IČO 45244782, účet 63-1231231230/3030, číslo pro spojení 326 123 456 a registrační značku 4P9 1122.",
+      "expected_findings": [
+        {
+          "type": "ico",
+          "value": "45244782"
+        },
+        {
+          "type": "bank_account",
+          "value": "63-1231231230/3030"
+        },
+        {
+          "type": "phone",
+          "value": "326 123 456"
+        },
+        {
+          "type": "vehicle_plate",
+          "value": "4P9 1122"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-MIX-010",
+      "category": "mixed",
+      "description": "Obchodní korespondence s plain DIČ",
+      "input": "Dobrý den, pro export do ERP prosím ponechte DIČ 612345678, IČO 60713984 a účet 19-2000145399/0800. Potvrzení pošlete na sprava.domu@centrum.cz.",
+      "expected_findings": [
+        {
+          "type": "dic",
+          "value": "612345678"
+        },
+        {
+          "type": "ico",
+          "value": "60713984"
+        },
+        {
+          "type": "bank_account",
+          "value": "19-2000145399/0800"
+        },
+        {
+          "type": "email",
+          "value": "sprava.domu@centrum.cz"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-001",
+      "category": "false_positive_trap",
+      "description": "Čísla objednávek a sériové kódy bez PII",
+      "input": "Objednávka 800101/9999 byla spárována s interním kódem 25596642. Referenční značka CZ12345670 neprošla importem a skladový řádek 1AQ 2345 patří jen etiketě balíku.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-002",
+      "category": "false_positive_trap",
+      "description": "Technické parametry a neplatný účet",
+      "input": "Položka projektu používá kód 19-1111111111/9999, měření 603 23 4567 a adresu servis(zavinac)firma.cz; žádný z údajů není osobním identifikátorem.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-003",
+      "category": "false_positive_trap",
+      "description": "Marketingová tabulka s cizími a neplatnými formáty",
+      "input": "V prezentaci se objevují čísla SK25596641, +421 602 123 456, B AB 1234 a testovací e-mail jan.novak@@firma.cz, které slouží jen jako ukázky chybného formátu.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-004",
+      "category": "false_positive_trap",
+      "description": "Rozpis termínů a interních ID",
+      "input": "Rozpis obsahuje interní ID 530230/123, přehled 12345678, pseudo účet 27-1234567890/0801 a zkratku AAA 1111 pro označení testovacího vozíku.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-005",
+      "category": "false_positive_trap",
+      "description": "Ceník s čísly podobnými kontaktům",
+      "input": "V ceníku je uvedeno 72455 5666 jako katalogové číslo, 61234567 jako skladová položka a kontakt info@localhost používaný pouze v technické dokumentaci.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-006",
+      "category": "false_positive_trap",
+      "description": "Příklad chybného DIČ a SPZ",
+      "input": "Školící materiál obsahuje varianty CZ0151011235, 1QZ 7788 a 0000000000/0800, aby si noví kolegové procvičili rozpoznání neplatných zápisů.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-007",
+      "category": "false_positive_trap",
+      "description": "Návod k migraci s ukázkovými řetězci",
+      "input": "V migračním návodu jsou jen ukázkové hodnoty 490231/222, 99999999, mailto:bez-tecky@localhost a +420 111 222 333.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-008",
+      "category": "false_positive_trap",
+      "description": "Log aplikace se šumem podobným PII",
+      "input": "Aplikační log hlásí chybu u vstupu CZ00000000, účtu 91-2222222222/3030, telefonu 123 456 789 a značky QQQ 1234.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-009",
+      "category": "false_positive_trap",
+      "description": "Výukový text s cizí SPZ a neúplným mailem",
+      "input": "Studijní materiál uvádí SPZ WOB AB 123, adresu petr.novak@firma a číslo 31-8765432109/5500 jen jako ilustrační proti-příklady.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP-010",
+      "category": "false_positive_trap",
+      "description": "Tabulka testovacích hodnot pro QA",
+      "input": "QA tabulka obsahuje 010101/002, 60123456, DIČ 61234A678, číslo 32612345 a položku 0AB 1234; všechny hodnoty jsou pouze testovací šum.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    }
+  ]
+}

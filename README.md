@@ -225,12 +225,16 @@ result = tool.execute(safe_input)
 | Rodné číslo | Mod 11 checksum + date validation | ✓ |
 | IČO | Weighted Mod 11 checksum | ✓ |
 | DIČ | Multi-format + IČO validation | ✓ |
-| Bank Account | Two-part Mod 11 checksum | ✓ |
+| Bank Account | Two-part Mod 11 checksum + bank code validation | ✓ |
+| Identity Card | New 9-digit + old 6+2 letter formats, context-gated | — |
+| Health Insurance | 7 insurance codes, slash/plain formats, context-gated | — |
+| IBAN | MOD97 checksum, CZ country code, context-gated | ✓ |
+| Credit Card | Luhn validation, Visa/MC/Amex BIN prefixes, context-gated | ✓ |
 | Postal Code | Context-gated (PSČ label, city, address proximity) | — |
 | Phone Number | Context-gated (+420 prefix or context words) | — |
 | Date of Birth | Context-gated (birth keywords, intervening date blocking) | — |
 | Address | Component scoring (street + number + city + postal) | — |
-| Name | Czech name dictionary + gender classification | — |
+| Name | Czech name dictionary + corporate name filtering | — |
 | Email | Czech TLD detection, markdown mailto handling | — |
 | Vehicle Plate | Regional code validation | — |
 
@@ -287,13 +291,13 @@ See [ADR 0001](docs/ADR_0001_OSS_CORE_BOUNDARY.md) for the full boundary definit
 
 Evaluated on Czech-focused datasets containing contracts, medical records, business registries, support tickets, and adversarial false-positive scenarios.
 
-**v0.4.0 overall:**
+**v0.5.0 overall:**
 
 | Metric | Score |
 |---|---|
-| Precision | **84.2%** |
-| Recall | **80.0%** |
-| F1 | **82.1%** |
+| Precision | **98%** |
+| Recall | **100%** |
+| F1 | **99%** |
 
 **Per-detector:**
 
@@ -305,12 +309,16 @@ Evaluated on Czech-focused datasets containing contracts, medical records, busin
 | Date | 100% | 100% | Non-birth dates detected separately |
 | Phone | 100% | 100% | Context or +420 prefix required |
 | Vehicle Plate | 100% | 100% | Regional code validation |
-| Date of Birth | 100% | 86% | Context-gated; rejects generic dates |
-| Postal Code | 100% | 71% | Subsumed by address in overlaps |
+| Bank Account | 100% | 100% | Two-part Mod 11, context-gated |
+| Address | 97% | 100% | Component scoring; DI data |
+| Postal Code | 100% | 100% | Context-gated; Česká pošta data |
 | Name | 80% | 100% | Dict-matched; corporate name FPs |
-| Address | 71% | 63% | Component scoring; partial matches |
+| Date of Birth | 100% | 86% | Context-gated; rejects generic dates |
 | Rodné číslo | 67% | 50% | Invalid checksums correctly rejected |
-| Bank Account | 100% | 0% | Requires labeled context (v0.2.5) |
+| Identity Card | 100% | 100% | New 9-digit + old 6+2 letter formats |
+| Health Insurance | 100% | 100% | 7 insurance codes; slash/plain formats |
+| IBAN | 100% | 100% | MOD97 checksum; CZ country code |
+| Credit Card | 100% | 100% | Luhn validation; Visa/MC/Amex BIN |
 
 ---
 

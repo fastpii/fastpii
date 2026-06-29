@@ -33,13 +33,6 @@ class CreditCardDetector(Detector):
     CONTEXT_CONFIDENCE: float = 0.95
     NO_CONTEXT_CONFIDENCE: float = 0.60
 
-    CARD_CONTEXT_WORDS: ClassVar[tuple[str, ...]] = (
-        "credit card", "card number", "card no", "card#", "card:",
-        "kreditní karta", "platební karta", "karta", "číslo karty",
-        "visa", "mastercard", "amex", "american express",
-        "cvv", "cvc", "expiry", "expiration",
-    )
-
     _context_regex: ClassVar[re.Pattern[str]] = re.compile(
         r"(?i)(?:credit\s+card|card\s+number|card\s+no|card\s*#|card:|"
         r"kreditní\s+karta|platební\s+karta|číslo\s+karty|"

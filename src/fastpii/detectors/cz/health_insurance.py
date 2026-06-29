@@ -40,11 +40,6 @@ class HealthInsuranceDetector(Detector):
     CONTEXT_CONFIDENCE: float = 0.95
     NO_CONTEXT_CONFIDENCE: float = 0.70
 
-    INSURANCE_CONTEXT_WORDS: ClassVar[tuple[str, ...]] = (
-        "pojištění", "zdravotní pojišťovna", "pojišťovna", "pojištěnec",
-        "číslo pojištěnce", "č. pojištěnce", "health insurance", "insurance",
-    )
-
     _context_regex: ClassVar[re.Pattern[str]] = re.compile(
         r"(?i)(?:pojištění|zdravotní\s+pojišťovna|pojišťovna|pojištěnec|"
         r"číslo\s+pojištěnce|č\.\s*pojištěnce|health\s+insurance|insurance)",

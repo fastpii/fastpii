@@ -1,0 +1,156 @@
+{
+  "version": "1.0",
+  "samples": [
+    {
+      "id": "CZ-MIG-001",
+      "category": "mixed",
+      "description": "Comprehensive internal customer report with multiple PII types",
+      "input": "INTERNAL CUSTOMER REPORT\n\nPrepared by: Jan Novák\nDate: 12.05.2026\n\nCustomer Information\n\nJan Novák was born on 1 January 1980 and currently resides at Vinohradská 1523/45, 120 00 Praha 2. His rodné číslo is 800101/1238. He can be contacted via email at jan.novak@email.cz or by phone at +420 777 123 456.\n\nCustomer bank details:\n\nAccount Number: 123456789/0800\nAlternative Account: 19-1234567890/0300\n\nVehicle Information\n\nThe customer owns a vehicle with registration plate 1AB 2345.\n\nBusiness Information\n\nJan Novák is the managing director of Novák Consulting s.r.o.\n\nCompany Details:\n\nCompany Name: Novák Consulting s.r.o.\nIČO: 25596641\nDIČ: CZ25596641\nRegistered Office: Na Příkopě 12, 110 00 Praha 1\n\nThe company may be contacted at info@novakconsulting.cz or +420 222 111 333.\n\nAdditional Employees\n\nPetra Svobodová\nAddress: Dlouhá 24, 602 00 Brno\nPhone: +420 604 555 444\nEmail: petra.svobodova@novakconsulting.cz\nDate of Birth: 15.03.1988\n\nTomáš Dvořák\nAddress: Křížová 91, 301 00 Plzeň\nPhone: +420 603 888 999\nEmail: tomas.dvorak@novakconsulting.cz\nDate of Birth: 22.07.1979\n\nNotes\n\nThe project reference number is 25596640.\nThe ticket ID is 8001011237.\nThe server IP is 192.168.1.50.\nThe invoice number is 2026000123.\nThe product code is CZ25596640.\nThe support email is support@example.com.\n\nFalse Positive Tests\n\nThe following values should NOT be detected as valid Czech identifiers:\n\n12345678\n25596640\nCZ12345678\n8001011237\n9999999999\nABC12345\nXX25596641\nCZ2559664\n123-456-789\n\nRandom text:\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, velit nec facilisis cursus, nisl magna fermentum mauris, sit amet tincidunt risus lorem vel velit. Integer posuere dui eget nunc tincidunt, eget scelerisque neque facilisis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae.\n\nAnother contact appears later in the document:\n\nMartin Černý\nEmail: martin.cerny@example.cz\nPhone: +420 605 777 111\nAddress: Masarykova 12, 602 00 Brno\nRodné číslo: 850315/4321\n\nPlease send all correspondence regarding this case to martin.cerny@example.cz before 30.09.2026.",
+      "expected_findings": [
+        {"type": "rodne_cislo", "value": "800101/1238"},
+        {"type": "rodne_cislo", "value": "850315/4321"},
+        {"type": "ico", "value": "25596641"},
+        {"type": "dic", "value": "CZ25596641"},
+        {"type": "bank_account", "value": "123456789/0800"},
+        {"type": "bank_account", "value": "19-1234567890/0300"},
+        {"type": "phone", "value": "+420 777 123 456"},
+        {"type": "phone", "value": "+420 222 111 333"},
+        {"type": "phone", "value": "+420 604 555 444"},
+        {"type": "phone", "value": "+420 603 888 999"},
+        {"type": "phone", "value": "+420 605 777 111"},
+        {"type": "email", "value": "jan.novak@email.cz"},
+        {"type": "email", "value": "info@novakconsulting.cz"},
+        {"type": "email", "value": "petra.svobodova@novakconsulting.cz"},
+        {"type": "email", "value": "tomas.dvorak@novakconsulting.cz"},
+        {"type": "email", "value": "support@example.com"},
+        {"type": "email", "value": "martin.cerny@example.cz"},
+        {"type": "name", "value": "Jan Novák"},
+        {"type": "name", "value": "Petra Svobodová"},
+        {"type": "name", "value": "Tomáš Dvořák"},
+        {"type": "name", "value": "Martin Černý"},
+        {"type": "address", "value": "Vinohradská 1523/45, 120 00 Praha 2"},
+        {"type": "address", "value": "Na Příkopě 12, 110 00 Praha 1"},
+        {"type": "address", "value": "Dlouhá 24, 602 00 Brno"},
+        {"type": "address", "value": "Křížová 91, 301 00 Plzeň"},
+        {"type": "address", "value": "Masarykova 12, 602 00 Brno"},
+        {"type": "date_of_birth", "value": "1 January 1980"},
+        {"type": "date_of_birth", "value": "15.03.1988"},
+        {"type": "date_of_birth", "value": "22.07.1979"},
+        {"type": "postal_code", "value": "120 00"},
+        {"type": "postal_code", "value": "110 00"},
+        {"type": "postal_code", "value": "602 00"},
+        {"type": "postal_code", "value": "301 00"},
+        {"type": "vehicle_plate", "value": "1AB 2345"},
+        {"type": "date", "value": "12.05.2026"},
+        {"type": "date", "value": "30.09.2026"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIG-002",
+      "category": "contract",
+      "description": "Rental agreement with names, RC, addresses, bank account, dates",
+      "input": "RENTAL AGREEMENT\n\nLandlord:\nJan Novák\nRodné číslo: 800101/1238\nAddress: Vinohradská 1523/45, 120 00 Praha 2\nEmail: jan.novak@email.cz\nPhone: +420 777 123 456\n\nTenant:\nPetra Svobodová\nRodné číslo: 885315/4326\nAddress: Dlouhá 24, 602 00 Brno\nEmail: petra.svobodova@email.cz\nPhone: +420 604 555 444\n\nProperty:\nApartment No. 12\nBuilding Registration No. 2025\nContract Number: RENT-2026-00145\n\nRent shall be paid monthly to account:\n123456789/0800\n\nMove-in Date:\n01.08.2026\n\nMove-out Date:\n31.07.2027",
+      "expected_findings": [
+        {"type": "rodne_cislo", "value": "800101/1238"},
+        {"type": "rodne_cislo", "value": "885315/4326"},
+        {"type": "phone", "value": "+420 777 123 456"},
+        {"type": "phone", "value": "+420 604 555 444"},
+        {"type": "email", "value": "jan.novak@email.cz"},
+        {"type": "email", "value": "petra.svobodova@email.cz"},
+        {"type": "name", "value": "Jan Novák"},
+        {"type": "name", "value": "Petra Svobodová"},
+        {"type": "address", "value": "Vinohradská 1523/45, 120 00 Praha 2"},
+        {"type": "address", "value": "Dlouhá 24, 602 00 Brno"},
+        {"type": "bank_account", "value": "123456789/0800"},
+        {"type": "date", "value": "01.08.2026"},
+        {"type": "date", "value": "31.07.2027"}
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-MIG-003",
+      "category": "medical_record",
+      "description": "Hospital record with name, DOB, RC, address, phone",
+      "input": "UNIVERSITY HOSPITAL PRAHA\n\nPatient:\nTomáš Dvořák\nDate of Birth: 22.07.1979\nRodné číslo: 790722/1235\n\nAddress:\nKřížová 91\n301 00 Plzeň\n\nEmergency Contact:\nPetra Dvořáková\nPhone: +420 603 888 999\n\nInsurance Number:\n1111111111\n\nMedical Report ID:\nMR-2026-44912\n\nExamination Date:\n12.05.2026\n\nThe patient presented symptoms of fever and fatigue.\n\nBlood pressure:\n120/80\n\nWeight:\n85 kg\n\nHeight:\n182 cm\n\nNext appointment:\n20.06.2026",
+      "expected_findings": [
+        {"type": "rodne_cislo", "value": "790722/1235"},
+        {"type": "name", "value": "Tomáš Dvořák"},
+        {"type": "name", "value": "Petra Dvořáková"},
+        {"type": "date_of_birth", "value": "22.07.1979"},
+        {"type": "address", "value": "Křížová 91, 301 00 Plzeň"},
+        {"type": "postal_code", "value": "301 00"},
+        {"type": "phone", "value": "+420 603 888 999"},
+        {"type": "date", "value": "12.05.2026"},
+        {"type": "date", "value": "20.06.2026"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIG-004",
+      "category": "business_registry",
+      "description": "Business registry with ICO, DIC, address, name, email, phone",
+      "input": "BUSINESS REGISTRY\n\nCompany:\nNovák Consulting s.r.o.\n\nIČO:\n25596641\n\nDIČ:\nCZ25596641\n\nRegistered Office:\nNa Příkopě 12\n110 00 Praha 1\n\nContact:\ninfo@novakconsulting.cz\n+420 222 111 333\n\nDirector:\nJan Novák\n\nReference Codes:\n25596640\n25596642\n25596643\n\nTax File:\nFIN-2026-000123",
+      "expected_findings": [
+        {"type": "ico", "value": "25596641"},
+        {"type": "dic", "value": "CZ25596641"},
+        {"type": "name", "value": "Jan Novák"},
+        {"type": "email", "value": "info@novakconsulting.cz"},
+        {"type": "phone", "value": "+420 222 111 333"},
+        {"type": "address", "value": "Na Příkopě 12, 110 00 Praha 1"},
+        {"type": "postal_code", "value": "110 00"}
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-MIG-005",
+      "category": "bank_statement",
+      "description": "Bank statement with names and accounts",
+      "input": "BANK STATEMENT\n\nClient:\nMartin Černý\n\nAccount:\n123456789/0800\n\nSecondary Account:\n19-1234567890/0300\n\nTransaction ID:\nTXN-2026-001245\n\nInvoice Number:\n2026000123\n\nIncoming Transfer:\n12 500 CZK\n\nOutgoing Transfer:\n2 350 CZK\n\nCounterparty:\nPetra Svobodová\n\nReference:\n5555555555\n\nMessage:\nPayment for apartment rent.",
+      "expected_findings": [
+        {"type": "name", "value": "Martin Černý"},
+        {"type": "name", "value": "Petra Svobodová"},
+        {"type": "bank_account", "value": "123456789/0800"},
+        {"type": "bank_account", "value": "19-1234567890/0300"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIG-006",
+      "category": "support_ticket",
+      "description": "Support ticket with name, email, phone, address, postal code",
+      "input": "SUPPORT TICKET\n\nTicket ID:\nSUP-2026-004567\n\nCustomer:\nMartin Černý\n\nEmail:\nmartin.cerny@example.cz\n\nPhone:\n+420 605 777 111\n\nDevice Serial:\nABC123456789XYZ\n\nIP Address:\n192.168.1.50\n\nOrder Number:\nORD-2026-001245\n\nBilling Address:\nMasarykova 12\n602 00 Brno\n\nIssue:\nUnable to log in to account.",
+      "expected_findings": [
+        {"type": "name", "value": "Martin Černý"},
+        {"type": "email", "value": "martin.cerny@example.cz"},
+        {"type": "phone", "value": "+420 605 777 111"},
+        {"type": "address", "value": "Masarykova 12, 602 00 Brno"},
+        {"type": "postal_code", "value": "602 00"}
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-MIG-007",
+      "category": "mixed",
+      "description": "Residence application with non-Czech name, DOB, address, phone, email",
+      "input": "APPLICATION FOR RESIDENCE\n\nApplicant:\nAli Reza\n\nDate of Birth:\n15.03.1988\n\nNationality:\nIranian\n\nAddress:\nPražská 45\n370 01 České Budějovice\n\nPhone:\n+420 702 123 456\n\nEmail:\nali.reza@example.com\n\nPassport Number:\nX12345678\n\nApplication Number:\n2026/RES/12345\n\nSubmission Date:\n12.06.2026",
+      "expected_findings": [
+        {"type": "date_of_birth", "value": "15.03.1988"},
+        {"type": "phone", "value": "+420 702 123 456"},
+        {"type": "email", "value": "ali.reza@example.com"},
+        {"type": "address", "value": "Pražská 45, 370 01 České Budějovice"},
+        {"type": "postal_code", "value": "370 01"},
+        {"type": "date", "value": "12.06.2026"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIG-008",
+      "category": "false_positive_trap",
+      "description": "False positive trap: code-like patterns that are NOT PII",
+      "input": "Customer code 25596641 is not an IČO.\n\nThe invoice number 8001011238 is not a rodné číslo.\n\nThe support reference CZ25596641 should not be treated as VAT.\n\nCall center code 777123456 is not a phone number.\n\nPostal code 12000 is not a bank account.\n\nVehicle code 1AB2345 is part of an internal identifier.\n\nReference:\n1AB2345-25596641-8001011238-CZ25596641\n\nGenerated:\n2026-06-09",
+      "expected_findings": [],
+      "difficulty": "hard"
+    }
+  ]
+}

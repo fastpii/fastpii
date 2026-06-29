@@ -1,0 +1,1059 @@
+{
+  "version": "1.0",
+  "samples": [
+    {
+      "id": "CZ-ADDR-001",
+      "category": "contract",
+      "description": "Plná pražská adresa v nájemní smlouvě",
+      "input": "Pronajímatel zasílá korespondenci na adresu Václavské náměstí 1, 110 00 Praha.",
+      "expected_findings": [
+        {
+          "type": "address",
+          "value": "Václavské náměstí 1, 110 00 Praha"
+        },
+        {
+          "type": "postal_code",
+          "value": "110 00"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-ADDR-002",
+      "category": "email",
+      "description": "Částečná adresa bez PSČ v interním e-mailu",
+      "input": "Balík prosím předejte na recepci, adresa pro doručení je Masarykova 12 Brno.",
+      "expected_findings": [
+        {
+          "type": "address",
+          "value": "Masarykova 12 Brno"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-ADDR-003",
+      "category": "invoice",
+      "description": "Adresa s diakritikou v hlavičce faktury",
+      "input": "Fakturační místo odběratele: nábřeží Kapitána Jaroše 7, 602 00 Brno.",
+      "expected_findings": [
+        {
+          "type": "address",
+          "value": "nábřeží Kapitána Jaroše 7, 602 00 Brno"
+        },
+        {
+          "type": "postal_code",
+          "value": "602 00"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-ADDR-004",
+      "category": "support_ticket",
+      "description": "Částečná ostravská adresa v servisním tiketu",
+      "input": "Technik má přijet na místo Českobratrská 25 Ostrava mezi devátou a desátou hodinou.",
+      "expected_findings": [
+        {
+          "type": "address",
+          "value": "Českobratrská 25 Ostrava"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-ADDR-005",
+      "category": "business_registry",
+      "description": "Adresa sídla s orientačním číslem a městskou částí",
+      "input": "Sídlo společnosti je zapsáno jako Křižíkova 58/34, 186 00 Praha 8.",
+      "expected_findings": [
+        {
+          "type": "address",
+          "value": "Křižíkova 58/34, 186 00 Praha 8"
+        },
+        {
+          "type": "postal_code",
+          "value": "186 00"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-ADDR-006",
+      "category": "contract",
+      "description": "Jednoduchá adresa provozovny bez PSČ",
+      "input": "Místem plnění je provozovna Lidická 44 Plzeň uvedená v dodatku smlouvy.",
+      "expected_findings": [
+        {
+          "type": "address",
+          "value": "Lidická 44 Plzeň"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-PSC-001",
+      "category": "invoice",
+      "description": "PSČ uvedené explicitním štítkem",
+      "input": "Dodací údaje: PSČ: 602 00.",
+      "expected_findings": [
+        {
+          "type": "postal_code",
+          "value": "602 00"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-PSC-002",
+      "category": "support_ticket",
+      "description": "Poštovní směrovací číslo v textu požadavku",
+      "input": "Prosím aktualizujte poštovní směrovací číslo 110 00 u centrály v Praze.",
+      "expected_findings": [
+        {
+          "type": "postal_code",
+          "value": "110 00"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-PSC-003",
+      "category": "email",
+      "description": "PSČ po čárce s městem",
+      "input": "Nový sklad je veden jako Sklad, 746 01 Opava.",
+      "expected_findings": [
+        {
+          "type": "postal_code",
+          "value": "746 01"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-PSC-004",
+      "category": "invoice",
+      "description": "PSČ s městem v jedné větě",
+      "input": "Město doručení: 460 01 Liberec, zásilka bude expedována zítra.",
+      "expected_findings": [
+        {
+          "type": "postal_code",
+          "value": "460 01"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-PSC-005",
+      "category": "support_ticket",
+      "description": "PSČ bez mezery ale s kontextem",
+      "input": "V profilu zákazníka je uvedeno PSČ 30100 a je potřeba ho ponechat beze změny.",
+      "expected_findings": [
+        {
+          "type": "postal_code",
+          "value": "30100"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-PSC-006",
+      "category": "email",
+      "description": "PSČ za zkratkou v běžné komunikaci",
+      "input": "Pobočka sídlí v obci Jihlava, PSČ 586 01, proto zvolte správný region.",
+      "expected_findings": [
+        {
+          "type": "postal_code",
+          "value": "586 01"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-DOB-001",
+      "category": "medical_record",
+      "description": "Datum narození v číselném formátu",
+      "input": "Pacientka byla přijata na oddělení. Datum narození: 14.03.1988.",
+      "expected_findings": [
+        {
+          "type": "date_of_birth",
+          "value": "14.03.1988"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-DOB-002",
+      "category": "medical_record",
+      "description": "Datum narození s českým názvem měsíce",
+      "input": "V kartě je uvedeno, že pacientka je narozena 7. května 1991.",
+      "expected_findings": [
+        {
+          "type": "date_of_birth",
+          "value": "7. května 1991"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-DOB-003",
+      "category": "medical_record",
+      "description": "Datum narození ve slash formátu",
+      "input": "Vyplněný formulář obsahuje údaj nar. 21/11/1979 bez dalších poznámek.",
+      "expected_findings": [
+        {
+          "type": "date_of_birth",
+          "value": "21/11/1979"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-DOB-004",
+      "category": "medical_record",
+      "description": "Datum narození v ISO formátu",
+      "input": "Narozen 1985-09-30, dlouhodobě sledován v ambulanci.",
+      "expected_findings": [
+        {
+          "type": "date_of_birth",
+          "value": "1985-09-30"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-DOB-005",
+      "category": "medical_record",
+      "description": "Dat. nar. s českým měsícem",
+      "input": "Anamnéza uvádí dat. nar. 2. února 2001 a bez alergií.",
+      "expected_findings": [
+        {
+          "type": "date_of_birth",
+          "value": "2. února 2001"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-DOB-006",
+      "category": "medical_record",
+      "description": "Narození uvedené samostatným slovem",
+      "input": "Narození: 15.08.1967. Kontrolní vyšetření proběhne za měsíc.",
+      "expected_findings": [
+        {
+          "type": "date_of_birth",
+          "value": "15.08.1967"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-NAME-001",
+      "category": "contract",
+      "description": "Běžné české mužské jméno v textu smlouvy",
+      "input": "Klientem podle této smlouvy je Jan Novák.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Jan Novák"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-NAME-002",
+      "category": "medical_record",
+      "description": "Ženské jméno s diakritikou v záznamu",
+      "input": "Vyšetření provedla Petra Svobodová během ranní vizity.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Petra Svobodová"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-NAME-003",
+      "category": "business_registry",
+      "description": "Kontaktní fyzická osoba u společnosti",
+      "input": "Za společnost při jednání vystupoval Tomáš Černý jako zmocněnec.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Tomáš Černý"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-NAME-004",
+      "category": "support_ticket",
+      "description": "Jméno zákaznice ve stížnosti",
+      "input": "Stížnost na vyúčtování podala Lucie Dvořáková prostřednictvím formuláře.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Lucie Dvořáková"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-NAME-005",
+      "category": "email",
+      "description": "Kontaktní osoba v e-mailu",
+      "input": "Kontaktní osoba pro převzetí zásilky je Martin Kučera.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Martin Kučera"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-NAME-006",
+      "category": "invoice",
+      "description": "Jméno zaměstnankyně s běžným příjmením",
+      "input": "Přebírající zaměstnankyní byla Eva Procházková a podpis je uložen v příloze.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Eva Procházková"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-DATE-001",
+      "category": "contract",
+      "description": "Datum podpisu smlouvy",
+      "input": "Smlouva byla podepsána dne 14.03.2024 oběma stranami.",
+      "expected_findings": [
+        {
+          "type": "date",
+          "value": "14.03.2024"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-DATE-002",
+      "category": "invoice",
+      "description": "Datum kontroly s českým názvem měsíce",
+      "input": "Kontrola podkladů proběhla 7. května 2023 a výsledek byl bez výhrad.",
+      "expected_findings": [
+        {
+          "type": "date",
+          "value": "7. května 2023"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-DATE-003",
+      "category": "bank_statement",
+      "description": "Datum uzavření objednávky v ISO formátu",
+      "input": "Objednávka byla uzavřena 2024-11-01 a platba čeká na zaúčtování.",
+      "expected_findings": [
+        {
+          "type": "date",
+          "value": "2024-11-01"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-DATE-004",
+      "category": "support_ticket",
+      "description": "Budoucí datum dodání ve slash formátu",
+      "input": "Dodání náhradního dílu očekáváme 21/04/2025 podle servisu.",
+      "expected_findings": [
+        {
+          "type": "date",
+          "value": "21/04/2025"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-DATE-005",
+      "category": "contract",
+      "description": "Datum revize zařízení",
+      "input": "Pravidelná revize zařízení je naplánována na 02.02.2027.",
+      "expected_findings": [
+        {
+          "type": "date",
+          "value": "02.02.2027"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-DATE-006",
+      "category": "invoice",
+      "description": "Datum vystavení s českým měsícem",
+      "input": "Faktura byla vystavena 18. září 2022 a splatnost je patnáct dní.",
+      "expected_findings": [
+        {
+          "type": "date",
+          "value": "18. září 2022"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-IDC-001",
+      "category": "support_ticket",
+      "description": "Nový formát občanského průkazu s jasným kontextem",
+      "input": "Pro ověření reklamace zašlete číslo občanského průkazu: 248531947.",
+      "expected_findings": [
+        {
+          "type": "identity_card",
+          "value": "248531947"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-IDC-002",
+      "category": "contract",
+      "description": "Starý formát OP se zkratkou",
+      "input": "Smluvní strana doložila OP: 456789AB při podpisu dodatku.",
+      "expected_findings": [
+        {
+          "type": "identity_card",
+          "value": "456789AB"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-IDC-003",
+      "category": "support_ticket",
+      "description": "Devítimístný identifikátor bez explicitního kontextu",
+      "input": "Pro vstup na pobočku si poznamenejte identifikátor 374920615 a ukažte ho recepci.",
+      "expected_findings": [
+        {
+          "type": "identity_card",
+          "value": "374920615"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-IDC-004",
+      "category": "contract",
+      "description": "Starý formát s českým kontextem",
+      "input": "Ověření totožnosti proběhlo přes obč. průkaz 851204CD.",
+      "expected_findings": [
+        {
+          "type": "identity_card",
+          "value": "851204CD"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-IDC-005",
+      "category": "email",
+      "description": "Starší číslo průkazu uvedené v korespondenci",
+      "input": "V příloze najdete scan dokladu 620315EF pro potřeby registrace.",
+      "expected_findings": [
+        {
+          "type": "identity_card",
+          "value": "620315EF"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-IDC-006",
+      "category": "support_ticket",
+      "description": "Průkaz totožnosti s novým formátem",
+      "input": "Při převzetí zboží zkontrolujte průkaz totožnosti 987654321.",
+      "expected_findings": [
+        {
+          "type": "identity_card",
+          "value": "987654321"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-HI-001",
+      "category": "medical_record",
+      "description": "Číslo pojištěnce ve slash formátu s kódem 111",
+      "input": "Pacient předložil číslo pojištěnce: 111/123456.",
+      "expected_findings": [
+        {
+          "type": "health_insurance",
+          "value": "111/123456"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-HI-002",
+      "category": "medical_record",
+      "description": "Pojištění v plain formátu s kódem 201",
+      "input": "Zdravotní pojišťovna 201 eviduje pojištěnce 201987654.",
+      "expected_findings": [
+        {
+          "type": "health_insurance",
+          "value": "201987654"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-HI-003",
+      "category": "medical_record",
+      "description": "Slash formát s kódem 205",
+      "input": "Pojištění zaměstnance: 205/6543210 bylo ověřeno proti kartě.",
+      "expected_findings": [
+        {
+          "type": "health_insurance",
+          "value": "205/6543210"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-HI-004",
+      "category": "support_ticket",
+      "description": "Plain formát s kontextem čísla pojištěnce",
+      "input": "Do formuláře doplňte č. pojištěnce 2071234567 pro správné spárování.",
+      "expected_findings": [
+        {
+          "type": "health_insurance",
+          "value": "2071234567"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-HI-005",
+      "category": "medical_record",
+      "description": "Slash formát s kódem 209",
+      "input": "Ambulance si poznamenala pojišťovna 209/7654321 do hlavičky spisu.",
+      "expected_findings": [
+        {
+          "type": "health_insurance",
+          "value": "209/7654321"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-HI-006",
+      "category": "medical_record",
+      "description": "Dlouhý plain formát s kódem 211",
+      "input": "Údaj pro pojištění: 211456789012 je uložen v kartě pacienta.",
+      "expected_findings": [
+        {
+          "type": "health_insurance",
+          "value": "211456789012"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-IBAN-001",
+      "category": "bank_statement",
+      "description": "IBAN uvedený se štítkem a mezerami",
+      "input": "IBAN: CZ44 0300 3565 7749 3881 4579 pro příchozí zahraniční platbu.",
+      "expected_findings": [
+        {
+          "type": "iban",
+          "value": "CZ44 0300 3565 7749 3881 4579"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-IBAN-002",
+      "category": "invoice",
+      "description": "Kompaktní IBAN v platební instrukci",
+      "input": "Platbu vraťte na účet CZ1562105654129777274575 nejpozději do pátku.",
+      "expected_findings": [
+        {
+          "type": "iban",
+          "value": "CZ1562105654129777274575"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-IBAN-003",
+      "category": "email",
+      "description": "Mezinárodní číslo účtu v e-mailu",
+      "input": "Mezinárodní číslo účtu CZ45 0100 7351 0006 8757 2784 použijte pro refundaci.",
+      "expected_findings": [
+        {
+          "type": "iban",
+          "value": "CZ45 0100 7351 0006 8757 2784"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-IBAN-004",
+      "category": "bank_statement",
+      "description": "IBAN v SWIFT pokynech bez mezer",
+      "input": "SWIFT pokyny uvádějí CZ9162107181713403704012 jako cílový účet.",
+      "expected_findings": [
+        {
+          "type": "iban",
+          "value": "CZ9162107181713403704012"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-IBAN-005",
+      "category": "invoice",
+      "description": "IBAN příjemce v běžném českém formátu",
+      "input": "IBAN příjemce: CZ67 0100 8259 5099 7952 5272.",
+      "expected_findings": [
+        {
+          "type": "iban",
+          "value": "CZ67 0100 8259 5099 7952 5272"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-IBAN-006",
+      "category": "email",
+      "description": "Kompaktní IBAN v textu refundace",
+      "input": "Zahraniční refundace byla odeslána na CZ3408008228475470227121 podle instrukcí klienta.",
+      "expected_findings": [
+        {
+          "type": "iban",
+          "value": "CZ3408008228475470227121"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-CC-001",
+      "category": "invoice",
+      "description": "Visa s kontextem kreditní karty",
+      "input": "Kreditní karta: 4111 1111 1111 1111 byla použita pro úhradu zálohy.",
+      "expected_findings": [
+        {
+          "type": "credit_card",
+          "value": "4111 1111 1111 1111"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-CC-002",
+      "category": "bank_statement",
+      "description": "MasterCard se slovním označením",
+      "input": "Číslo karty Mastercard 5555 5555 5555 4444 bylo tokenizováno.",
+      "expected_findings": [
+        {
+          "type": "credit_card",
+          "value": "5555 5555 5555 4444"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-CC-003",
+      "category": "support_ticket",
+      "description": "MasterCard v textu platební karty",
+      "input": "Platební karta klienta: 5105 1051 0510 5100 selhala při autorizaci.",
+      "expected_findings": [
+        {
+          "type": "credit_card",
+          "value": "5105 1051 0510 5100"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-CC-004",
+      "category": "invoice",
+      "description": "American Express v kompaktním formátu",
+      "input": "American Express: 378282246310005 byla nahlášena v platbě.",
+      "expected_findings": [
+        {
+          "type": "credit_card",
+          "value": "378282246310005"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-CC-005",
+      "category": "support_ticket",
+      "description": "Amex v odděleném formátu 4-6-5",
+      "input": "card number 3714 496353 98431 je potřeba odstranit z logu.",
+      "expected_findings": [
+        {
+          "type": "credit_card",
+          "value": "3714 496353 98431"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-CC-006",
+      "category": "bank_statement",
+      "description": "Visa s pomlčkami v textu",
+      "input": "Visa pro test autorizace 4012-8888-8888-1881 byla označena jako aktivní karta.",
+      "expected_findings": [
+        {
+          "type": "credit_card",
+          "value": "4012-8888-8888-1881"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX2-001",
+      "category": "mixed",
+      "description": "Krátký profil klienta se jménem a adresou",
+      "input": "Příjemce Jan Novák bydlí na adrese Křižíkova 58/34, 186 00 Praha 8.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Jan Novák"
+        },
+        {
+          "type": "address",
+          "value": "Křižíkova 58/34, 186 00 Praha 8"
+        },
+        {
+          "type": "postal_code",
+          "value": "186 00"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-MIX2-002",
+      "category": "mixed",
+      "description": "Zdravotní věta s datem narození i datem kontroly",
+      "input": "Pacientka Petra Svobodová, narozena 7. května 1991, byla objednána na kontrolu dne 14.06.2024.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Petra Svobodová"
+        },
+        {
+          "type": "date_of_birth",
+          "value": "7. května 1991"
+        },
+        {
+          "type": "date",
+          "value": "14.06.2024"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX2-003",
+      "category": "mixed",
+      "description": "Pojištěnec s OP a číslem pojištěnce",
+      "input": "Pojištěnec Martin Kučera předložil občanský průkaz 248531947 a číslo pojištěnce 213/456789.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Martin Kučera"
+        },
+        {
+          "type": "identity_card",
+          "value": "248531947"
+        },
+        {
+          "type": "health_insurance",
+          "value": "213/456789"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-MIX2-004",
+      "category": "mixed",
+      "description": "Bankovní instrukce se jménem, IBANem a kartou",
+      "input": "Klientka Eva Procházková uvedla IBAN: CZ17 0100 7783 5510 8513 1817 a kreditní kartu 4111 1111 1111 1111 pro vratku kauce.",
+      "expected_findings": [
+        {
+          "type": "name",
+          "value": "Eva Procházková"
+        },
+        {
+          "type": "iban",
+          "value": "CZ17 0100 7783 5510 8513 1817"
+        },
+        {
+          "type": "credit_card",
+          "value": "4111 1111 1111 1111"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX2-005",
+      "category": "mixed",
+      "description": "Termín schůzky v sídle firmy",
+      "input": "Schůzka proběhne 18.09.2026 v sídle Masarykova 12, 602 00 Brno.",
+      "expected_findings": [
+        {
+          "type": "date",
+          "value": "18.09.2026"
+        },
+        {
+          "type": "address",
+          "value": "Masarykova 12, 602 00 Brno"
+        },
+        {
+          "type": "postal_code",
+          "value": "602 00"
+        }
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-MIX2-006",
+      "category": "mixed",
+      "description": "Formulář s DOB, průkazem a pojištěním",
+      "input": "Datum narození: 1985-09-30, průkaz totožnosti 851204CD, pojištění 207/6543210.",
+      "expected_findings": [
+        {
+          "type": "date_of_birth",
+          "value": "1985-09-30"
+        },
+        {
+          "type": "identity_card",
+          "value": "851204CD"
+        },
+        {
+          "type": "health_insurance",
+          "value": "207/6543210"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX2-007",
+      "category": "mixed",
+      "description": "Platba spojená s IBANem, kartou a pobočkou",
+      "input": "Reklamaci k platbě na IBAN CZ10 0300 5592 0539 8632 9465 prosíme spojit s kartou Mastercard 2223 0031 2200 3222; pobočka PSČ 460 01.",
+      "expected_findings": [
+        {
+          "type": "iban",
+          "value": "CZ10 0300 5592 0539 8632 9465"
+        },
+        {
+          "type": "credit_card",
+          "value": "2223 0031 2200 3222"
+        },
+        {
+          "type": "postal_code",
+          "value": "460 01"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-MIX2-008",
+      "category": "mixed",
+      "description": "Evidence klienta s adresou, DOB a IBANem",
+      "input": "V evidenci je adresa Lidická 44, 301 00 Plzeň, datum narození 2. února 2001 a účet IBAN CZ76 0300 5194 4523 5221 1273.",
+      "expected_findings": [
+        {
+          "type": "address",
+          "value": "Lidická 44, 301 00 Plzeň"
+        },
+        {
+          "type": "postal_code",
+          "value": "301 00"
+        },
+        {
+          "type": "date_of_birth",
+          "value": "2. února 2001"
+        },
+        {
+          "type": "iban",
+          "value": "CZ76 0300 5194 4523 5221 1273"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-MIX2-009",
+      "category": "mixed",
+      "description": "Platba s datem a občanským průkazem",
+      "input": "Občan předložil OP 987654321 dne 21/04/2025 a uhradil poplatek kartou 5105 1051 0510 5100.",
+      "expected_findings": [
+        {
+          "type": "identity_card",
+          "value": "987654321"
+        },
+        {
+          "type": "date",
+          "value": "21/04/2025"
+        },
+        {
+          "type": "credit_card",
+          "value": "5105 1051 0510 5100"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX2-010",
+      "category": "mixed",
+      "description": "Potvrzení pojištění s datem vydání a regionem",
+      "input": "Potvrzení o pojištění 2098765432 bylo vydáno 02.02.2027 pro region PSČ 586 01.",
+      "expected_findings": [
+        {
+          "type": "health_insurance",
+          "value": "2098765432"
+        },
+        {
+          "type": "date",
+          "value": "02.02.2027"
+        },
+        {
+          "type": "postal_code",
+          "value": "586 01"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-MIX2-011",
+      "category": "mixed",
+      "description": "Doručovací místo ověřené dokladem a kartou",
+      "input": "Doručovací místo Václavské náměstí 1, 110 00 Praha, ověřeno podle občanského průkazu 374920615; záloha byla blokována na kartě 4012-8888-8888-1881.",
+      "expected_findings": [
+        {
+          "type": "address",
+          "value": "Václavské náměstí 1, 110 00 Praha"
+        },
+        {
+          "type": "postal_code",
+          "value": "110 00"
+        },
+        {
+          "type": "identity_card",
+          "value": "374920615"
+        },
+        {
+          "type": "credit_card",
+          "value": "4012-8888-8888-1881"
+        }
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-MIX2-012",
+      "category": "mixed",
+      "description": "Narození, pojišťovna a účet příjemce v jedné větě",
+      "input": "Narozen 15.08.1967, pojišťovna 213/9998887, IBAN příjemce CZ83 6210 8479 5217 4992 7151.",
+      "expected_findings": [
+        {
+          "type": "date_of_birth",
+          "value": "15.08.1967"
+        },
+        {
+          "type": "health_insurance",
+          "value": "213/9998887"
+        },
+        {
+          "type": "iban",
+          "value": "CZ83 6210 8479 5217 4992 7151"
+        }
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-FP2-001",
+      "category": "false_positive_trap",
+      "description": "Skladový kód a krátká série bez PII",
+      "input": "Skladový kód 11000-AX12 a série 24853194 slouží jen pro inventuru.",
+      "expected_findings": [],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-FP2-002",
+      "category": "false_positive_trap",
+      "description": "Objednávka s číslem podobným pojištění",
+      "input": "Číslo objednávky 11112345 bylo vytvořeno modulem XJ-201 bez osobních údajů.",
+      "expected_findings": [],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-FP2-003",
+      "category": "false_positive_trap",
+      "description": "Neplatný pseudo IBAN v dokumentaci",
+      "input": "Testovací řetězec CZ00 1234 5678 9012 3456 7890 není validní IBAN a slouží jen pro dokumentaci.",
+      "expected_findings": [],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-FP2-004",
+      "category": "false_positive_trap",
+      "description": "Neplatné číslo karty s chybným Luhnem",
+      "input": "Referenční karta 4111 1111 1111 1112 neprošla validací v testovacím prostředí.",
+      "expected_findings": [],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-FP2-005",
+      "category": "false_positive_trap",
+      "description": "Holá pětimístná čísla bez kontextu PSČ",
+      "input": "Barevný vzorník obsahuje kódy 60200 a 30100 bez jakéhokoli označení.",
+      "expected_findings": [],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-FP2-006",
+      "category": "false_positive_trap",
+      "description": "Neplatné datum mimo kalendář",
+      "input": "Měřená hodnota 2024-13-40 je chybně zapsaný technický údaj, nikoli datum.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP2-007",
+      "category": "false_positive_trap",
+      "description": "Demonstrativní číselný řetězec podobný IBANu",
+      "input": "Projektový identifikátor CZ44 0300 3565 7749 3881 4570 je jen demonstrační řetězec.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP2-008",
+      "category": "false_positive_trap",
+      "description": "Nevalidní karta Mastercard 2xxx",
+      "input": "Testovací karta 2223 0031 2200 3221 byla v sandboxu odmítnuta jako neplatná.",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-FP2-009",
+      "category": "false_positive_trap",
+      "description": "Neúplné číslo pojištěnce s písmenem",
+      "input": "Účetní zkratka 213/12A456 neodpovídá číslu pojištěnce ani jinému dokladu.",
+      "expected_findings": [],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-FP2-010",
+      "category": "false_positive_trap",
+      "description": "Firemní označení bez osobního jména",
+      "input": "Společnost ALFA SERVIS a projekt BETA MODUL neobsahují osobní jméno ani adresu.",
+      "expected_findings": [],
+      "difficulty": "medium"
+    }
+  ]
+}

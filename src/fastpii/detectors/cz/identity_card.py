@@ -20,14 +20,15 @@ class IdentityCardDetector(Detector):
     CONTEXT_CONFIDENCE: float = 0.95
     NO_CONTEXT_CONFIDENCE: float = 0.70
 
-    CONTEXT_WORDS: ClassVar[tuple[str, ...]] = (
-        "občanský průkaz", "obč. průkaz", "OP", "č. průkazu", "číslo průkazu",
-        "průkaz totožnosti", "identity card", "ID card",
-    )
-
     _context_regex: ClassVar[re.Pattern[str]] = re.compile(
         r"(?i)(?:občanský\s+průkaz|obč\.\s*průkaz|OP|č\.\s*průkazu|číslo\s+průkazu|"
         r"průkaz\s+totožnosti|identity\s+card|id\s+card)",
+    )
+
+    _negative_context_regex: ClassVar[re.Pattern[str]] = re.compile(
+        r"(?i)(?:celkem|total|suma|částka|amount|balance|zůstatek|počet|count|"
+        r"number|quantity|množství|hodnota|value|výsledek|result|součet|invoice|"
+        r"faktura|order|objednávka|reference|ref|account|účet)\s*[:\-=]?\s*$",
     )
 
     NEW_FORMAT_PATTERN: ClassVar[re.Pattern[str]] = re.compile(
@@ -82,6 +83,9 @@ class IdentityCardDetector(Detector):
             if any(f.start <= match.start() and f.end >= match.end() for f in findings):
                 continue
 
+            if self._has_negative_context(text, match.start()):
+                continue
+
             has_context = self._has_context(text, match.start())
             confidence = self._calculate_confidence(has_context, format_type="new")
 
@@ -108,9 +112,7 @@ class IdentityCardDetector(Detector):
         value = value.strip().upper()
 
         if self._is_old_format(value):
-            digits = value[:6]
-            series = value[6:8]
-            return digits.isdigit() and series.isalpha() and len(series) == 2
+            return True
 
         if value.isdigit() and len(value) == 9:
             return value[0] != '0'
@@ -121,9 +123,15 @@ class IdentityCardDetector(Detector):
         return len(value) == 8 and value[:6].isdigit() and value[6:8].isalpha()
 
     def _has_context(self, text: str, position: int) -> bool:
+        return self._matches_context(self._context_regex, text, position)
+
+    def _has_negative_context(self, text: str, position: int) -> bool:
+        return self._matches_context(self._negative_context_regex, text, position)
+
+    def _matches_context(self, pattern: re.Pattern[str], text: str, position: int) -> bool:
         start = max(0, position - self.CONTEXT_WINDOW)
         window = text[start:position]
-        return bool(self._context_regex.search(window))
+        return bool(pattern.search(window))
 
     def _calculate_confidence(self, has_context: bool, format_type: str = "new") -> float:
         if has_context:

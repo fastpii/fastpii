@@ -1,0 +1,303 @@
+{
+  "version": "1.0",
+  "samples": [
+    {
+      "id": "CZ-IDC-011",
+      "category": "contract",
+      "description": "Rental contract with identity card reference new format",
+      "input": "NÁJEMNÍ SMLOUVA\n\nNájemce předložil občanský průkaz číslo 123456789 k ověření totožnosti. Smlouva je uzavřena dne 15. března 2026.",
+      "expected_findings": [
+        {"type": "identity_card", "value": "123456789"},
+        {"type": "date", "value": "15. března 2026"}
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-IDC-012",
+      "category": "medical_record",
+      "description": "Medical record with OP in old format",
+      "input": "Pacient předložil OP 901234AB při registraci na chirurgickém oddělení. Datum narození: 12. září 1975.",
+      "expected_findings": [
+        {"type": "identity_card", "value": "901234AB"},
+        {"type": "date_of_birth", "value": "12. září 1975"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-IDC-013",
+      "category": "business_registry",
+      "description": "Company registration with identity card",
+      "input": "Žadatel o zápis do obchodního rejstříku předkládá číslo průkazu 55667788 jako doklad totožnosti. IČO společnosti: 27123456.",
+      "expected_findings": [
+        {"type": "identity_card", "value": "55667788"},
+        {"type": "ico", "value": "27123456"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-IDC-014",
+      "category": "support_ticket",
+      "description": "Support ticket with identity card in context",
+      "input": "Zákazník uvádí občanský průkaz č. 445566778 pro ověření. Telefon: +420 775 234 567.",
+      "expected_findings": [
+        {"type": "identity_card", "value": "445566778"},
+        {"type": "phone", "value": "+420 775 234 567"}
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-IDC-015",
+      "category": "invoice",
+      "description": "Invoice with old format identity card",
+      "input": "Faktura vystavena na základě obč. průkazu 780901CD. Číslo faktury: FV-2026-001. Celková částka: 15 000 Kč.",
+      "expected_findings": [
+        {"type": "identity_card", "value": "780901CD"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-HI-011",
+      "category": "medical_record",
+      "description": "Hospital record with VZP insurance number",
+      "input": "Pacient zaevidován s pojištěním 111/567890. Zdravotní pojišťovna: VZP. Datum přijetí: 5. dubna 2026.",
+      "expected_findings": [
+        {"type": "health_insurance", "value": "111/567890"},
+        {"type": "date", "value": "5. dubna 2026"}
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-HI-012",
+      "category": "contract",
+      "description": "Employment contract with ZP MVČR insurance",
+      "input": "Zaměstnanec uvádí zdravotní pojištění 201/234567 (ZP MVČR). Pracovní poměr zahájen 1. ledna 2026.",
+      "expected_findings": [
+        {"type": "health_insurance", "value": "201/234567"},
+        {"type": "date", "value": "1. ledna 2026"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-HI-013",
+      "category": "support_ticket",
+      "description": "Insurance claim with ČPZP code",
+      "input": "Žadatel o proplacení léků, číslo pojištěnce 205/789012 (ČPZP). Kontaktní email: jan.kovar@email.cz.",
+      "expected_findings": [
+        {"type": "health_insurance", "value": "205/789012"},
+        {"type": "email", "value": "jan.kovar@email.cz"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-HI-014",
+      "category": "invoice",
+      "description": "Invoice with OZP insurance plain format",
+      "input": "Faktura za zdravotní péči, pojištěnec: 207345678 (OZP). Částka: 2 500 Kč.",
+      "expected_findings": [
+        {"type": "health_insurance", "value": "207345678"}
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-HI-015",
+      "category": "mixed",
+      "description": "Mixed document with RBP insurance slash format",
+      "input": "Pojištěnec RBP 209/456789, bytem Hlavní 15, 400 01 Ústí nad Labem. Rodné číslo: 850615/1234.",
+      "expected_findings": [
+        {"type": "health_insurance", "value": "209/456789"},
+        {"type": "address", "value": "Hlavní 15, 400 01 Ústí nad Labem"},
+        {"type": "postal_code", "value": "400 01"},
+        {"type": "rodne_cislo", "value": "850615/1234"}
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-IBAN-011",
+      "category": "bank_statement",
+      "description": "Bank statement with IBAN and bank account",
+      "input": "IBAN: CZ2908000000000192000145\nÚčet: 19-2000145399/0800\nZůstatek k 30.6.2026: 125 000 Kč",
+      "expected_findings": [
+        {"type": "iban", "value": "CZ2908000000000192000145"},
+        {"type": "bank_account", "value": "19-2000145399/0800"}
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-IBAN-012",
+      "category": "invoice",
+      "description": "Invoice with IBAN for payment",
+      "input": "Platba na mezinárodní číslo účtu IBAN CZ55 3030 0000 0012 3456 7890. Variabilní symbol: 2026001234.",
+      "expected_findings": [
+        {"type": "iban", "value": "CZ55 3030 0000 0012 3456 7890"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-IBAN-013",
+      "category": "contract",
+      "description": "Employment contract with IBAN for salary",
+      "input": "Mzdový účet zaměstnance: IBAN CZ88 5500 0000 0098 7654 3210. Jméno: Pavel Král. IČO zaměstnavatele: 25691234.",
+      "expected_findings": [
+        {"type": "iban", "value": "CZ88 5500 0000 0098 7654 3210"},
+        {"type": "name", "value": "Pavel Král"},
+        {"type": "ico", "value": "25691234"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-IBAN-014",
+      "category": "support_ticket",
+      "description": "Support ticket with IBAN in dispute",
+      "input": "Zákazník uvádí swift IBAN CZ12 0100 0000 0055 6677 8899 pro vrácení plateb. Datum podání: 22.8.2026.",
+      "expected_findings": [
+        {"type": "iban", "value": "CZ12 0100 0000 0055 6677 8899"},
+        {"type": "date", "value": "22.8.2026"}
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-IBAN-015",
+      "category": "mixed",
+      "description": "Mixed document with IBAN, name, and address",
+      "input": "Příjemce: Marie Novotná\nIBAN: CZ6503000000001234567890\nAdresa: Dlouhá 24, 602 00 Brno\nPojištění: 211/987654",
+      "expected_findings": [
+        {"type": "iban", "value": "CZ6503000000001234567890"},
+        {"type": "name", "value": "Marie Novotná"},
+        {"type": "address", "value": "Dlouhá 24, 602 00 Brno"},
+        {"type": "postal_code", "value": "602 00"},
+        {"type": "health_insurance", "value": "211/987654"}
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-CC-011",
+      "category": "bank_statement",
+      "description": "Bank statement with Visa credit card",
+      "input": "Kreditní karta Visa: 4111111111111111\nPlatnost: 12/28\nJméno: Jan Dvořák",
+      "expected_findings": [
+        {"type": "credit_card", "value": "4111111111111111"},
+        {"type": "name", "value": "Jan Dvořák"}
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "CZ-CC-012",
+      "category": "invoice",
+      "description": "Invoice with MasterCard payment",
+      "input": "Platba kreditní kartou MasterCard: 5500000000000004. Částka: 5 000 Kč. Faktura: F-2026-00456.",
+      "expected_findings": [
+        {"type": "credit_card", "value": "5500000000000004"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-CC-013",
+      "category": "support_ticket",
+      "description": "Support ticket with Amex card number",
+      "input": "Zákazník uvádí platební kartu American Express: 378282246310005 pro vrácení zálohy. Email: petra.svobodova@email.cz.",
+      "expected_findings": [
+        {"type": "credit_card", "value": "378282246310005"},
+        {"type": "email", "value": "petra.svobodova@email.cz"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-CC-014",
+      "category": "contract",
+      "description": "Contract with credit card in context",
+      "input": "Smlouva o kreditní kartě číslo karty: 4012888888881881. Držitel: Tomáš Procházka. Rodné číslo: 750101/123.",
+      "expected_findings": [
+        {"type": "credit_card", "value": "4012888888881881"},
+        {"type": "name", "value": "Tomáš Procházka"},
+        {"type": "rodne_cislo", "value": "750101/123"}
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-CC-015",
+      "category": "mixed",
+      "description": "Mixed document with credit card, IBAN, and address",
+      "input": "Kreditní karta: 4222222222222\nIBAN: CZ21 0600 0000 0011 2233 4455\nAdresa: Palackého 3, 779 00 Olomouc\nTelefon: +420 731 234 567",
+      "expected_findings": [
+        {"type": "credit_card", "value": "4222222222222"},
+        {"type": "iban", "value": "CZ21 0600 0000 0011 2233 4455"},
+        {"type": "address", "value": "Palackého 3, 779 00 Olomouc"},
+        {"type": "postal_code", "value": "779 00"},
+        {"type": "phone", "value": "+420 731 234 567"}
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-SUP-001",
+      "category": "email",
+      "description": "Business email with multiple PII types",
+      "input": "Vážený pane Nováku,\n\ntoto je potvrzení vaší objednávky č. OBJ-2026-789.\n\nDodací adresa: Masarykova 45, 602 00 Brno\nKontaktní telefon: +420 602 345 678\nEmail: jan.novak@firma.cz\n\nPlatba proběhla z účtu 28012345/0800.\n\nS pozdravem,\nObchodní oddělení",
+      "expected_findings": [
+        {"type": "name", "value": "Nováku"},
+        {"type": "address", "value": "Masarykova 45, 602 00 Brno"},
+        {"type": "postal_code", "value": "602 00"},
+        {"type": "phone", "value": "+420 602 345 678"},
+        {"type": "email", "value": "jan.novak@firma.cz"},
+        {"type": "bank_account", "value": "28012345/0800"}
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "CZ-SUP-002",
+      "category": "email",
+      "description": "Email with date of birth and identity card",
+      "input": "Dobrý den,\n\nzasílám kopii občanského průkazu č. 998877665 pro účely ověření. Datum narození: 25. prosince 1990.\n\nPojištění: 111/234567 (VZP)\n\nS pozdravem\nMarie Černá",
+      "expected_findings": [
+        {"type": "identity_card", "value": "998877665"},
+        {"type": "date_of_birth", "value": "25. prosince 1990"},
+        {"type": "health_insurance", "value": "111/234567"},
+        {"type": "name", "value": "Marie Černá"}
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-SUP-003",
+      "category": "invoice",
+      "description": "Invoice with IBAN, credit card, and address",
+      "input": "FAKTURA č. FV-2026-00891\n\nDodavatel: ABC s.r.o.\nIČO: 27654321\nDIČ: CZ27654321\n\nOdběratel: Petr Horák\nAdresa: Komenského 14, 460 01 Liberec\n\nIBAN: CZ54 3030 0000 0012 3456 7890\nKreditní karta: 5555555555554444\n\nCelková částka: 28 500 Kč\nDatum vystavení: 15.6.2026",
+      "expected_findings": [
+        {"type": "ico", "value": "27654321"},
+        {"type": "dic", "value": "CZ27654321"},
+        {"type": "name", "value": "Petr Horák"},
+        {"type": "address", "value": "Komenského 14, 460 01 Liberec"},
+        {"type": "postal_code", "value": "460 01"},
+        {"type": "iban", "value": "CZ54 3030 0000 0012 3456 7890"},
+        {"type": "credit_card", "value": "5555555555554444"},
+        {"type": "date", "value": "15.6.2026"}
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-SUP-004",
+      "category": "false_positive_trap",
+      "description": "False positive trap: numbers that look like PII but aren't",
+      "input": "Sledovací číslo zásilky: 1234567890123\nKatalogové číslo: 5500000000001\nReference: 111222333\nObjednávka: OBJ-2026-12345\nKód produktu: CZ12345678\nČíslo faktury: 2026000456\nCelkem: 999999999\nPočet kusů: 100000000\nSériové číslo: ABC123456DEF",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-SUP-005",
+      "category": "false_positive_trap",
+      "description": "False positive trap: bank-like numbers without context",
+      "input": "Účet v knihách: 1234567890/0000 (interní)\nReferenční číslo: 19-9999999999/9999 (testovací)\nKód operace: 111222333\nSériové číslo produktu: 4111222333444\nPočet položek: 12345678\nSuma: 987654321",
+      "expected_findings": [],
+      "difficulty": "hard"
+    },
+    {
+      "id": "CZ-SUP-006",
+      "category": "false_positive_trap",
+      "description": "False positive trap: date-like numbers without birth context",
+      "input": "Verze dokumentu: 15.03.1988 (verze 1.0)\nDatum zpracování: 22.07.1979\nČíslo revize: 8001011234\nČasová značka: 123456/78\nZáznam č. 25596641 v databázi\nKód: CZ12345678",
+      "expected_findings": [
+        {"type": "date", "value": "15.03.1988"},
+        {"type": "date", "value": "22.07.1979"}
+      ],
+      "difficulty": "hard"
+    }
+  ]
+}

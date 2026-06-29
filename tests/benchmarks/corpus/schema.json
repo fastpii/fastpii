@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FastPII Czech PII Benchmark Corpus v1.0",
+  "description": "Schema for annotated Czech PII detection benchmark samples",
+  "type": "object",
+  "required": ["version", "samples"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "samples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "description", "input", "expected_findings", "difficulty"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^CZ-[A-Z]+-\\d{3}$",
+            "description": "Unique sample ID: CZ-{DETECTOR}-{NNN}"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "contract", "medical_record", "bank_statement",
+              "business_registry", "support_ticket", "email",
+              "invoice", "mixed", "false_positive_trap"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "Short human-readable description of this sample"
+          },
+          "input": {
+            "type": "string",
+            "description": "The raw text to detect PII in"
+          },
+          "expected_findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "value"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "rodne_cislo", "ico", "dic", "bank_account",
+                    "postal_code", "phone", "date_of_birth", "address",
+                    "name", "email", "vehicle_plate", "date",
+                    "identity_card", "health_insurance", "iban", "credit_card"
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "description": "The exact PII value expected to be detected"
+                },
+                "start": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Optional: character offset where PII starts in input"
+                },
+                "end": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Optional: character offset where PII ends in input"
+                }
+              }
+            }
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["easy", "medium", "hard"],
+            "description": "How difficult this sample is for detection"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

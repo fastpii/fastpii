@@ -33,11 +33,6 @@ class IBANDetector(Detector):
     CONTEXT_CONFIDENCE: float = 0.95
     CHECKSUM_CONFIDENCE: float = 1.0
 
-    IBAN_CONTEXT_WORDS: ClassVar[tuple[str, ...]] = (
-        "iban", "iban:", "international bank account",
-        "mezinárodní číslo účtu", "mezinárodní účet", "swift", "bic",
-    )
-
     _context_regex: ClassVar[re.Pattern[str]] = re.compile(
         r"(?i)(?:iban|mezinárodní\s+číslo\s+účtu|mezinárodní\s+účet|international\s+bank\s+account|swift|bic)",
     )
@@ -124,19 +119,13 @@ class IBANDetector(Detector):
     def _extract_metadata(self, iban: str) -> dict[str, object]:
         bban = iban[4:]
         bank_code = bban[:4]
-        prefix_end = 4 + 6
-        prefix = bban[4:prefix_end]
-        account = bban[prefix_end:]
+        prefix = bban[4:10]
+        account = bban[10:]
 
-        metadata: dict[str, object] = {
+        return {
             "bank_code": bank_code,
             "country_code": "CZ",
             "check_digits": iban[2:4],
+            "prefix": prefix,
+            "account_number": account,
         }
-
-        if prefix:
-            metadata["prefix"] = prefix
-        if account:
-            metadata["account_number"] = account
-
-        return metadata
