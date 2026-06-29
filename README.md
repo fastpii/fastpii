@@ -6,13 +6,11 @@
 [![PyPI](https://img.shields.io/pypi/v/fastpii.svg)](https://pypi.org/project/fastpii/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
-**Privacy infrastructure for AI applications handling European data**
+**The open-source privacy engine for AI applications.**
 
-FastPII detects, validates, anonymizes, and protects sensitive data before it reaches LLMs, RAG systems, vector databases, AI agents, or third-party AI providers.
+Protect sensitive information before it reaches LLMs, RAG systems, AI agents, and enterprise AI workflows.
 
-Built for AI-native applications. Designed for privacy-first architectures.
-
-[Quick Start](#quick-start) · [Explicit Engine](#explicit-engine-api) · [Privacy Modes](#privacy-modes) · [AI Use Cases](#ai-use-cases) · [Benchmarks](#benchmarks) · [Documentation](#documentation)
+[Quick Start](#quick-start) · [Privacy Modes](#privacy-modes) · [Country Packs](#country-packs) · [AI Use Cases](#ai-use-cases) · [Benchmarks](#benchmarks)
 
 </div>
 
@@ -20,9 +18,9 @@ Built for AI-native applications. Designed for privacy-first architectures.
 
 ## Why FastPII
 
-Most PII tools are built for generic text processing. FastPII is built for AI workflows.
+Every prompt sent to an AI model can contain personal, confidential, or regulated information. FastPII acts as the privacy layer between your data and your AI.
 
-Modern applications increasingly send documents, prompts, support tickets, contracts, medical records, and business data directly into LLMs and AI systems. FastPII acts as the privacy layer between your data and your AI.
+> **Privacy first. AI second.**
 
 ```text
 Without FastPII          With FastPII
@@ -57,24 +55,6 @@ Detection is not based on regex alone. Phone numbers require context words or a 
 
 Every detector value is a class-level attribute. Confidence thresholds, scoring weights, context words, city lists, and overlap priority are all explicit and overridable — no hidden defaults in the core engine.
 
-### Built for AI Workflows
-
-FastPII integrates directly into RAG pipelines, LangChain applications, MCP servers, AI agents, FastAPI applications, and enterprise AI systems.
-
----
-
-## Features
-
-| | |
-|---|---|
-| **Detection** | Identify sensitive Czech and European data |
-| **Validation** | Validate identifiers using official checksum rules |
-| **Privacy Protection** | Four modes: anonymize, redact, mask, remove |
-| **Explicit Engine** | No implicit behavior — you configure, it executes |
-| **Framework-Independent SDK** | Use as a standalone Python package |
-| **Integrations** | FastAPI, LangChain, MCP, CLI |
-| **Local First** | No cloud, no LLM, no external API calls required |
-
 ---
 
 ## Installation
@@ -87,53 +67,71 @@ pip install fastpii
 
 ## Quick Start
 
-### Explicit Engine API (Recommended)
+```python
+from fastpii import FastPII, DEFAULT_PRIORITY
+from fastpii.countries.cz import CzechPack
+
+engine = FastPII(priority=DEFAULT_PRIORITY)
+engine.register(CzechPack())
+
+result = engine.detect("Jan Novák, RČ: 800101/1238, IČO: 25596641")
+for f in result.findings:
+    print(f"{f.type}: {f.value} (confidence: {f.confidence:.0%})")
+```
+
+Multiple country packs:
 
 ```python
-from fastpii import FastPII
-from fastpii.core.confidence import ConfidenceScorer
+from fastpii import FastPII, DEFAULT_PRIORITY
 from fastpii.countries.cz import CzechPack
 from fastpii.countries.pl import PolishPack
 
-priority = {"rodne_cislo": 100, "pesel": 100, "email": 70, "name": 50, "phone": 20}
+engine = FastPII(priority=DEFAULT_PRIORITY)
+engine.register(CzechPack())
+engine.register(PolishPack())
+```
 
+CLI:
+
+```bash
+pip install fastpii
+fastpii detect "Jan Novák, RČ: 800101/1238" -r cz
+```
+
+---
+
+## Explicit Engine
+
+FastPII follows an explicit execution model: **you configure, it executes.** The engine never makes implicit choices.
+
+### Required Configuration
+
+- **`priority`** — Overlap resolution order (required, no default). Higher values win when findings overlap.
+
+```python
+from fastpii import FastPII, DEFAULT_PRIORITY, ConfidenceScorer
+from fastpii.countries.cz import CzechPack
+
+engine = FastPII(priority=DEFAULT_PRIORITY)
+engine.register(CzechPack())
+```
+
+Custom priority:
+
+```python
+engine = FastPII(priority={"rodne_cislo": 100, "email": 70, "name": 50, "phone": 20})
+```
+
+Custom confidence scoring:
+
+```python
 engine = FastPII(
-    priority=priority,
+    priority=DEFAULT_PRIORITY,
     confidence_scorer=ConfidenceScorer(
         base_scores={"checksum_validated": 1.0, "context_match": 0.95, "pattern_match": 0.85},
         context_boost=0.10,
     ),
 )
-engine.register(CzechPack())
-engine.register(PolishPack())
-
-text = "Jan Novák, RČ: 800101/1238, IČO: 25596641"
-result = engine.detect(text)
-
-for finding in result.findings:
-    print(f"{finding.type}: {finding.value}")
-```
-
----
-
-## Explicit Engine API
-
-FastPII follows an explicit execution model: **Core executes, Platform decides**. The engine never makes implicit choices.
-
-### Required Configuration
-
-- **`priority`** — Overlap resolution order (required, no default)
-- **`confidence_scorer`** — Confidence scoring configuration (optional, no hidden defaults)
-
-```python
-from fastpii import FastPII
-from fastpii.countries.cz import CzechPack
-
-# Minimal setup — define your own priority dict
-priority = {"rodne_cislo": 100, "email": 70, "name": 50, "phone": 20}
-engine = FastPII(priority=priority)
-engine.register(CzechPack())
-result = engine.detect(text)
 ```
 
 ### Overridable Detector Values
@@ -143,51 +141,61 @@ Every detector exposes class-level attributes for all configurable values:
 ```python
 from fastpii.detectors.cz.address import CzechAddressDetector
 
-# Override scoring thresholds
 class CustomAddressDetector(CzechAddressDetector):
     MIN_ADDRESS_SCORE = 0.3
     SCORE_STREET = 0.4
     SCORE_NUMBER = 0.3
     SCORE_POSTAL = 0.2
     SCORE_CITY = 0.1
-
-# Override context words
-class CustomPhoneDetector(CzechPhoneDetector):
-    CONTEXT_WORDS = {"tel", "phone", "call"}
-    CONTEXT_WINDOW_SIZE = 50
 ```
 
 ---
 
 ## Privacy Modes
 
-**Anonymize** — Replace with `[REDACTED]`
+| Mode | Example Input | Example Output |
+|------|--------------|----------------|
+| **Anonymize** | `RČ: 800101/1238` | `RČ: [REDACTED]` |
+| **Redact** | `RČ: 800101/1238` | `RČ: [RODNE_CISLO]` |
+| **Mask** | `800101/1238` | `*************` |
+| **Remove** | `RČ: 800101/1238` | `RČ: ` |
 
 ```python
-engine.anonymize("Jan Novák, RČ: 800101/1238")
-# → "[REDACTED], RČ: [REDACTED]"
+engine.anonymize(text)  # Replace with [REDACTED]
+engine.redact(text)     # Replace with PII type label
+engine.mask(text)       # Replace with asterisks
+engine.remove(text)     # Delete PII entirely
 ```
 
-**Redact** — Replace with PII type label
+---
+
+## Validation
+
+Validate individual identifiers directly:
 
 ```python
-engine.redact("Jan Novák, RČ: 800101/1238")
-# → "[NAME], RČ: [RODNE_CISLO]"
+from fastpii.countries.cz import validate_ico, is_valid_birth_number
+
+result = engine.validate("25596641", "ico")
+# → ValidationResult(detector="ico", value="25596641", is_valid=True, metadata={...})
+
+# Standalone validators
+is_valid_ico("25596641")  # True
+is_valid_birth_number("800101/1238")  # True
 ```
 
-**Mask** — Replace with asterisks
+---
 
-```python
-engine.mask("Jan Novák")
-# → "*********"
-```
+## Country Packs
 
-**Remove** — Delete PII entirely
+| Country | Pack | Detectors | Status |
+|---------|------|-----------|--------|
+| Czech Republic | `CzechPack` | 15 detectors with checksum validation | Stable |
+| Poland | `PolishPack` | PESEL, NIP, REGON, phone, postal code, address | Beta |
+| Germany | `GermanPack` | Steuer-ID, USt-IdNr, Handelsregister, phone, postal code, address | Beta |
+| France | `FrenchPack` | SIREN, SIRET, INSEE/NIR, phone, postal code, address | Beta |
 
-```python
-engine.remove("Jan Novák")
-# → ""
-```
+Community-contributed country packs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add a new country pack.
 
 ---
 
@@ -214,11 +222,31 @@ safe_input = engine.anonymize(user_input)
 result = tool.execute(safe_input)
 ```
 
+### FastAPI Integration
+
+```python
+from fastpii.integrations.fastapi import create_app
+
+app = create_app(engine=engine)
+```
+
+### LangChain Integration
+
+```python
+from fastpii.integrations.langchain import PIIAnonymizer, create_pii_filter_tool
+
+anonymizer = PIIAnonymizer(engine=engine)
+safe_text = anonymizer("Jan Novák, RČ: 800101/1238")
+
+# Or as a LangChain tool
+tool = create_pii_filter_tool(engine=engine)
+```
+
 ---
 
 ## Supported Entities
 
-### Czech Republic (CZ)
+### Czech Republic (CZ) — 15 Detectors
 
 | Entity | Detection Method | Checksum |
 |---|---|---|
@@ -238,7 +266,7 @@ result = tool.execute(safe_input)
 | Email | Czech TLD detection, markdown mailto handling | — |
 | Vehicle Plate | Regional code validation | — |
 
-### Poland (PL)
+### Poland (PL) — 6 Detectors
 
 | Entity | Detection Method | Checksum |
 |---|---|---|
@@ -249,7 +277,7 @@ result = tool.execute(safe_input)
 | Phone Number | Context-gated (+48 prefix or context words) | — |
 | Address | Component scoring (street + number + city + postal) | — |
 
-### Germany (DE)
+### Germany (DE) — 6 Detectors
 
 | Entity | Detection Method | Checksum |
 |---|---|---|
@@ -260,7 +288,7 @@ result = tool.execute(safe_input)
 | Phone Number | Context-gated (+49 prefix or context words) | — |
 | Address | Component scoring (Straße + number + PLZ + city) | — |
 
-### France (FR)
+### France (FR) — 6 Detectors
 
 | Entity | Detection Method | Checksum |
 |---|---|---|
@@ -275,15 +303,15 @@ result = tool.execute(safe_input)
 
 ## Architecture
 
-FastPII follows an Open Core architecture with a strict separation of concerns:
+FastPII follows an explicit execution model: **Core executes, Intelligence Engine decides.**
 
-- **Core executes** — deterministic detection, validation, redaction
-- **Platform decides** — auto-detection, pack selection, privacy presets
-- **Enterprise governs** — org-level policy, audit, compliance
+* **Core** — deterministic detection, validation, transformation
+* **Country Packs** — region-specific patterns, validators, data
+* **Integrations** — FastAPI, LangChain, MCP, CLI
 
-The OSS core is fully self-hostable, local-only, and explicit. No implicit behavior, no hidden defaults, no auto-detection.
+The OSS core is fully self-hostable, local-only, and explicit. You explicitly register the country packs you need. No implicit behavior, no hidden defaults, no auto-detection.
 
-See [ADR 0001](docs/ADR_0001_OSS_CORE_BOUNDARY.md) for the full boundary definition.
+Auto-detection of PII across countries, adaptive scoring, and intelligent routing are part of the FastPII Intelligence Engine (commercial). Privacy presets, multi-country routing, and compliance mapping are Intelligence Engine features.
 
 ---
 
@@ -291,7 +319,7 @@ See [ADR 0001](docs/ADR_0001_OSS_CORE_BOUNDARY.md) for the full boundary definit
 
 Evaluated on Czech-focused datasets containing contracts, medical records, business registries, support tickets, and adversarial false-positive scenarios.
 
-**v0.5.0 overall:**
+**v0.4.1 overall:**
 
 | Metric | Score |
 |---|---|
@@ -322,30 +350,50 @@ Evaluated on Czech-focused datasets containing contracts, medical records, busin
 
 ---
 
-## Roadmap
+## Products
 
-**Current** — Explicit Engine API, Configurable Detectors, CZ/PL/DE/FR Country Packs, Validation Engine, CLI, FastAPI Integration, LangChain Integration
+| Component | Description |
+|-----------|-------------|
+| **FastPII Core** | Open-source privacy engine. Detect, validate, anonymize, redact, mask, remove. |
+| **FastPII Intelligence Engine** | Auto-detection, multi-country routing, adaptive scoring, privacy presets. Commercial. |
+| **FastPII Detection API** | Hosted REST API. Same detection, no infrastructure. |
+| **FastPII Secure Chat** | Privacy-first AI chat. BYOK — we protect outbound prompts, never proxy responses. |
+| **FastPII Enterprise** | Governance, audit trails, compliance reporting for organizations. |
 
-**Next** — Strict Mode, MCP Integration, RAG Middleware, Improved Address & Bank Account Detection, Additional European Regions
-
+Learn more at [https://fastpii.com](https://fastpii.com)
 
 ---
 
 ## Documentation
 
-* [Quick Start](#quick-start)
-* [Explicit Engine API Design](docs/EXPLICIT_ENGINE_API_DESIGN.md)
-* [OSS Core Boundary ADR](docs/ADR_0001_OSS_CORE_BOUNDARY.md)
-* [OSS / Platform Split Plan](docs/OSS_PLATFORM_SPLIT_PLAN.md)
-* [Migration Roadmap](docs/OSS_PLATFORM_MIGRATION_ROADMAP.md)
-* [Implementation Backlog](docs/IMPLEMENTATION_BACKLOG.md)
-* [Repo Split Checklist](docs/REPO_SPLIT_CHECKLIST.md)
+* [API Reference](https://docs.fastpii.com/api)
+* [Explicit Engine Design](docs/EXPLICIT_ENGINE_API_DESIGN.md)
+* [OSS Core Boundary](docs/ADR_0001_OSS_CORE_BOUNDARY.md)
+* [Add a Country Pack](docs/ADD_A_COUNTRY_PACK.md)
+* [Migration Guide](docs/MIGRATION_GUIDE.md)
+* [Changelog](CHANGELOG.md)
+
+---
+
+## Roadmap
+
+**Current** — Explicit Engine API, Configurable Detectors, CZ/PL/DE/FR Country Packs, Validation Engine, CLI, FastAPI Integration, LangChain Integration
+
+**Next** — Strict Mode, MCP Integration, RAG Middleware, Improved Address & Bank Account Detection, Additional European Country Packs
 
 ---
 
 ## Contributing
 
-Contributions welcome! See [Contributing Guide](CONTRIBUTING.md).
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, coding standards, and PR guidelines.
+
+Areas where help is especially valuable:
+
+* Country Packs — add support for new European countries
+* Validators — improve checksum and format validation
+* Benchmarks — expand test coverage and accuracy measurement
+* Performance — keep detection under 1ms per lookup
+* Documentation — guides, examples, API reference
 
 Before contributing, review the [OSS Core Boundary](docs/ADR_0001_OSS_CORE_BOUNDARY.md) to ensure your change belongs in the OSS core. The core executes — it does not decide.
 

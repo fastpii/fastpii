@@ -51,6 +51,12 @@ benchmarks/
 # Development
 test-*/
 
+# Planning/docs not shipped with SDK
+DQ_*_COVERAGE_REPORT.md
+CHANGELOG.md
+docs/
+plans/
+
 # Build artifacts
 *.wheel
 *.tar.gz
