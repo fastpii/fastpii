@@ -13,6 +13,7 @@ from fastpii.countries.cz.data.insurance_codes import CzechInsuranceCodesData
 from fastpii.countries.cz.data.names import CzechNamesData
 from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
 from fastpii.countries.cz.data.streets import CzechStreetsData
+from fastpii.countries.cz.data.surnames import CzechSurnamesData
 
 
 def _min_entries(data_class, min_count: int) -> bool:
@@ -192,3 +193,49 @@ class TestStreetsIntegrity:
     def test_minimum_entries(self):
         data = CzechStreetsData().get_data()
         assert len(data) >= 20000, f"Expected 20000+ streets, got {len(data)}"
+
+
+class TestSurnamesIntegrity:
+    @pytest.mark.skipif(
+        not _min_entries(CzechSurnamesData, 300),
+        reason="Surnames data not populated (run extract_cz_surnames.py)",
+    )
+    def test_all_lowercase(self):
+        data = CzechSurnamesData().get_data()
+        for name in data["male"]:
+            assert name == name.lower(), f"Male surname '{name}' is not lowercase"
+        for name in data["female"]:
+            assert name == name.lower(), f"Female surname '{name}' is not lowercase"
+
+    @pytest.mark.skipif(
+        not _min_entries(CzechSurnamesData, 300),
+        reason="Surnames data not populated",
+    )
+    def test_no_duplicates(self):
+        data = CzechSurnamesData().get_data()
+        male = data["male"]
+        female = data["female"]
+        assert len(male) == len(set(male)), "Duplicate male surnames found"
+        assert len(female) == len(set(female)), "Duplicate female surnames found"
+
+    @pytest.mark.skipif(
+        not _min_entries(CzechSurnamesData, 300),
+        reason="Surnames data not populated",
+    )
+    def test_minimum_entries(self):
+        data = CzechSurnamesData().get_data()
+        male = data["male"]
+        female = data["female"]
+        total = len(male) + len(female)
+        assert total >= 300, f"Expected 300+ surnames, got {total}"
+
+    @pytest.mark.skipif(
+        not _min_entries(CzechSurnamesData, 300),
+        reason="Surnames data not populated",
+    )
+    def test_has_male_and_female_keys(self):
+        data = CzechSurnamesData().get_data()
+        assert "male" in data
+        assert "female" in data
+        assert len(data["male"]) > 0
+        assert len(data["female"]) > 0

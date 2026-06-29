@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 
 from fastpii import FastPII, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST
@@ -107,7 +107,7 @@ def create_app(engine: FastPII | None = None) -> FastAPI:
         )
 
     @app.get("/detectors", response_model=list[DetectorInfo])
-    async def list_detectors(regions: list[str] | None = None):
+    async def list_detectors(regions: list[str] | None = Query(None)):
         if engine is not None:
             detectors = engine.list_detectors()
         else:

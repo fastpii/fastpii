@@ -10,6 +10,7 @@ from fastpii.countries.cz.data.insurance_codes import CzechInsuranceCodesData
 from fastpii.countries.cz.data.names import CzechNamesData
 from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
 from fastpii.countries.cz.data.streets import CzechStreetsData
+from fastpii.countries.cz.data.surnames import CzechSurnamesData
 
 
 def _has_data(data_class, min_entries: int) -> bool:
@@ -71,6 +72,15 @@ class TestImportTimes:
         streets = CzechStreetsData()
         elapsed = streets.get_import_time()
         assert elapsed < 200, f"Streets import took {elapsed:.1f}ms, expected <200ms"
+
+    @pytest.mark.skipif(
+        not _has_data(CzechSurnamesData, 300),
+        reason="Surnames data not populated (run extract_cz_surnames.py)",
+    )
+    def test_surnames_import_time(self):
+        surnames = CzechSurnamesData()
+        elapsed = surnames.get_import_time()
+        assert elapsed < 50, f"Surnames import took {elapsed:.1f}ms, expected <50ms"
 
     @pytest.mark.skipif(
         not _has_data(CzechBankCodesData, 1),

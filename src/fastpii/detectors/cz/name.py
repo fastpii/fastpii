@@ -15,49 +15,10 @@ from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
 from fastpii.countries.cz.data.names import CzechNamesData
+from fastpii.countries.cz.data.surnames import CzechSurnamesData
 
 
 class NameDetector(Detector):
-
-    MALE_SURNAMES: ClassVar[set[str]] = {
-        "novák", "svoboda", "novotný", "dvořák", "černý",
-        "procházka", "kučera", "veselý", "horák", "náden",
-        "marek", "pospíšil", "holý", "král", "pokorný",
-        "růžička", "beneš", "fišer", "sedláček", "kříž",
-        "kovář", "větvíčka", "urban", "štajn", "vlk",
-        "baláž", "polák", "konečný",
-        "malý", "šimek", "kadlec", "mašek", "šmíd",
-        "vrabec", "škvára", "šálek", "šmída", "šafařík",
-        "bartoš", "kantor", "šnajdr",
-        "šulc", "štajf", "sýkora", "kropáč", "kopáč",
-        "šenk", "šenkýř", "škvařil", "šmirous", "šplíchal",
-        "šťastný", "štefan", "šeiner",
-        "šíp", "šín", "toman", "tůma",
-        "vacek", "vaněk", "vašák", "vávra", "vojta",
-        "vrána", "vrátil", "zeman", "zoubek",
-        "žák", "žďárský", "želínský", "žemlička", "ženatý",
-        "žert", "žížala", "švec", "šilha",
-    }
-
-    FEMALE_SURNAMES: ClassVar[set[str]] = {
-        "nováková", "svobodová", "novotná", "dvořáková", "černá",
-        "procházková", "kučerová", "veselá", "horáková", "nádená",
-        "marková", "pospíšilová", "holá", "králová", "pokorná",
-        "růžičková", "benešová", "fišerová", "sedláčková", "křížová",
-        "kovářová", "větvíčková", "urbanová", "štajnová", "vlková",
-        "balážová", "poláková", "konečná", "malá",
-        "šimková", "kadlcová", "mašková", "šmídová", "vrabcová",
-        "škvárová", "šálková", "šafaříková", "bartošová",
-        "kantorová", "šnajdrová", "šulcová",
-        "štajfová", "sýkorová", "kropáčová", "kopáčová",
-        "šenková", "šenkyřová", "škvařilová", "šmirousová", "šplíchalová",
-        "šťastná", "štefanová", "šeinerová", "šípová",
-        "šínová", "tomanová", "tůmová", "vačková",
-        "vaňková", "vašáková", "vávrová", "vojtová",
-        "vráňová", "vratilová", "zemanová", "zoubková",
-        "žáková", "žďárská", "želínská", "žemličková", "ženatá",
-        "žertová", "žížalová", "švecová", "šilhová",
-    }
 
     HEADING_WORDS: ClassVar[set[str]] = {
         "information",
@@ -92,10 +53,13 @@ class NameDetector(Detector):
     )
     registry: PatternRegistry
     names_data: CzechNamesData
+    surnames_data: CzechSurnamesData
     male_first_names: set[str]
     female_first_names: set[str]
+    male_surnames: set[str]
+    female_surnames: set[str]
 
-    def __init__(self, registry: PatternRegistry | None = None, names_data: CzechNamesData | None = None) -> None:
+    def __init__(self, registry: PatternRegistry | None = None, names_data: CzechNamesData | None = None, surnames_data: CzechSurnamesData | None = None) -> None:
         super().__init__(
             name="name",
             region="cz",
@@ -103,9 +67,13 @@ class NameDetector(Detector):
         )
         self.registry = registry or get_shared_registry()
         self.names_data = names_data or CzechNamesData()
+        self.surnames_data = surnames_data or CzechSurnamesData()
         loaded_names = self.names_data.get_data()
         self.male_first_names = loaded_names["male"]
         self.female_first_names = loaded_names["female"]
+        loaded_surnames = self.surnames_data.get_data()
+        self.male_surnames = loaded_surnames["male"]
+        self.female_surnames = loaded_surnames["female"]
 
     @override
     def detect(self, text: str) -> list[Finding]:
@@ -179,9 +147,9 @@ class NameDetector(Detector):
         if surname_lower.endswith(('ová', 'ova')):
             return 'f'
 
-        if surname_lower in self.FEMALE_SURNAMES:
+        if surname_lower in self.female_surnames:
             return 'f'
-        elif surname_lower in self.MALE_SURNAMES:
+        elif surname_lower in self.male_surnames:
             return 'm'
 
         gender = self.classify_gender_by_firstname(firstname)
@@ -196,15 +164,15 @@ class NameDetector(Detector):
     def _calculate_confidence(self, firstname: str, surname: str) -> float:
         firstname_lower = firstname.lower()
         surname_lower = surname.lower()
-        firstname_in_dictionary = firstname_lower in self.male_first_names or firstname_lower in self.female_first_names or firstname_lower in self.MALE_SURNAMES or firstname_lower in self.FEMALE_SURNAMES
-        surname_in_dictionary = surname_lower in self.male_first_names or surname_lower in self.female_first_names or surname_lower in self.MALE_SURNAMES or surname_lower in self.FEMALE_SURNAMES
+        firstname_in_dictionary = firstname_lower in self.male_first_names or firstname_lower in self.female_first_names or firstname_lower in self.male_surnames or firstname_lower in self.female_surnames
+        surname_in_dictionary = surname_lower in self.male_first_names or surname_lower in self.female_first_names or surname_lower in self.male_surnames or surname_lower in self.female_surnames
 
         if not firstname_in_dictionary and not surname_in_dictionary and not surname_lower.endswith(('ová', 'ova')):
             return 0.0
 
         firstname_confidence = self.get_name_confidence(firstname)
 
-        if surname_lower in self.MALE_SURNAMES or surname_lower in self.FEMALE_SURNAMES:
+        if surname_lower in self.male_surnames or surname_lower in self.female_surnames:
             surname_confidence = self.CONFIDENCE_SURNAME_DICT
         elif surname_lower.endswith(('ová', 'ova')):
             surname_confidence = self.CONFIDENCE_SURNAME_OVOVA

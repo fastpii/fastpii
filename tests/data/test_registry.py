@@ -44,6 +44,9 @@ class StubModule(CountryModule):
     def get_streets(self) -> CountryData:
         return SimpleData()
 
+    def get_surnames(self) -> CountryData:
+        return SimpleData()
+
 
 class AnotherStubModule(CountryModule):
     def get_metadata(self) -> CountryMetadata:
@@ -65,6 +68,9 @@ class AnotherStubModule(CountryModule):
         return SimpleData()
 
     def get_streets(self) -> CountryData:
+        return SimpleData()
+
+    def get_surnames(self) -> CountryData:
         return SimpleData()
 
 
