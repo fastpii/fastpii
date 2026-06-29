@@ -56,8 +56,8 @@ class NamesExtractor(BaseExtractor, ABC):
             output_path_female: path to output female names Python file.
         """
         names = self.extract()
-        male_names = names.get("male", set())
-        female_names = names.get("female", set())
+        male_names = names["male"]
+        female_names = names["female"]
         total = len(male_names) + len(female_names)
         source = self.get_source(entry_count=total)
 

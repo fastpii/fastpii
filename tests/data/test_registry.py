@@ -38,6 +38,9 @@ class StubModule(CountryModule):
     def get_names(self) -> CountryData:
         return SimpleData()
 
+    def get_insurance_codes(self) -> CountryData:
+        return SimpleData()
+
 
 class AnotherStubModule(CountryModule):
     def get_metadata(self) -> CountryMetadata:
@@ -53,6 +56,9 @@ class AnotherStubModule(CountryModule):
         return SimpleData()
 
     def get_names(self) -> CountryData:
+        return SimpleData()
+
+    def get_insurance_codes(self) -> CountryData:
         return SimpleData()
 
 

@@ -157,6 +157,9 @@ class TestCountryModule:
             def get_names(self) -> CountryData:
                 return _NamesData()
 
+            def get_insurance_codes(self) -> CountryData:
+                return _DictData()
+
         module = TestModule()
         assert module.get_metadata().code == "XX"
         assert module.get_bank_codes().validate() is True
@@ -167,6 +170,7 @@ class TestCountryModule:
         assert "cities" in all_data
         assert "postal_codes" in all_data
         assert "names" in all_data
+        assert "insurance_codes" in all_data
 
         validation = module.validate_all()
         assert all(validation.values())

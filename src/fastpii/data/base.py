@@ -127,14 +127,24 @@ class CountryModule(ABC):
     def get_names(self) -> "CountryData[dict[str, set[str]]]":
         """Return names data (male/female)."""
 
+    @abstractmethod
+    def get_insurance_codes(self) -> "CountryData[dict[str, str]]":
+        """Return insurance codes data."""
+
     def get_all_data(self) -> dict[str, "CountryData"]:
-        """Return all data types for this country."""
-        return {
-            "bank_codes": self.get_bank_codes(),
-            "cities": self.get_cities(),
-            "postal_codes": self.get_postal_codes(),
-            "names": self.get_names(),
-        }
+        """Return all data types for this country.
+
+        Caches results so repeated calls return the same instances.
+        """
+        if not hasattr(self, "_all_data_cache"):
+            self._all_data_cache: dict[str, "CountryData"] = {
+                "bank_codes": self.get_bank_codes(),
+                "cities": self.get_cities(),
+                "postal_codes": self.get_postal_codes(),
+                "names": self.get_names(),
+                "insurance_codes": self.get_insurance_codes(),
+            }
+        return self._all_data_cache
 
     def validate_all(self) -> dict[str, bool]:
         """Validate all data types."""

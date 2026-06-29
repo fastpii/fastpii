@@ -44,15 +44,18 @@ class BankCodesExtractor(BaseExtractor, ABC):
             Dict mapping bank code to bank name.
         """
 
-    def save(self, output_path: str) -> None:
+    def save(self, output_path: str, *, set_var: str = "VALID_BANK_CODES", dict_var: str = "BANK_NAMES", label: str = "bank codes") -> None:
         """Extract and save bank codes to a Python file.
 
         Generates a Python file with:
-            - VALID_BANK_CODES: set[str] of bank codes
-            - BANK_NAMES: dict[str, str] mapping code to name
+            - {set_var}: set[str] of bank codes
+            - {dict_var}: dict[str, str] mapping code to name
 
         Args:
             output_path: path to output Python file.
+            set_var: name of the set variable in the output file.
+            dict_var: name of the dict variable in the output file.
+            label: label for the print message.
         """
         bank_codes = self.extract()
         source = self.get_source(entry_count=len(bank_codes))
@@ -60,15 +63,15 @@ class BankCodesExtractor(BaseExtractor, ABC):
         with open(output_path, "w") as f:
             self._write_header(f, source)
 
-            f.write("VALID_BANK_CODES: set[str] = {\n")
+            f.write(f"{set_var}: set[str] = {{\n")
             for code in sorted(bank_codes.keys()):
                 f.write(f'    "{code}",\n')
             f.write("}\n\n")
 
-            f.write("BANK_NAMES: dict[str, str] = {\n")
+            f.write(f"{dict_var}: dict[str, str] = {{\n")
             for code, name in sorted(bank_codes.items()):
                 name_escaped = name.replace('"', '\\"')
                 f.write(f'    "{code}": "{name_escaped}",\n')
             f.write("}\n")
 
-        print(f"Extracted {len(bank_codes)} bank codes to {output_path}")
+        print(f"Extracted {len(bank_codes)} {label} to {output_path}")
