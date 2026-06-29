@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from typing import TypeVar
+from typing import TYPE_CHECKING, ClassVar, TypeVar
 
 F = TypeVar("F", bound=Callable[..., object])
 
@@ -13,17 +13,26 @@ from fastpii.detectors.base import Detector
 from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
 
+if TYPE_CHECKING:
+    from fastpii.countries.cz.data.bank_codes import CzechBankCodesData
+
 
 class BankAccountDetector(Detector):
     registry: PatternRegistry
+    EMPTY_BANK_NAME: ClassVar[str] = ""
 
-    def __init__(self, registry: PatternRegistry | None = None) -> None:
+    def __init__(self, registry: PatternRegistry | None = None, bank_codes_data: "CzechBankCodesData | None" = None) -> None:
         super().__init__(
             name="bank_account",
             region="cz",
             description="Czech bank account number detector with MOD11 checksum validation"
         )
         self.registry = registry or get_shared_registry()
+        if bank_codes_data is not None:
+            self.bank_codes_data = bank_codes_data
+        else:
+            from fastpii.countries.cz.data.bank_codes import CzechBankCodesData
+            self.bank_codes_data = CzechBankCodesData()
 
     @override
     def detect(self, text: str) -> list[Finding]:
@@ -68,12 +77,14 @@ class BankAccountDetector(Detector):
 
         prefix, base, bank_code = parse_bank_account(value)
 
-        if prefix is None:
-            return {"bank_code": ""}
+        bank_names = self.bank_codes_data.get_data()
+        resolved_bank_code = bank_code or ""
+        bank_name = bank_names.get(resolved_bank_code, self.EMPTY_BANK_NAME)
 
         metadata: dict[str, object] = {
-            "bank_code": bank_code or "",
-            "base": base or ""
+            "bank_code": resolved_bank_code,
+            "bank_name": bank_name,
+            "base": base or "",
         }
 
         if prefix:

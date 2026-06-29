@@ -1,6 +1,16 @@
 """Tests for NameDetector with gender classification."""
 
+from fastpii.countries.cz.data.corporate_names import CzechCorporateNamesData
 from fastpii.detectors.cz.name import NameDetector
+
+
+class CustomCorporateNamesData(CzechCorporateNamesData):
+    def __init__(self, names: set[str]) -> None:
+        super().__init__()
+        self._names: set[str] = names
+
+    def get_data(self) -> set[str]:
+        return self._names
 
 
 class TestNameDetector:
@@ -277,3 +287,44 @@ class TestNameDetector:
 
         assert len(findings) == 1
         assert findings[0].value == "Novák Consulting"
+
+    def test_corporate_name_filtered_sro(self):
+        """Test corporate names with s.r.o. context are not detected as person names."""
+        detector = NameDetector()
+
+        findings = detector.detect("Komerční banka s.r.o.")
+
+        assert findings == []
+
+    def test_corporate_name_filtered_as(self):
+        """Test corporate names with a.s. context are not detected as person names."""
+        detector = NameDetector()
+
+        findings = detector.detect("Česká spořitelna a.s.")
+
+        assert findings == []
+
+    def test_corporate_name_filtered_vos(self):
+        """Test corporate names with v.o.s. context are not detected as person names."""
+        detector = NameDetector()
+
+        findings = detector.detect("Pepa v.o.s.")
+
+        assert findings == []
+
+    def test_real_name_not_filtered(self):
+        """Test real names are still detected after corporate filtering."""
+        detector = NameDetector()
+
+        findings = detector.detect("Jan Novák")
+
+        assert len(findings) == 1
+        assert findings[0].value == "Jan Novák"
+
+    def test_corporate_name_di_override(self):
+        """Test corporate name filtering supports dependency injection overrides."""
+        detector = NameDetector(corporate_names_data=CustomCorporateNamesData({"novák"}))
+
+        findings = detector.detect("Jan Novák")
+
+        assert findings == []

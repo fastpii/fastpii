@@ -72,6 +72,96 @@ class TestDateOfBirthDetector:
         assert findings[0].type == "date_of_birth"
         assert findings[0].confidence == 0.95
 
+    def test_detect_iso_format(self):
+        """ISO dates should be detected."""
+        detector = DateOfBirthDetector()
+        text = "Datum narození: 1980-01-01"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].value == "1980-01-01"
+        assert findings[0].type == "date_of_birth"
+
+    def test_detect_czech_text_month(self):
+        """Czech textual month dates should be detected."""
+        detector = DateOfBirthDetector()
+        text = "Datum narození: 1. ledna 1980"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].value == "1. ledna 1980"
+        assert findings[0].type == "date_of_birth"
+
+    def test_detect_czech_text_month_female(self):
+        """Czech inflected month names should be detected."""
+        detector = DateOfBirthDetector()
+        text = "Narozena 5. května 1990"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].value == "5. května 1990"
+        assert findings[0].type == "date_of_birth"
+
+    def test_detect_us_format(self):
+        """Slash-separated US dates should be detected when day disambiguates them."""
+        detector = DateOfBirthDetector()
+        text = "DOB: 01/15/1980"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].value == "01/15/1980"
+        assert findings[0].metadata["iso_date"] == "1980-01-15"
+
+    def test_detect_eu_format(self):
+        """Slash-separated European dates should be detected."""
+        detector = DateOfBirthDetector()
+        text = "Datum narození: 15/01/1980"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].value == "15/01/1980"
+        assert findings[0].metadata["iso_date"] == "1980-01-15"
+
+    def test_iso_format_metadata(self):
+        """ISO-format dates should produce normalized metadata."""
+        detector = DateOfBirthDetector()
+        text = "Narozen 1980-01-01"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        metadata = findings[0].metadata
+        assert metadata["day"] == 1
+        assert metadata["month"] == 1
+        assert metadata["year"] == 1980
+        assert metadata["iso_date"] == "1980-01-01"
+        assert isinstance(metadata["age"], int)
+
+    def test_context_boost_iso(self):
+        """ISO dates should still get a context confidence boost."""
+        detector = DateOfBirthDetector()
+        text = "Datum narození: 1980-01-01"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].confidence == 0.95
+
+    def test_no_duplicate_findings(self):
+        """Overlapping date formats should only emit one finding."""
+        detector = DateOfBirthDetector()
+        text = "Datum narození: 1. 1. 1980"
+
+        findings = detector.detect(text)
+
+        assert len(findings) == 1
+        assert findings[0].value == "1. 1. 1980"
+
     def test_validate_valid_dates(self):
         """Test validation of valid date formats."""
         detector = DateOfBirthDetector()
@@ -81,6 +171,10 @@ class TestDateOfBirthDetector:
             "1.5.1990",
             "31.12.2000",
             "29.02.2000",  # Leap year
+            "1980-01-01",
+            "15/01/1980",
+            "01/15/1980",
+            "1. ledna 1980",
         ]
         
         for date in valid_dates:
@@ -95,6 +189,9 @@ class TestDateOfBirthDetector:
             "15.13.2000",  # Invalid month
             "15.03.1800",  # Year too far in past
             "29.02.2001",  # Not a leap year
+            "1980-15-01",  # Invalid ISO month
+            "15/15/1980",  # Invalid slash date
+            "1. foo 1980",  # Invalid textual month
             "abc",         # Not a date
         ]
         

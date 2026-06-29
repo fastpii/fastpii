@@ -38,12 +38,32 @@ class DateOfBirthDetector(Detector):
         "december": 12,
     }
 
+    CZECH_MONTH_NAMES: dict[str, int] = {
+        "ledna": 1, "února": 2, "března": 3, "dubna": 4, "května": 5, "června": 6,
+        "července": 7, "srpna": 8, "září": 9, "října": 10, "listopadu": 11, "prosince": 12,
+        "leden": 1, "únor": 2, "březen": 3, "duben": 4, "květen": 5, "červen": 6,
+        "červenec": 7, "srpen": 8, "září": 9, "říjen": 10, "listopad": 11, "prosinec": 12,
+    }
+
     DATE_PATTERN_FULL: re.Pattern[str] = re.compile(
         r'\b(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})\b'
     )
     DATE_PATTERN_TEXTUAL: re.Pattern[str] = re.compile(
         r'\b(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})\b',
         re.IGNORECASE,
+    )
+    DATE_PATTERN_ISO: re.Pattern[str] = re.compile(
+        r'\b(\d{4})-(\d{1,2})-(\d{1,2})\b'
+    )
+    DATE_PATTERN_CZECH_TEXT: re.Pattern[str] = re.compile(
+        r'\b(\d{1,2})\.\s*([a-záčďéěíňóřšťúůýž]+)\s+(\d{4})\b',
+        re.IGNORECASE,
+    )
+    DATE_PATTERN_US: re.Pattern[str] = re.compile(
+        r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b'
+    )
+    DATE_PATTERN_EU: re.Pattern[str] = re.compile(
+        r'\b(\d{1,2})/(\d{1,2})/(\d{4})\b'
     )
 
     BIRTH_CONTEXT_WORDS: set[str] = {
@@ -81,21 +101,121 @@ class DateOfBirthDetector(Detector):
             if finding is not None:
                 findings.append(finding)
 
-        findings.sort(key=lambda finding: finding.start)
+        for match in self.DATE_PATTERN_ISO.finditer(text):
+            year = int(match.group(1))
+            month = int(match.group(2))
+            day = int(match.group(3))
+            finding = self._build_finding(text, match, day, month, year)
+            if finding is not None:
+                findings.append(finding)
 
-        return findings
+        for match in self.DATE_PATTERN_CZECH_TEXT.finditer(text):
+            month_name = match.group(2).lower()
+            if month_name not in self.CZECH_MONTH_NAMES:
+                continue
+            month = self.CZECH_MONTH_NAMES[month_name]
+            day = int(match.group(1))
+            year = int(match.group(3))
+            finding = self._build_finding(text, match, day, month, year)
+            if finding is not None:
+                findings.append(finding)
+
+        for match in self.DATE_PATTERN_EU.finditer(text):
+            first = int(match.group(1))
+            second = int(match.group(2))
+            year = int(match.group(3))
+
+            day: int
+            month: int
+            confidence_penalty = 0.0
+
+            if first > 12:
+                day = first
+                month = second
+            elif second > 12:
+                month = first
+                day = second
+            else:
+                day = first
+                month = second
+                confidence_penalty = 0.05
+
+            finding = self._build_finding(text, match, day, month, year)
+            if finding is None:
+                continue
+
+            if confidence_penalty > 0 and finding.confidence == self.NO_CONTEXT_CONFIDENCE:
+                finding = Finding(
+                    type=finding.type,
+                    value=finding.value,
+                    start=finding.start,
+                    end=finding.end,
+                    confidence=max(0.0, finding.confidence - confidence_penalty),
+                    region=finding.region,
+                    metadata=finding.metadata,
+                )
+
+            findings.append(finding)
+
+        findings.sort(key=lambda finding: finding.start)
+        deduplicated: list[Finding] = []
+
+        for finding in findings:
+            if deduplicated and finding.start < deduplicated[-1].end:
+                continue
+            deduplicated.append(finding)
+
+        return deduplicated
 
     @override
     def validate(self, value: str) -> bool:
-        match = self.DATE_PATTERN_FULL.match(value.strip())
-        if not match:
+        stripped_value = value.strip()
+
+        full_match = self.DATE_PATTERN_FULL.match(stripped_value)
+        if full_match:
+            day = int(full_match.group(1))
+            month = int(full_match.group(2))
+            year = int(full_match.group(3))
+            return self._is_valid_date(day, month, year)
+
+        textual_match = self.DATE_PATTERN_TEXTUAL.match(stripped_value)
+        if textual_match:
+            day = int(textual_match.group(1))
+            month = self.MONTH_NAMES[textual_match.group(2).lower()]
+            year = int(textual_match.group(3))
+            return self._is_valid_date(day, month, year)
+
+        iso_match = self.DATE_PATTERN_ISO.match(stripped_value)
+        if iso_match:
+            year = int(iso_match.group(1))
+            month = int(iso_match.group(2))
+            day = int(iso_match.group(3))
+            return self._is_valid_date(day, month, year)
+
+        czech_text_match = self.DATE_PATTERN_CZECH_TEXT.match(stripped_value)
+        if czech_text_match:
+            month_name = czech_text_match.group(2).lower()
+            if month_name not in self.CZECH_MONTH_NAMES:
+                return False
+            month = self.CZECH_MONTH_NAMES[month_name]
+            day = int(czech_text_match.group(1))
+            year = int(czech_text_match.group(3))
+            return self._is_valid_date(day, month, year)
+
+        slash_match = self.DATE_PATTERN_EU.match(stripped_value)
+        if not slash_match:
             return False
 
-        day = int(match.group(1))
-        month = int(match.group(2))
-        year = int(match.group(3))
+        first = int(slash_match.group(1))
+        second = int(slash_match.group(2))
+        year = int(slash_match.group(3))
 
-        return self._is_valid_date(day, month, year)
+        if first > 12:
+            return self._is_valid_date(first, second, year)
+        if second > 12:
+            return self._is_valid_date(second, first, year)
+
+        return self._is_valid_date(first, second, year)
 
     def _is_valid_date(self, day: int, month: int, year: int) -> bool:
         if month < 1 or month > 12:
@@ -143,7 +263,16 @@ class DateOfBirthDetector(Detector):
             if word in context_window:
                 context_pos = context_window.rfind(word)
                 after_context = context_window[context_pos + len(word):]
-                if re.search(r'\d{1,2}\.\s*\d{1,2}\.\s*\d{4}', after_context):
+                if re.search(
+                    (
+                        r'(?:\d{1,2}\.\s*\d{1,2}\.\s*\d{4}|\d{1,2}\s+'
+                        r'(?:January|February|March|April|May|June|July|August|September|'
+                        r'October|November|December)\s+\d{4}|\d{4}-\d{1,2}-\d{1,2}|'
+                        r'\d{1,2}\.\s*[a-záčďéěíňóřšťúůýž]+\s+\d{4}|\d{1,2}/\d{1,2}/\d{4})'
+                    ),
+                    after_context,
+                    re.IGNORECASE,
+                ):
                     return False
                 return True
 

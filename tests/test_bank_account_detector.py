@@ -1,4 +1,15 @@
-from fastpii.models import Finding
+from collections.abc import Callable
+from typing import TypeVar
+
+F = TypeVar("F", bound=Callable[..., object])
+
+try:
+    from typing_extensions import override
+except ImportError:
+    def override(method: F, /) -> F:
+        return method
+
+from fastpii.countries.cz.data.bank_codes import CzechBankCodesData
 from fastpii.detectors.cz.bank_account import BankAccountDetector
 
 
@@ -66,6 +77,20 @@ class TestBankAccountDetector:
 
         assert valid is False
 
+    def test_validate_rejects_invalid_bank_code(self):
+        detector = BankAccountDetector()
+
+        valid = detector.validate("19-2000145399/9999")
+
+        assert valid is False
+
+    def test_validate_rejects_nonexistent_bank_code(self):
+        detector = BankAccountDetector()
+
+        valid = detector.validate("2000145399/1234")
+
+        assert valid is False
+
     def test_detect_multiple_accounts_in_text(self):
         detector = BankAccountDetector()
         text = "First: 19-2000145399/0800, Second: 1003/0100"
@@ -91,6 +116,38 @@ class TestBankAccountDetector:
         assert len(findings) >= 1
         assert "bank_code" in findings[0].metadata
         assert findings[0].metadata["bank_code"] == "0800"
+
+    def test_metadata_includes_bank_name(self):
+        detector = BankAccountDetector()
+        text = "Účet: 19-2000145399/0800"
+
+        findings = detector.detect(text)
+
+        assert len(findings) >= 1
+        assert findings[0].metadata["bank_name"] == "Česká spořitelna, a.s."
+
+    def test_metadata_missing_bank_name_for_unknown_code(self):
+        class PartialBankCodesData(CzechBankCodesData):
+            @override
+            def get_data(self) -> dict[str, str]:
+                return {}
+
+        detector = BankAccountDetector(bank_codes_data=PartialBankCodesData())
+        text = "Účet: 19-2000145399/0800"
+
+        findings = detector.detect(text)
+
+        assert len(findings) >= 1
+        assert findings[0].metadata["bank_name"] == ""
+
+    def test_detects_standalone_account_detection(self):
+        detector = BankAccountDetector()
+        text = "2000145399/0800"
+
+        findings = detector.detect(text)
+
+        assert len(findings) >= 1
+        assert findings[0].value == "2000145399/0800"
 
     def test_handles_different_separators(self):
         detector = BankAccountDetector()

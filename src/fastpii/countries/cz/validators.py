@@ -9,6 +9,8 @@ from datetime import datetime
 import re
 from typing import Final
 
+from fastpii.countries.cz.data.bank_codes import CzechBankCodesData
+
 
 # --- IČO Validator ---
 
@@ -118,6 +120,47 @@ _BASE_COMPILED = re.compile(BASE_PATTERN)
 _BANK_CODE_COMPILED = re.compile(BANK_CODE_PATTERN)
 _FULL_WITH_PREFIX_COMPILED = re.compile(FULL_ACCOUNT_WITH_PREFIX)
 _FULL_WITHOUT_PREFIX_COMPILED = re.compile(FULL_ACCOUNT_WITHOUT_PREFIX)
+
+
+# Module-level cache for bank code lookups (avoids per-call instantiation)
+_valid_bank_codes: dict[str, str] | None = None
+
+
+def _get_valid_bank_codes() -> dict[str, str]:
+    """Load and cache the Czech bank codes registry."""
+    global _valid_bank_codes
+    if _valid_bank_codes is None:
+        _valid_bank_codes = CzechBankCodesData().get_data()
+    return _valid_bank_codes
+
+
+def is_valid_bank_code(bank_code: str) -> bool:
+    """
+    Validate that a bank code is 4 digits and exists in the Czech National Bank code list.
+
+    :param bank_code: 4-digit bank code
+    :return: True if the code is valid and exists, False otherwise
+    """
+    if not _BANK_CODE_COMPILED.match(bank_code):
+        return False
+
+    return bank_code in _get_valid_bank_codes()
+
+
+def validate_bank_code(bank_code: str) -> tuple[bool, str]:
+    """
+    Validate a Czech bank code with detailed error information.
+
+    :param bank_code: 4-digit bank code
+    :return: Tuple of (is_valid, error_message)
+    """
+    if not _BANK_CODE_COMPILED.match(bank_code):
+        return False, "Bank code must be exactly 4 digits"
+
+    if not is_valid_bank_code(bank_code):
+        return False, f"Bank code {bank_code} is not a valid Czech bank code"
+
+    return True, ""
 
 
 def validate_prefix_prefix(value: str) -> tuple[bool, str]:
@@ -230,9 +273,7 @@ def is_valid_bank_account(value: str) -> bool:
     if not valid:
         return False
     
-    # Bank code validation (not implemented - requires current CNB code list)
-    # For format validation, we just check it exists
-    if not _BANK_CODE_COMPILED.match(bank_code):
+    if not is_valid_bank_code(bank_code):
         return False
     
     return True
@@ -264,8 +305,9 @@ def validate_bank_account(value: str) -> tuple[bool, str]:
     if not valid:
         return False, f"Base: {error}"
     
-    if not _BANK_CODE_COMPILED.match(bank_code):
-        return False, "Bank code must be exactly 4 digits"
+    valid, error = validate_bank_code(bank_code)
+    if not valid:
+        return False, error
     
     return True, ""
 

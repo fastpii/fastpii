@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from collections.abc import Callable
-from typing import TypeVar
+from typing import ClassVar, TypeVar
 
 F = TypeVar("F", bound=Callable[..., object])
 
@@ -17,7 +17,11 @@ from fastpii.patterns import PatternRegistry, get_shared_registry
 
 
 class RodneCisloDetector(Detector):
-    CONFIDENCE_9_DIGIT: float = 0.85
+    CONFIDENCE_VALID: ClassVar[float] = 0.90
+    CONFIDENCE_NEAR_VALID: ClassVar[float] = 0.65
+    CONFIDENCE_9_DIGIT: ClassVar[float] = 0.85
+    CONFIDENCE_CONTEXT_BOOST: ClassVar[float] = 0.05
+    CONTEXT_WINDOW: ClassVar[int] = 50
     registry: PatternRegistry
 
     def __init__(self, registry: PatternRegistry | None = None) -> None:
@@ -39,21 +43,43 @@ class RodneCisloDetector(Detector):
 
         for match in pattern_def.compiled.finditer(text):
             raw_value = match.group(1).replace('/', '').replace(' ', '')
+            cleaned = raw_value
 
-            is_valid = self.validate(raw_value)
+            if len(cleaned) not in (9, 10) or not cleaned.isdigit():
+                continue
 
-            if is_valid:
-                metadata = self._extract_metadata(raw_value)
+            if not self._validate_date(cleaned):
+                continue
 
-                findings.append(Finding(
-                    type="rodne_cislo",
-                    value=raw_value,
-                    start=match.start(),
-                    end=match.end(),
-                    confidence=pattern_def.score if len(raw_value) == 10 else self.CONFIDENCE_9_DIGIT,
-                    region="cz",
-                    metadata=metadata
-                ))
+            if len(cleaned) == 10:
+                checksum_valid = self._validate_checksum(cleaned)
+                if checksum_valid:
+                    confidence = self.CONFIDENCE_VALID
+                else:
+                    confidence = self.CONFIDENCE_NEAR_VALID
+            else:
+                confidence = self.CONFIDENCE_9_DIGIT
+                checksum_valid = None
+
+            context_start = max(0, match.start() - self.CONTEXT_WINDOW)
+            context_end = min(len(text), match.end() + self.CONTEXT_WINDOW)
+            context_window = text[context_start:context_end].lower()
+            if any(word.lower() in context_window for word in pattern_def.context_words):
+                confidence = min(1.0, confidence + self.CONFIDENCE_CONTEXT_BOOST)
+
+            metadata = self._extract_metadata(cleaned)
+            if "checksum_valid" not in metadata:
+                metadata["checksum_valid"] = checksum_valid
+
+            findings.append(Finding(
+                type="rodne_cislo",
+                value=raw_value,
+                start=match.start(),
+                end=match.end(),
+                confidence=confidence,
+                region="cz",
+                metadata=metadata
+            ))
 
         return findings
 
@@ -122,7 +148,9 @@ class RodneCisloDetector(Detector):
             return False
 
     def _extract_metadata(self, rc: str) -> dict[str, object]:
-        metadata: dict[str, object] = {}
+        metadata: dict[str, object] = {
+            "checksum_valid": self._validate_checksum(rc) if len(rc) == 10 else None,
+        }
 
         try:
             year = int(rc[0:2])
@@ -132,7 +160,6 @@ class RodneCisloDetector(Detector):
             is_female = month > 50
 
             if len(rc) == 10:
-                metadata["checksum_valid"] = self._validate_checksum(rc)
                 if year < 54:
                     year += 2000
                 else:

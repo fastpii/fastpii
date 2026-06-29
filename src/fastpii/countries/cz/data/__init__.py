@@ -1,6 +1,7 @@
 from fastpii.data.base import CountryData, CountryMetadata, CountryModule
 from fastpii.countries.cz.data.bank_codes import CzechBankCodesData
 from fastpii.countries.cz.data.cities import CzechCitiesData
+from fastpii.countries.cz.data.corporate_names import CzechCorporateNamesData
 from fastpii.countries.cz.data.insurance_codes import CzechInsuranceCodesData
 from fastpii.countries.cz.data.names import CzechNamesData
 from fastpii.countries.cz.data.postal_codes import CzechPostalCodesData
@@ -32,6 +33,9 @@ class CzechModule(CountryModule):
 
     def get_names(self) -> CountryData[dict[str, set[str]]]:
         return CzechNamesData()
+
+    def get_corporate_names(self) -> CountryData[set[str]]:
+        return CzechCorporateNamesData()
 
     def get_insurance_codes(self) -> CountryData[dict[str, str]]:
         return CzechInsuranceCodesData()

@@ -1,7 +1,7 @@
 import re
 
 from collections.abc import Callable
-from typing import ClassVar, TypeVar
+from typing import TYPE_CHECKING, ClassVar, TypeVar
 
 F = TypeVar("F", bound=Callable[..., object])
 
@@ -16,6 +16,9 @@ from fastpii.models import Finding
 from fastpii.patterns import PatternRegistry, get_shared_registry
 from fastpii.countries.cz.data.names import CzechNamesData
 from fastpii.countries.cz.data.surnames import CzechSurnamesData
+
+if TYPE_CHECKING:
+    from fastpii.countries.cz.data.corporate_names import CzechCorporateNamesData
 
 
 class NameDetector(Detector):
@@ -54,12 +57,20 @@ class NameDetector(Detector):
     registry: PatternRegistry
     names_data: CzechNamesData
     surnames_data: CzechSurnamesData
+    corporate_names_data: "CzechCorporateNamesData"
     male_first_names: set[str]
     female_first_names: set[str]
     male_surnames: set[str]
     female_surnames: set[str]
+    corporate_names: set[str]
 
-    def __init__(self, registry: PatternRegistry | None = None, names_data: CzechNamesData | None = None, surnames_data: CzechSurnamesData | None = None) -> None:
+    def __init__(
+        self,
+        registry: PatternRegistry | None = None,
+        names_data: CzechNamesData | None = None,
+        surnames_data: CzechSurnamesData | None = None,
+        corporate_names_data: "CzechCorporateNamesData | None" = None,
+    ) -> None:
         super().__init__(
             name="name",
             region="cz",
@@ -68,12 +79,18 @@ class NameDetector(Detector):
         self.registry = registry or get_shared_registry()
         self.names_data = names_data or CzechNamesData()
         self.surnames_data = surnames_data or CzechSurnamesData()
+        if corporate_names_data is not None:
+            self.corporate_names_data = corporate_names_data
+        else:
+            from fastpii.countries.cz.data.corporate_names import CzechCorporateNamesData
+            self.corporate_names_data = CzechCorporateNamesData()
         loaded_names = self.names_data.get_data()
         self.male_first_names = loaded_names["male"]
         self.female_first_names = loaded_names["female"]
         loaded_surnames = self.surnames_data.get_data()
         self.male_surnames = loaded_surnames["male"]
         self.female_surnames = loaded_surnames["female"]
+        self.corporate_names = self.corporate_names_data.get_data()
 
     @override
     def detect(self, text: str) -> list[Finding]:
@@ -86,6 +103,9 @@ class NameDetector(Detector):
             matched_words = {firstname.lower(), surname.lower()}
 
             if matched_words & self.HEADING_WORDS:
+                continue
+
+            if firstname.lower() in self.corporate_names or surname.lower() in self.corporate_names:
                 continue
 
             gender = self._classify_gender(firstname, surname)
