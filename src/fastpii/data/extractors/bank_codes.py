@@ -10,6 +10,9 @@ from typing import override
 from fastpii.data.extractors.base import BaseExtractor
 
 
+__all__ = ["BankCodesExtractor"]
+
+
 class BankCodesExtractor(BaseExtractor, ABC):
     """Abstract base class for bank code extraction.
 

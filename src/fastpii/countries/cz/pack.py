@@ -20,6 +20,9 @@ from fastpii.detectors.cz import (
 )
 
 
+__all__ = ["CZECH_METADATA", "CZECH_ENTITIES", "CzechPack"]
+
+
 CZECH_METADATA = CountryMetadata(
     code="cz",
     name="Czech Republic",
@@ -118,7 +121,7 @@ CZECH_ENTITIES: list[EntityDefinition] = [
         region="cz",
         has_checksum=False,
         context_words=("adresa", "ulice", "address"),
-        examples=("Vinohradská 1523/45, Praha"),
+        examples=("Vinohradská 1523/45, Praha",),
         invalid_examples=("123", "abc"),
     ),
     EntityDefinition(

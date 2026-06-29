@@ -11,6 +11,9 @@ from typing import IO
 from fastpii.data.base import DataSource
 
 
+__all__ = ["BaseExtractor"]
+
+
 class BaseExtractor(ABC):
     """Abstract base for all data extractors.
 

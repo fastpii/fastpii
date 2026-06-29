@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
+__all__ = ["Metrics", "calculate_metrics", "aggregate_metrics"]
+
+
 @dataclass
 class Metrics:
     precision: float

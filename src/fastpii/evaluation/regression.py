@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import cast
 
 from fastpii.evaluation.metrics import Metrics
+
+__all__ = ["REGRESSION_THRESHOLDS", "compare_results", "save_baseline"]
 
 REGRESSION_THRESHOLDS: dict[str, float] = {
     "precision": 0.02,
@@ -60,7 +63,7 @@ def save_baseline(result_path: Path, metrics: Metrics, extra: dict[str, object] 
         },
     }
     if extra:
-        baseline.update(extra)
+        baseline.update(cast(dict[str, dict[str, float | int]], extra))
 
     result_path.parent.mkdir(parents=True, exist_ok=True)
     with open(result_path, "w", encoding="utf-8") as f:

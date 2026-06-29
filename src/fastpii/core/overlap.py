@@ -1,6 +1,9 @@
 from fastpii.models import Finding
 
 
+__all__ = ["deduplicate_findings"]
+
+
 def deduplicate_findings(
     findings: list[Finding],
     priority: dict[str, int] | None = None,

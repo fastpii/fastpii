@@ -11,6 +11,9 @@ from fastpii.detectors.fr import (
 )
 
 
+__all__ = ["FRENCH_METADATA", "FRENCH_ENTITIES", "FrenchPack"]
+
+
 FRENCH_METADATA = CountryMetadata(
     code="fr",
     name="France",

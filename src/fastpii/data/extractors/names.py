@@ -10,6 +10,9 @@ from typing import override
 from fastpii.data.extractors.base import BaseExtractor
 
 
+__all__ = ["NamesExtractor"]
+
+
 class NamesExtractor(BaseExtractor, ABC):
     """Abstract base class for name extraction.
 

@@ -3,6 +3,9 @@ from abc import ABC, abstractmethod
 from fastpii.models import Finding
 
 
+__all__ = ["Detector"]
+
+
 class Detector(ABC):
     name: str
     region: str

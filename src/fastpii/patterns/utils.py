@@ -9,6 +9,9 @@ from fastpii.patterns.base import PatternDefinition
 from fastpii.patterns.registry import get_shared_registry
 
 
+__all__ = ["validate_format", "extract_groups", "get_pattern"]
+
+
 def validate_format(entity_type: str, value: str, region: str = "cz") -> bool:
     """
     Validate value format using registry patterns.

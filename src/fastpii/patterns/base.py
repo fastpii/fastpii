@@ -10,6 +10,8 @@ import re
 
 DEFAULT_PATTERN_SCORE = 0.95
 
+__all__ = ["DEFAULT_PATTERN_SCORE", "PatternDefinition", "BasePatternRegistry"]
+
 @dataclass
 class PatternDefinition:
     """

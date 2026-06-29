@@ -3,6 +3,9 @@ from fastpii.core.confidence import ConfidenceScorer
 from fastpii.countries import get_country_pack
 
 
+__all__ = ["MCPServer"]
+
+
 class MCPServer:
     engine: FastPII
 

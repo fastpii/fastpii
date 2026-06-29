@@ -20,6 +20,15 @@ from typing import Protocol, runtime_checkable
 from fastpii.models import DetectionResult, Finding
 
 
+__all__ = [
+    "AnonymizeStrategy",
+    "RedactStrategy",
+    "MaskStrategy",
+    "RemoveStrategy",
+    "TransformationEngine",
+]
+
+
 @runtime_checkable
 class TransformationStrategy(Protocol):
     """Protocol for PII transformation strategies.

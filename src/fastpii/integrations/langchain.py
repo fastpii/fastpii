@@ -5,6 +5,13 @@ from fastpii.core.confidence import ConfidenceScorer
 from fastpii.countries import get_country_pack
 
 
+__all__ = [
+    "PIIAnonymizer",
+    "PIIPreprocessor",
+    "create_pii_filter_tool",
+]
+
+
 class PIIAnonymizer:
     """
     LangChain integration wrapper for FastPII anonymization.

@@ -7,6 +7,16 @@ REGON: 9/14-digit business registry with weighted Mod11 checksum
 
 import re
 
+__all__ = [
+    "is_valid_pesel",
+    "validate_pesel",
+    "extract_pesel_metadata",
+    "is_valid_nip",
+    "validate_nip",
+    "is_valid_regon",
+    "validate_regon",
+]
+
 PESEL_WEIGHTS = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3]
 NIP_WEIGHTS = [6, 5, 7, 2, 3, 4, 5, 6, 7]
 REGON9_WEIGHTS = [8, 9, 2, 3, 4, 5, 6, 7]

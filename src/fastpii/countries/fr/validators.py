@@ -3,6 +3,17 @@ import re
 from fastpii.core.checksum import validate_luhn
 
 
+__all__ = [
+    "is_valid_siren",
+    "validate_siren",
+    "is_valid_siret",
+    "validate_siret",
+    "is_valid_insee",
+    "validate_insee",
+    "extract_insee_metadata",
+]
+
+
 def is_valid_siren(value: str) -> bool:
     cleaned = re.sub(r"[\s-]", "", value)
     if not re.match(r"^\d{9}$", cleaned):

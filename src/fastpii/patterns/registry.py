@@ -2,6 +2,15 @@ from fastpii.core._compat import override
 from fastpii.patterns.base import BasePatternRegistry, PatternDefinition
 
 
+__all__ = [
+    "PatternRegistry",
+    "CzechPatternRegistry",
+    "get_shared_registry",
+    "set_shared_registry",
+    "reset_shared_registry",
+]
+
+
 class PatternRegistry(BasePatternRegistry):
     def __init__(self) -> None:
         self._patterns: dict[str, dict[str, list[PatternDefinition]]] = {}

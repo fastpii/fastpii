@@ -1,4 +1,5 @@
 from time import perf_counter
+from typing import Any, cast
 
 from fastpii.countries import CountryPack
 from fastpii.core.confidence import ConfidenceScorer
@@ -13,6 +14,14 @@ from fastpii.core.transform import (
 from fastpii.detectors.base import Detector
 from fastpii.detectors.registry import DetectorRegistry
 from fastpii.models import Finding, DetectionResult, ValidationResult
+
+
+__all__ = [
+    "FastPII",
+    "DEFAULT_PRIORITY",
+    "DEFAULT_CONFIDENCE_SCORES",
+    "DEFAULT_CONTEXT_BOOST",
+]
 
 
 class FastPII:
@@ -83,8 +92,9 @@ class FastPII:
         is_valid = detector.validate(value)
 
         metadata: dict[str, object] = {}
-        if hasattr(detector, '_extract_metadata'):
-            metadata = detector._extract_metadata(value)
+        metadata_getter: Any = getattr(detector, "_extract_metadata", None)
+        if callable(metadata_getter):
+            metadata = cast(dict[str, object], metadata_getter(value))
 
         return ValidationResult(
             detector=detector_name,

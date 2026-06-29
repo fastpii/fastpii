@@ -4,12 +4,14 @@ Provides abstract base classes for country-specific data modules,
 ensuring consistent behavior across all countries.
 """
 
+__all__ = ["DataSource", "CountryMetadata", "CountryData", "CountryModule"]
+
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Sized
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 T = TypeVar("T")
 
@@ -139,13 +141,13 @@ class CountryModule(ABC):
     def get_surnames(self) -> "CountryData[dict[str, set[str]]]":
         """Return surnames data (male/female)."""
 
-    def get_all_data(self) -> dict[str, "CountryData"]:
+    def get_all_data(self) -> dict[str, CountryData[Any]]:
         """Return all data types for this country.
 
         Caches results so repeated calls return the same instances.
         """
         if not hasattr(self, "_all_data_cache"):
-            self._all_data_cache: dict[str, "CountryData"] = {
+            self._all_data_cache: dict[str, CountryData[Any]] = {
                 "bank_codes": self.get_bank_codes(),
                 "cities": self.get_cities(),
                 "postal_codes": self.get_postal_codes(),

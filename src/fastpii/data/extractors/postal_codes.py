@@ -10,6 +10,9 @@ from typing import override
 from fastpii.data.extractors.base import BaseExtractor
 
 
+__all__ = ["PostalCodesExtractor"]
+
+
 class PostalCodesExtractor(BaseExtractor, ABC):
     """Abstract base class for postal code extraction.
 

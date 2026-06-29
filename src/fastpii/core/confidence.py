@@ -1,3 +1,6 @@
+__all__ = ["ConfidenceScorer"]
+
+
 class ConfidenceScorer:
     def __init__(self, base_scores: dict[str, float], context_boost: float) -> None:
         self._scores = base_scores

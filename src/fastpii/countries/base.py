@@ -4,6 +4,9 @@ from enum import Enum
 from fastpii.detectors.base import Detector
 
 
+__all__ = ["EntityType", "EntityDefinition", "CountryMetadata"]
+
+
 class EntityType(str, Enum):
     NATIONAL_ID = "national_id"
     TAX_ID = "tax_id"

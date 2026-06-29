@@ -9,6 +9,9 @@ from fastpii.evaluation.iou_matcher import Span, match_spans
 from fastpii.evaluation.metrics import Metrics, calculate_metrics, aggregate_metrics
 
 
+__all__ = ["CorpusSample", "EvaluationResult", "Evaluator"]
+
+
 @dataclass
 class CorpusSample:
     id: str

@@ -3,6 +3,9 @@ from collections.abc import Iterator
 from fastpii.detectors.base import Detector
 
 
+__all__ = ["DetectorRegistry"]
+
+
 class DetectorRegistry:
     def __init__(self) -> None:
         self._detectors: dict[str, Detector] = {}

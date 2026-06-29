@@ -15,6 +15,9 @@ from typing import ClassVar
 from fastpii.data.base import CountryMetadata, CountryModule
 
 
+__all__ = ["CountryRegistry"]
+
+
 class CountryRegistry:
     """Central registry for country modules.
 

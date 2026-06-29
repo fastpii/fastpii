@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
+__all__ = ["Span", "calculate_iou", "match_spans"]
+
+
 @dataclass(frozen=True)
 class Span:
     start: int
