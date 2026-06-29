@@ -1,9 +1,11 @@
+from typing import Any, cast
+
 import pytest
 
 from fastpii import FastPII, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST
 from fastpii.core.confidence import ConfidenceScorer
 from fastpii.countries.cz import CzechPack
-from fastpii.integrations.langchain import PIIAnonymizer, PIIPreprocessor
+from fastpii.integrations.langchain import PIIAnonymizer, PIIPreprocessor, create_pii_filter_tool
 
 
 @pytest.fixture
@@ -175,3 +177,99 @@ class TestPIIPreprocessorFromRegions:
     def test_no_engine_no_regions_raises(self):
         with pytest.raises(ValueError, match="Either engine or regions"):
             PIIPreprocessor()
+
+
+class TestLangChainEdgeCases:
+    def test_empty_text(self, engine):
+        anonymizer = PIIAnonymizer(engine=engine)
+        preprocessor = PIIPreprocessor(engine=engine)
+
+        assert anonymizer.anonymize("") == ""
+        assert preprocessor.preprocess("", action="redact") == ""
+
+    def test_text_with_no_pii(self, engine):
+        anonymizer = PIIAnonymizer(engine=engine)
+        preprocessor = PIIPreprocessor(engine=engine)
+
+        text = "Hello world, this document contains no sensitive data."
+
+        assert anonymizer.anonymize(text) == text
+        assert preprocessor.preprocess(text, action="redact") == text
+
+    def test_very_long_text(self, engine):
+        anonymizer = PIIAnonymizer(engine=engine)
+        preprocessor = PIIPreprocessor(engine=engine)
+
+        text = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit. " * 90) + "RČ: 8001011238"
+
+        anonymized = anonymizer.anonymize(text)
+        processed = preprocessor.preprocess(text, action="redact")
+
+        assert len(text) > 5000
+        assert "8001011238" not in anonymized
+        assert "8001011238" not in processed
+        assert "[REDACTED]" in anonymized
+        assert "[RODNE_CISLO]" in processed
+
+    def test_multi_language_document(self):
+        anonymizer = PIIAnonymizer(regions=["cz", "de"])
+        preprocessor = PIIPreprocessor(regions=["cz", "de"])
+
+        text = "CZ RČ: 8001011238, DE Steuer-ID: 86095742719"
+
+        anonymized = anonymizer.anonymize(text)
+        processed = preprocessor.preprocess(text, action="redact")
+
+        assert "8001011238" not in anonymized
+        assert "86095742719" not in anonymized
+        assert "8001011238" not in processed
+        assert "86095742719" not in processed
+        assert "[REDACTED]" in anonymized
+        assert "[RODNE_CISLO]" in processed
+        assert "[STEUER_ID]" in processed
+
+    def test_filter_tool_creation(self, engine, monkeypatch):
+        import sys
+        import types
+
+        from pydantic import BaseModel
+
+        import fastpii.integrations.langchain as langchain_integration
+
+        langchain_module = types.ModuleType("langchain")
+        tools_module = types.ModuleType("langchain.tools")
+        cast(Any, tools_module).BaseTool = BaseModel
+        cast(Any, langchain_module).tools = tools_module
+        sys.modules["langchain"] = langchain_module
+        sys.modules["langchain.tools"] = tools_module
+
+        original_import_module = langchain_integration.importlib.import_module
+
+        def fake_import_module(name: str):
+            if name == "langchain.tools":
+                return tools_module
+            return original_import_module(name)
+
+        monkeypatch.setattr(langchain_integration.importlib, "import_module", fake_import_module)
+
+        engine_tool = cast(Any, create_pii_filter_tool(engine=engine))
+        regions_tool = cast(Any, create_pii_filter_tool(regions=["cz"]))
+
+        assert engine_tool.name == "pii_filter"
+        assert regions_tool.name == "pii_filter"
+        assert "8001011238" not in engine_tool._run("RČ: 8001011238")
+        assert "8001011238" not in regions_tool._run("RČ: 8001011238")
+
+    def test_callback_does_not_modify_original(self, engine):
+        anonymizer = PIIAnonymizer(engine=engine)
+        preprocessor = PIIPreprocessor(engine=engine)
+
+        original = "IČO: 25596641"
+        snapshot = original
+
+        anonymized = anonymizer(original)
+        processed = preprocessor(original)
+
+        assert original == snapshot
+        assert anonymized != original
+        assert processed != original

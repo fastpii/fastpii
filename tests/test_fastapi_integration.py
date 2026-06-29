@@ -263,3 +263,133 @@ class TestFastAPIIntegrationDefault:
         assert response.status_code == 200
         data = response.json()
         assert len(data) >= 6
+
+
+class TestFastAPIIntegrationEdgeCases:
+    def test_detect_czech_text_with_diacritics(self, client_with_engine):
+        response = client_with_engine.post("/detect", json={
+            "text": "Příjemce: Jan Novák, napište na jan.novak@firma.cz",
+            "regions": ["cz"]
+        })
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert len(data["findings"]) >= 1
+        types = {f["type"] for f in data["findings"]}
+        assert "email" in types
+
+    def test_detect_czech_rodne_cislo(self, client_with_engine):
+        response = client_with_engine.post("/detect", json={
+            "text": "Jan Novák, RČ: 8001011238",
+            "regions": ["cz"]
+        })
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert len(data["findings"]) >= 1
+        types = {f["type"] for f in data["findings"]}
+        assert "rodne_cislo" in types
+
+    def test_detect_czech_ico(self, client_with_engine):
+        response = client_with_engine.post("/detect", json={
+            "text": "Firma s.r.o., IČO: 25596641",
+            "regions": ["cz"]
+        })
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert len(data["findings"]) >= 1
+        assert data["findings"][0]["type"] == "ico"
+        assert data["findings"][0]["value"] == "25596641"
+
+    def test_detect_czech_email(self, client_with_engine):
+        response = client_with_engine.post("/detect", json={
+            "text": "Kontakt: uzivatel@firma.cz",
+            "regions": ["cz"]
+        })
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert len(data["findings"]) >= 1
+        types = {f["type"] for f in data["findings"]}
+        assert "email" in types
+
+    def test_detect_multi_pii_document(self, client_with_engine):
+        response = client_with_engine.post("/detect", json={
+            "text": """
+            Jan Novák, RČ: 8001011238
+            Firma s.r.o., IČO: 25596641
+            Kontakt: uzivatel@firma.cz
+            """.strip(),
+            "regions": ["cz"]
+        })
+
+        assert response.status_code == 200
+        data = response.json()
+
+        types = {f["type"] for f in data["findings"]}
+        assert "rodne_cislo" in types
+        assert "ico" in types
+        assert "email" in types
+
+    def test_detect_empty_text(self, client_with_engine):
+        response = client_with_engine.post("/detect", json={
+            "text": "",
+            "regions": ["cz"]
+        })
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert len(data["findings"]) == 0
+        assert len(data["detector_names"]) == 0
+
+    def test_detect_very_long_text(self, client_with_engine):
+        text = ("Lorem ipsum dolor sit amet, " * 500) + "IČO: 25596641"
+        response = client_with_engine.post("/detect", json={
+            "text": text,
+            "regions": ["cz"]
+        })
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert len(data["findings"]) >= 1
+        types = {f["type"] for f in data["findings"]}
+        assert "ico" in types
+
+    def test_detect_no_pii_found(self, client_with_engine):
+        response = client_with_engine.post("/detect", json={
+            "text": "Příliš žluťoučký kůň úpěl ďábelské ódy.",
+            "regions": ["cz"]
+        })
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert len(data["findings"]) == 0
+        assert len(data["detector_names"]) == 0
+
+    def test_validate_endpoint_czech_ico(self, client_with_engine):
+        response = client_with_engine.post("/validate", json={
+            "value": "25596641",
+            "detector_name": "ico",
+            "regions": ["cz"]
+        })
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert data["detector"] == "ico"
+        assert data["value"] == "25596641"
+        assert data["is_valid"] is True
+        assert data["metadata"]["checksum_valid"] is True
+
+    def test_validate_endpoint_invalid_input(self, client_with_engine):
+        response = client_with_engine.post("/validate", json={})
+
+        assert response.status_code == 422

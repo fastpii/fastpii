@@ -1,4 +1,5 @@
 import importlib
+import sys
 
 from fastpii import FastPII, DEFAULT_PRIORITY, DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST
 from fastpii.core.confidence import ConfidenceScorer
@@ -100,7 +101,9 @@ class PIIPreprocessor:
 
 
 def create_pii_filter_tool(engine: FastPII | None = None, regions: list[str] | None = None) -> object:
-    base_tool_module = importlib.import_module("langchain.tools")
+    base_tool_module = sys.modules.get("langchain.tools")
+    if base_tool_module is None:
+        base_tool_module = importlib.import_module("langchain.tools")
     BaseTool = base_tool_module.BaseTool
     from pydantic import Field
 

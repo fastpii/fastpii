@@ -212,3 +212,140 @@ class TestCLIIntegration:
         )
 
         assert result.returncode == 0
+
+    def test_detect_multi_country(self):
+        result = subprocess.run(
+            [PYTHON, "-m", "fastpii.cli", "detect", "SIREN: 552120222", "-r", "de", "fr"],
+            capture_output=True,
+            text=True
+        )
+
+        assert result.returncode == 0
+        assert "siren" in result.stdout.lower()
+
+    def test_detect_text_output(self):
+        result = subprocess.run(
+            [PYTHON, "-m", "fastpii.cli", "detect", "IČO: 25596641", "-r", "cz", "--format", "text"],
+            capture_output=True,
+            text=True
+        )
+
+        assert result.returncode == 0
+        assert result.stdout.startswith("Detected ")
+
+    def test_anonymize_command(self):
+        from fastpii import DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST, DEFAULT_PRIORITY, FastPII
+        from fastpii.core.confidence import ConfidenceScorer
+        from fastpii.countries.cz import CzechPack
+
+        engine = FastPII(
+            priority=DEFAULT_PRIORITY,
+            confidence_scorer=ConfidenceScorer(
+                base_scores=DEFAULT_CONFIDENCE_SCORES,
+                context_boost=DEFAULT_CONTEXT_BOOST,
+            ),
+        )
+        engine.register(CzechPack())
+
+        result = engine.anonymize("Jan Novák, RČ: 8001011238")
+
+        assert "[REDACTED]" in result
+        assert "8001011238" not in result
+
+    def test_redact_command(self):
+        from fastpii import DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST, DEFAULT_PRIORITY, FastPII
+        from fastpii.core.confidence import ConfidenceScorer
+        from fastpii.countries.cz import CzechPack
+
+        engine = FastPII(
+            priority=DEFAULT_PRIORITY,
+            confidence_scorer=ConfidenceScorer(
+                base_scores=DEFAULT_CONFIDENCE_SCORES,
+                context_boost=DEFAULT_CONTEXT_BOOST,
+            ),
+        )
+        engine.register(CzechPack())
+
+        result = engine.redact("Jan Novák, RČ: 8001011238")
+
+        assert "[RODNE_CISLO]" in result or "[NAME]" in result
+        assert "8001011238" not in result
+
+    def test_mask_command(self):
+        from fastpii import DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST, DEFAULT_PRIORITY, FastPII
+        from fastpii.core.confidence import ConfidenceScorer
+        from fastpii.countries.cz import CzechPack
+
+        text = "Jan Novák, RČ: 8001011238"
+        engine = FastPII(
+            priority=DEFAULT_PRIORITY,
+            confidence_scorer=ConfidenceScorer(
+                base_scores=DEFAULT_CONFIDENCE_SCORES,
+                context_boost=DEFAULT_CONTEXT_BOOST,
+            ),
+        )
+        engine.register(CzechPack())
+
+        result = engine.mask(text)
+
+        assert len(result) == len(text)
+        assert "8001011238" not in result
+
+    def test_remove_command(self):
+        from fastpii import DEFAULT_CONFIDENCE_SCORES, DEFAULT_CONTEXT_BOOST, DEFAULT_PRIORITY, FastPII
+        from fastpii.core.confidence import ConfidenceScorer
+        from fastpii.countries.cz import CzechPack
+
+        engine = FastPII(
+            priority=DEFAULT_PRIORITY,
+            confidence_scorer=ConfidenceScorer(
+                base_scores=DEFAULT_CONFIDENCE_SCORES,
+                context_boost=DEFAULT_CONTEXT_BOOST,
+            ),
+        )
+        engine.register(CzechPack())
+
+        result = engine.remove("Jan Novák, RČ: 8001011238")
+
+        assert "8001011238" not in result
+
+    def test_validate_command(self):
+        result = subprocess.run(
+            [PYTHON, "-m", "fastpii.cli", "validate", "25596641", "--detector", "ico", "-r", "cz"],
+            capture_output=True,
+            text=True
+        )
+
+        assert result.returncode == 0
+        assert "VALID" in result.stdout or "True" in result.stdout
+
+    def test_list_detectors_command(self):
+        result = subprocess.run(
+            [PYTHON, "-m", "fastpii.cli", "list-detectors", "-r", "cz"],
+            capture_output=True,
+            text=True
+        )
+
+        assert result.returncode == 0
+        assert "rodne_cislo" in result.stdout
+        assert "ico" in result.stdout
+
+    def test_detect_empty_input(self):
+        result = subprocess.run(
+            [PYTHON, "-m", "fastpii.cli", "detect", "", "-r", "cz"],
+            capture_output=True,
+            text=True
+        )
+
+        assert result.returncode != 0
+        assert "Either text or --file must be provided" in result.stderr
+
+    def test_detect_invalid_country(self):
+        result = subprocess.run(
+            [PYTHON, "-m", "fastpii.cli", "detect", "test", "-r", "xx"],
+            capture_output=True,
+            text=True
+        )
+
+        assert result.returncode == 0
+        assert "No PII detected" in result.stdout
