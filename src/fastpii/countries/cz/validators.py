@@ -494,3 +494,50 @@ def validate_dic(value: str) -> tuple[bool, str]:
             return False, "Birth number: Invalid format or checksum"
     
     return True, ""
+
+
+# --- Health Insurance Code Validator ---
+
+_INSURANCE_CODES_CACHE: set[str] | None = None
+
+
+def _get_valid_insurance_codes() -> set[str]:
+    global _INSURANCE_CODES_CACHE
+    if _INSURANCE_CODES_CACHE is None:
+        from fastpii.countries.cz.data._data.insurance_codes import VALID_INSURANCE_CODES
+        _INSURANCE_CODES_CACHE = VALID_INSURANCE_CODES
+    return _INSURANCE_CODES_CACHE
+
+
+def is_valid_insurance_code(code: str) -> bool:
+    """Check if a 3-digit insurance code is a valid Czech insurance company code.
+
+    Valid codes: 111, 201, 205, 207, 209, 211, 213.
+
+    :param code: 3-digit insurance code
+    :return: True if the code is a valid Czech insurance company code
+    """
+    if not code or len(code) != 3:
+        return False
+    return code in _get_valid_insurance_codes()
+
+
+def validate_insurance_code(code: str) -> tuple[bool, str]:
+    """Validate a 3-digit Czech insurance company code with error message.
+
+    :param code: 3-digit insurance code
+    :return: Tuple of (is_valid, error_message)
+    """
+    if not code:
+        return False, "Insurance code is empty"
+    
+    if len(code) != 3:
+        return False, f"Insurance code must be exactly 3 digits, got {len(code)}"
+    
+    if not code.isdigit():
+        return False, "Insurance code must contain only digits"
+    
+    if not is_valid_insurance_code(code):
+        return False, f"Insurance code {code} is not a valid Czech insurance company code"
+    
+    return True, ""

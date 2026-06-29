@@ -13,6 +13,10 @@ from fastpii.detectors.cz import (
     AddressDetector,
     DateOfBirthDetector,
     VehiclePlateDetector,
+    HealthInsuranceDetector,
+    IBANDetector,
+    CreditCardDetector,
+    IdentityCardDetector,
 )
 
 
@@ -137,6 +141,46 @@ CZECH_ENTITIES: list[EntityDefinition] = [
         examples=("1A2 3456", "3B5 7890"),
         invalid_examples=("Q12 3456", "12345"),
     ),
+    EntityDefinition(
+        entity_type="health_insurance",
+        display_name="Zdravotní pojištění",
+        description="Czech health insurance number",
+        region="cz",
+        has_checksum=False,
+        context_words=("pojištění", "zdravotní pojišťovna", "pojišťovna", "health insurance", "insurance"),
+        examples=("111123456", "201456789"),
+        invalid_examples=("999123456", "000000000"),
+    ),
+    EntityDefinition(
+        entity_type="iban",
+        display_name="IBAN",
+        description="Czech International Bank Account Number",
+        region="cz",
+        has_checksum=True,
+        context_words=("IBAN", "mezinárodní číslo účtu", "international bank account"),
+        examples=("CZ0710000000000123456789",),
+        invalid_examples=("CZ0010000000000123456789",),
+    ),
+    EntityDefinition(
+        entity_type="credit_card",
+        display_name="Kreditní karta",
+        description="Credit card number with Luhn checksum",
+        region="cz",
+        has_checksum=True,
+        context_words=("credit card", "card number", "visa", "mastercard", "amex", "kreditní karta"),
+        examples=("4111111111111111", "5500000000000004"),
+        invalid_examples=("4111111111111112", "0000000000000000"),
+    ),
+    EntityDefinition(
+        entity_type="identity_card",
+        display_name="Občanský průkaz",
+        description="Czech identity card number",
+        region="cz",
+        has_checksum=False,
+        context_words=("občanský průkaz", "OP", "č. průkazu", "identity card", "ID card"),
+        examples=("123456789", "123456AB"),
+        invalid_examples=("023456789", "12345"),
+    ),
 ]
 
 
@@ -166,6 +210,10 @@ class CzechPack(CountryPack):
             AddressDetector(),
             DateOfBirthDetector(),
             VehiclePlateDetector(),
+            HealthInsuranceDetector(),
+            IBANDetector(),
+            CreditCardDetector(),
+            IdentityCardDetector(),
         ]
 
     @property
