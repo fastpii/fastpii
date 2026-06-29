@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Protocol, cast
 
 from fastpii.patterns.base import PatternDefinition
@@ -23,8 +24,10 @@ class PatternLoader(Protocol):
         ...
 
 
+@lru_cache(maxsize=1)
 def get_region_loaders() -> dict[str, type[PatternLoader]]:
     import importlib
+
     result: dict[str, type[PatternLoader]] = {}
     for code, module_path in _REGION_LOADER_MODULES.items():
         mod = importlib.import_module(module_path)
