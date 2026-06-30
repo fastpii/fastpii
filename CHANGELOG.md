@@ -21,37 +21,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FastPII.anonymize()`, `redact()`, `mask()`, `remove()` now delegate to `TransformationEngine.apply()` instead of inline list-conversion + reverse-sort + slice-assignment boilerplate.
 - `TransformationStrategy`, `AnonymizeStrategy`, `RedactStrategy`, `MaskStrategy`, `RemoveStrategy`, `TransformationEngine` exported from top-level `fastpii` package.
 
-## [Unreleased]
+## [0.5.0] - 2026-06-30
 
 ### Added
 
-- **Country Pack SDK** (`fastpii.countries`): Formal `CountryPack` ABC with `@register_country` decorator for auto-discovery. New countries are registered by implementing the ABC and importing the module — `PrivacyGuard` discovers them automatically.
-- **Core shared utilities** (`fastpii.core`): `_compat` (override shim), `context` (ContextWindowMatcher), `confidence` (ConfidenceScorer), `checksum` (weighted_mod11, luhn), `normalization` (whitespace, phone)
-- **Poland (PL) country pack**: 6 detectors — PESEL, NIP, REGON, Postal Code, Phone, Address
-  - PESEL: 11-digit national ID, Mod 10 checksum, birth date + gender extraction
-  - NIP: 10-digit tax ID, weighted Mod 11 checksum
-  - REGON: 9-digit and 14-digit business registry, weighted Mod 11 checksum
-- **Germany (DE) country pack**: 6 detectors — Steuer-ID, USt-IdNr, Handelsregister, Postal Code, Phone, Address
-  - Steuer-ID: 11-digit tax ID, ISO 7064 MOD 11,10 checksum, consecutive-digit rejection
-  - USt-IdNr: DE + 9-digit VAT number, MOD 11,10 checksum
-  - Handelsregister: Commercial register format (Court + HRA/HRB/PR + number)
-- **France (FR) country pack**: 6 detectors — SIREN, SIRET, INSEE/NIR, Postal Code, Phone, Address
-  - SIREN: 9-digit business ID, Luhn checksum
-  - SIRET: 14-digit establishment ID, embeds SIREN + Luhn on full number
-  - INSEE/NIR: 15-character national ID, Mod-97 checksum with Corsica 2A/2B department handling
-- **Pattern loaders** for Poland, Germany, and France (`patterns/regions/`)
-- **46 Poland tests**, **30 Germany tests**, **32 France tests**
+- **Modular data infrastructure** (`fastpii.data`): `CountryData[T]`, `CountryModule` ABC, `CountryMetadata`, `DataSource`, `CountryRegistry` — pluggable data layer for country-specific datasets
+- **CZ data module** (complete): 5,344 cities, 15,500 postal codes, 26,954 streets, 48 bank codes, 7 insurance codes, 7,408 male + 8,287 female first names, 175 male + 175 female surnames
+- **DE data module** (initial): 63 cities, 189 postal codes, 144 streets — empty stubs for bank_codes, insurance_codes, names, surnames
+- **FR data module** (initial): 79 cities, 100 postal codes, 104 streets — empty stubs for bank_codes, insurance_codes, names, surnames
+- **PL data module** (initial): 30 cities, 297 postal codes (DD-DDD format), 103 streets — empty stubs for bank_codes, insurance_codes, names, surnames
+- **Pattern registry performance**: `@lru_cache(maxsize=1)` on `get_region_loaders()`, 7 benchmark tests
+- **Multi-country integration tests** (MC-004): 13 tests across CZ/PL/DE/FR
+- **Add-a-country guide** (MC-005): contributor documentation for new country packs
+- **Data integrity tests** for DE/FR/PL: 52 tests (27 active, 25 skipped for empty modules)
+- **VAL-001/003/004/005**: Benchmark corpus, redaction correctness (111 tests), overlap resolution (49 tests), performance benchmarks
+- **ARCH-001/002/003/004**: Dual data layer, validator re-exports, `__all__` on 30+ modules, pyright 0 errors
+- **CORE-001/002/003/004**: Transform round-trip (32 tests), overlap edge cases (23 tests), confidence calibration (22 tests), CLI round-trip
+- **PR-001/002/003**: Pattern registry loader tests (23 tests), coverage audit (33/33 detectors), performance optimization
+- **INT-001/002/003/004**: FastAPI, LangChain, MCP, CLI integration tests
+- **CONTRIBUTING.md**: Contributor guide with setup, coding standards, and PR guidelines
 
 ### Changed
 
-- `PrivacyGuard` refactored: detector registration now uses auto-discovery via country packs instead of hardcoded CZ imports. Calling `pack.register_patterns()` + `pack.register_detectors()` on initialization.
-- `CountryPack.code` must be a class attribute (not a property) for correct registration key derivation
-- README updated to reflect 4-country coverage with per-country entity tables
-
-### Fixed
-
-- INSEE/NIR regex: `2[AB]` department code was incorrectly placed in the month group — moved to the department position in both validator and pattern loader
-- CountryPack registration: `@register_country` was reading `pack_cls.code` as a property descriptor instead of a string — fixed by changing `code` to a class attribute
+- `CountryPack` registration now uses `CountryRegistry` for data modules
+- All country data uses lazy loading via `if self._data is None: from ... import X`
+- ASCII transliteration for all DE/FR/PL data entries (no umlauts/accents)
+- README updated for 0.5.0 release
 
 ## [0.2.0] - 2025-06-09
 
