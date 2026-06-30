@@ -114,13 +114,14 @@ You configure. It executes. Explicit registration, no hidden defaults.
 
 ## Documentation
 
-- [Getting Started](https://docs.fastpii.com)
-- [API Reference](https://docs.fastpii.com/api)
-- [Country Packs](https://docs.fastpii.com/countries)
+- [Getting Started](https://docs.fastpii.com/getting-started)
+- [Guides](https://docs.fastpii.com/guides)
+- [Detectors](https://docs.fastpii.com/detectors)
+- [Integrations](https://docs.fastpii.com/integrations)
+- [API Reference](https://docs.fastpii.com/reference/api-reference)
+- [CLI Reference](https://docs.fastpii.com/reference/cli-reference)
+- [Data Models](https://docs.fastpii.com/reference/data-models)
 - [Benchmarks](https://docs.fastpii.com/benchmarks)
-- [Examples](https://docs.fastpii.com/examples)
-- [Architecture](https://docs.fastpii.com/architecture)
-- [Migration Guide](docs/MIGRATION_GUIDE.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 
