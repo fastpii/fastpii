@@ -1,0 +1,34 @@
+from datetime import datetime
+
+from fastpii.core._compat import override
+from fastpii.data.base import CountryData, DataSource
+
+
+class FrenchPostalCodesData(CountryData[set[str]]):
+    _source_url: str = "https://www.data.gouv.fr/"
+    _source_license: str = "Licence Ouverte 2.0"
+
+    def __init__(self) -> None:
+        self._data: set[str] | None = None
+
+    @override
+    def get_data(self) -> set[str]:
+        if self._data is None:
+            from fastpii.countries.fr.data._data.postal_codes import POSTAL_CODES
+            self._data = POSTAL_CODES
+        return self._data
+
+    @override
+    def get_source(self) -> DataSource:
+        return DataSource(
+            name="FR Postal Codes",
+            url=self._source_url,
+            license=self._source_license,
+            last_updated=datetime.now(),
+            entry_count=len(self.get_data()),
+        )
+
+    @override
+    def validate(self) -> bool:
+        data = self.get_data()
+        return len(data) > 0 and all(len(code) == 5 and code.isdigit() for code in data)
