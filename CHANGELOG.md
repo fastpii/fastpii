@@ -25,11 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Modular data infrastructure** (`fastpii.data`): `CountryData[T]`, `CountryModule` ABC, `CountryMetadata`, `DataSource`, `CountryRegistry` — pluggable data layer for country-specific datasets
+- **Modular data infrastructure** (`fastpii.data`): `CountryData[T]`, `CountryModule` ABC, `CountryMetadata`, `DataSource`, `CountryRegistry` pluggable data layer for country-specific datasets
 - **CZ data module** (complete): 5,344 cities, 15,500 postal codes, 26,954 streets, 48 bank codes, 7 insurance codes, 7,408 male + 8,287 female first names, 175 male + 175 female surnames
-- **DE data module** (initial): 63 cities, 189 postal codes, 144 streets — empty stubs for bank_codes, insurance_codes, names, surnames
-- **FR data module** (initial): 79 cities, 100 postal codes, 104 streets — empty stubs for bank_codes, insurance_codes, names, surnames
-- **PL data module** (initial): 30 cities, 297 postal codes (DD-DDD format), 103 streets — empty stubs for bank_codes, insurance_codes, names, surnames
+- **DE data module** (initial): 63 cities, 189 postal codes, 144 streets, empty stubs for bank_codes, insurance_codes, names, surnames
+- **FR data module** (initial): 79 cities, 100 postal codes, 104 streets, empty stubs for bank_codes, insurance_codes, names, surnames
+- **PL data module** (initial): 30 cities, 297 postal codes (DD-DDD format), 103 streets, empty stubs for bank_codes, insurance_codes, names, surnames
 - **Pattern registry performance**: `@lru_cache(maxsize=1)` on `get_region_loaders()`, 7 benchmark tests
 - **Multi-country integration tests** (MC-004): 13 tests across CZ/PL/DE/FR
 - **Add-a-country guide** (MC-005): contributor documentation for new country packs
@@ -58,10 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Date of birth detector** (`date_of_birth`): Context-aware birth date detection using Czech context words
 - **Vehicle plate detector** (`vehicle_plate`): Czech vehicle license plate detection with regional code validation
 - **Redaction API**: Four new methods on `PrivacyGuard`:
-  - `anonymize(text, replacement="[REDACTED]")` — Replace PII with uniform placeholder
-  - `redact(text)` — Replace PII with type-based labels (`[EMAIL]`, `[RODNE_CISLO]`, etc.)
-  - `mask(text)` — Replace PII with asterisks matching original length
-  - `remove(text)` — Remove PII entirely from text
+  - `anonymize(text, replacement="[REDACTED]")` Replace PII with uniform placeholder
+  - `redact(text)` Replace PII with type-based labels (`[EMAIL]`, `[RODNE_CISLO]`, etc.)
+  - `mask(text)` Replace PII with asterisks matching original length
+  - `remove(text)` Remove PII entirely from text
 - **LangChain integration** now delegates to core redaction methods (anonymize, redact, mask, remove)
 - **Czech name database** (`data/czech_names.py`) with male/female first names and surnames for detection
 - **Data package** (`data/__init__.py`) for name database access
@@ -80,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated module exports in `__init__.py` to include new detectors
 - Updated `detectors/cz/__init__.py` to register all 11 detectors
 
-## [0.1.0] - 2025-06-01
+## [0.1.0] - 2026-06-01
 
 ### Added
 

@@ -27,12 +27,12 @@ ruff check src/ tests/    # Lint
 - Type hints on all public APIs
 - All detectors must have checksum validation where applicable
 - Country data must use ASCII transliteration (e.g., "muenchen" not "münchen")
-- Empty data modules return `{}` (dict) or `set()` — never `None`
+- Empty data modules return `{}` (dict) or `set()`, never `None`
 - No unnecessary comments or docstrings in implementation code
 
 ## Adding a Country Pack
 
-See [docs/ADD_A_COUNTRY_PACK.md](docs/ADD_A_COUNTRY_PACK.md) for the full guide.
+See [Add a Country Pack](https://docs.fastpii.com/countries/add-a-country-pack) for the full guide.
 
 ## Pull Requests
 
